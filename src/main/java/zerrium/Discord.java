@@ -13,8 +13,8 @@ public class Discord {
     public static long total_size = 0L;
 
     public void Discord() {
-        String botToken = "NzA3NTM3NDQ3NTMzMjgxMzUy.XrKPmA.HVzarNFEC3Dx5LOe8PMGk-Zcb3o";
-        String channelID = "704643254469001257";
+        String botToken = SpigotEvent.fc.getString("bot_token");//"NzA3NTM3NDQ3NTMzMjgxMzUy.XrKPmA.HVzarNFEC3Dx5LOe8PMGk-Zcb3o";
+        String channelID = SpigotEvent.fc.getString("channel_id");//"704643254469001257";
 
         DiscordApi api = new DiscordApiBuilder().setToken(botToken).login().join();
         api.updateActivity("Reading minecraft statistics");

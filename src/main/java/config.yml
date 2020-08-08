@@ -1,0 +1,13 @@
+#Database Config (MySQL)
+hostname: 'localhost'
+port: 3306
+database: 'My_Stats'
+username: 'root'
+password: 'yourPassword'
+
+#Discord BOT config
+bot_token: 'yourBotToken'
+channel_id: 'yourChannelID'
+
+#Others
+use_debug: false

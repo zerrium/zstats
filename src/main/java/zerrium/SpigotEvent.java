@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -11,10 +12,13 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class SpigotEvent extends JavaPlugin{
+    public static FileConfiguration fc;
     @Override
     public void onEnable() {
         System.out.println(ChatColor.YELLOW+"[Stat2Discord] v0.1 by zerrium");
         System.out.println(ChatColor.YELLOW+"[Stat2Discord] Getting player lists...");
+        this.saveDefaultConfig();
+        fc = this.getConfig();
         Discord.zplayer = new ArrayList<>();
         int counter = 0;
         for(OfflinePlayer i: Bukkit.getOfflinePlayers()){
