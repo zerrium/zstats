@@ -3,10 +3,13 @@ package zerrium;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.apache.commons.io.FileUtils;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class ZPlayer {
@@ -16,11 +19,12 @@ public class ZPlayer {
             crouch = 0L, boat = 0L, elytra = 0L, trade = 0L, talk = 0L, chest = 0L, fishing = 0L, enchant = 0L,
             slept = 0L, craft_kind = 0L, place_kind = 0L, mine_kind = 0L, pickaxe = 0L, axe = 0L, shovel = 0L,
             bow = 0L, sword = 0L, trident = 0L, mob_kind = 0L, slain_kind = 0L, craftn = 0L, minen = 0L, placen = 0L, hoe = 0L;
-    Top3 craft = new Top3("", 0L, "", 0L, "", 0L),
-            place = new Top3("", 0L, "", 0L, "", 0L),
-            mine = new Top3("", 0L, "", 0L, "", 0L),
-            slain = new Top3("", 0L, "", 0L, "", 0L),
-            mob = new Top3("", 0L, "", 0L, "", 0L);
+    LinkedHashMap<Material, Long> craft = new LinkedHashMap<>();
+    LinkedHashMap<Material, Long> place = new LinkedHashMap<>();
+    LinkedHashMap<Material, Long> mine = new LinkedHashMap<>();
+    LinkedHashMap<EntityType, Long> slain = new LinkedHashMap<>();
+    LinkedHashMap<EntityType, Long> mob = new LinkedHashMap<>();
+
     public ZPlayer(UUID uuid, String name){
         this.uuid = uuid;
         this.name = name;
@@ -97,18 +101,68 @@ public class ZPlayer {
         this.bow = p.getStatistic(Statistic.USE_ITEM, Material.BOW);
         this.trident = p.getStatistic(Statistic.USE_ITEM, Material.TRIDENT);
 
+        //substat for item crafted, mined and placed
+        HashMap<Material, Long> cr = new HashMap<>();
+        HashMap<Material, Long> mn = new HashMap<>();
+        HashMap<Material, Long> pl = new HashMap<>();
+
         for(Material m: Material.values()) {
-            if (p.getStatistic(Statistic.CRAFT_ITEM, m) != 0) {
+            long x = p.getStatistic(Statistic.CRAFT_ITEM, m);
+            long y = p.getStatistic(Statistic.MINE_BLOCK, m);
+            long z = p.getStatistic(Statistic.USE_ITEM, m);
+            if (x != 0) {
                 this.craft_kind++;
+                cr.put(m, x);
             }
-            if (p.getStatistic(Statistic.MINE_BLOCK, m) != 0) {
+            if (y != 0) {
                 this.mine_kind++;
+                mn.put(m, y);
             }
-            if (p.getStatistic(Statistic.USE_ITEM, m) != 0 && !ZFilter.is_tool(m)) {
+            if (z != 0 && !ZFilter.is_tool(m)) {
                 this.place_kind++;
-                this.placen += p.getStatistic(Statistic.USE_ITEM, m);
+                this.placen += z;
+                pl.put(m, z);
             }
         }
+
+        //substat for kill and killed by
+        HashMap<EntityType, Long> k = new HashMap<>();
+        HashMap<EntityType, Long> kb = new HashMap<>();
+
+        for(EntityType t: EntityType.values()){
+            if(t.isAlive()){
+                long x = p.getStatistic(Statistic.MOB_KILLS, t);
+                long y = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                if(x != 0){
+                    this.mob_kind++;
+                    k.put(t, x);
+                }
+                if(y != 0){
+                    this.slain_kind++;
+                    k.put(t, y);
+                }
+            }
+        }
+
+        //server world save size
+        Bukkit.getWorlds().forEach(i ->{
+            switch(i.getEnvironment()){
+                case NORMAL:
+                    Discord.world_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    Discord.total_size += Discord.world_size;
+                    break;
+                case NETHER:
+                    Discord.nether_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    Discord.total_size += Discord.nether_size;
+                    break;
+                case THE_END:
+                    Discord.end_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    Discord.total_size += Discord.end_size;
+                    break;
+                default:
+                    Discord.total_size += FileUtils.sizeOfDirectory(i.getWorldFolder());
+            }
+        });
 
         //update to SQL asynchronously
         BukkitRunnable r = new BukkitRunnable() {
@@ -126,7 +180,74 @@ public class ZPlayer {
             }
         };
 
-        r.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
-        s.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
+        //sort substats asynchronously
+        BukkitRunnable a = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if(craft_kind != 0){
+                    LinkedHashMap temp = ZFilter.sortByValues(cr);
+                    Iterator x = temp.entrySet().iterator();
+                    for(int i=0; i<3; i++){
+                        if(x.hasNext()){
+                            Map.Entry e = (Map.Entry) x.next();
+                            craft.put((Material) e.getKey(), (Long) e.getValue());
+                        }else{
+                            craft.put(null, 0L);
+                        }
+                    }
+                }
+                if(place_kind != 0){
+                    LinkedHashMap temp = ZFilter.sortByValues(pl);
+                    Iterator x = temp.entrySet().iterator();
+                    for(int i=0; i<3; i++){
+                        if(x.hasNext()){
+                            Map.Entry e = (Map.Entry) x.next();
+                            place.put((Material) e.getKey(), (Long) e.getValue());
+                        }else{
+                            place.put(null, 0L);
+                        }
+                    }
+                }
+                if(mine_kind != 0){
+                    LinkedHashMap temp = ZFilter.sortByValues(mn);
+                    Iterator x = temp.entrySet().iterator();
+                    for(int i=0; i<3; i++){
+                        if(x.hasNext()){
+                            Map.Entry e = (Map.Entry) x.next();
+                            mine.put((Material) e.getKey(), (Long) e.getValue());
+                        }else{
+                            mine.put(null, 0L);
+                        }
+                    }
+                }
+                if(mob_kind != 0){
+                    LinkedHashMap temp = ZFilter.sortByValues(k);
+                    Iterator x = temp.entrySet().iterator();
+                    for(int i=0; i<3; i++){
+                        if(x.hasNext()){
+                            Map.Entry e = (Map.Entry) x.next();
+                            mob.put((EntityType) e.getKey(), (Long) e.getValue());
+                        }else{
+                            mob.put(null, 0L);
+                        }
+                    }
+                }
+                if(slain_kind != 0){
+                    LinkedHashMap temp = ZFilter.sortByValues(kb);
+                    Iterator x = temp.entrySet().iterator();
+                    for(int i=0; i<3; i++){
+                        if(x.hasNext()){
+                            Map.Entry e = (Map.Entry) x.next();
+                            slain.put((EntityType) e.getKey(), (Long) e.getValue());
+                        }else{
+                            slain.put(null, 0L);
+                        }
+                    }
+                }
+                r.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
+                s.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
+            }
+        };
+        a.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
     }
 }

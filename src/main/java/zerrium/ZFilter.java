@@ -1,9 +1,8 @@
 package zerrium;
 
 import org.bukkit.Material;
-import org.bukkit.Statistic;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class ZFilter {
     private static ArrayList<Material> f = new ArrayList<>();
@@ -48,5 +47,21 @@ public class ZFilter {
 
     public static boolean is_tool(Material m){
         return f.contains(m);
+    }
+
+    public static LinkedHashMap sortByValues(HashMap map) {
+        List list = new LinkedList(map.entrySet());
+        // Defined Custom Comparator here
+        Collections.sort(list, Collections.reverseOrder((Comparator) (o1, o2) -> ((Comparable) ((Map.Entry) (o1)).getValue())
+                .compareTo(((Map.Entry) (o2)).getValue())));
+
+        // Here I am copying the sorted list in HashMap
+        // using LinkedHashMap to preserve the insertion order
+        LinkedHashMap sortedHashMap = new LinkedHashMap();
+        for (Iterator it = list.iterator(); it.hasNext();) {
+            Map.Entry entry = (Map.Entry) it.next();
+            sortedHashMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedHashMap;
     }
 }

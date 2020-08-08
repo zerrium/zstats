@@ -7,6 +7,10 @@ import java.util.ArrayList;
 
 public class Discord {
     public static ArrayList<ZPlayer> zplayer;
+    public static long world_size = 0L;
+    public static long nether_size = 0L;
+    public static long end_size = 0L;
+    public static long total_size = 0L;
 
     public void Discord() {
         String botToken = "NzA3NTM3NDQ3NTMzMjgxMzUy.XrKPmA.HVzarNFEC3Dx5LOe8PMGk-Zcb3o";
