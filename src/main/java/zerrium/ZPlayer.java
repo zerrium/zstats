@@ -61,6 +61,10 @@ public class ZPlayer {
         this.x.put("z:slain_kind", 0L);
     }
 
+    public ZPlayer(UUID uuid){
+        this.uuid = uuid;
+    }
+
     @Override
     public boolean equals (Object v) {
         boolean val = false;
