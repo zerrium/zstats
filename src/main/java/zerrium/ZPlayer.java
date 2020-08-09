@@ -203,12 +203,10 @@ public class ZPlayer {
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?);");
                         AtomicInteger counter = new AtomicInteger(1);
                         x.forEach((k,v) ->{
-                            int i = counter.intValue();
                             try {
-                                ps.setString(i, uuid.toString());
-                                ps.setString(i+1, k);
-                                ps.setLong(i+2, v);
-                                counter.getAndAdd(3);
+                                ps.setString(counter.getAndIncrement(), uuid.toString());
+                                ps.setString(counter.getAndIncrement(), k);
+                                ps.setLong(counter.getAndIncrement(), v);
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
@@ -216,13 +214,11 @@ public class ZPlayer {
 
                         AtomicInteger counter1 = new AtomicInteger(1);
                         craft.forEach((k,v) ->{
-                            int i = counter.intValue();
                             int j = counter1.intValue();
                             try {
-                                ps.setString(i, uuid.toString());
-                                ps.setString(i+1, "z:craft_"+j+"_"+k);
-                                ps.setLong(i+2, v);
-                                counter.getAndAdd(3);
+                                ps.setString(counter.getAndIncrement(), uuid.toString());
+                                ps.setString(counter.getAndIncrement(), "z:craft_"+j+"_"+k);
+                                ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
@@ -231,13 +227,11 @@ public class ZPlayer {
 
                         counter1.set(1);
                         place.forEach((k,v) ->{
-                            int i = counter.intValue();
                             int j = counter1.intValue();
                             try{
-                                ps.setString(i, uuid.toString());
-                                ps.setString(i+2, "z:place_"+j+"_"+k);
-                                ps.setLong(i+3, v);
-                                counter.getAndAdd(3);
+                                ps.setString(counter.getAndIncrement(), uuid.toString());
+                                ps.setString(counter.getAndIncrement(), "z:place_"+j+"_"+k);
+                                ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
@@ -246,13 +240,11 @@ public class ZPlayer {
 
                         counter1.set(1);
                         mine.forEach((k,v) ->{
-                            int i = counter.intValue();
                             int j = counter1.intValue();
                             try{
-                                ps.setString(i, uuid.toString());
-                                ps.setString(i+2, "z:mine_"+j+"_"+k);
-                                ps.setLong(i+3, v);
-                                counter.getAndAdd(3);
+                                ps.setString(counter.getAndIncrement(), uuid.toString());
+                                ps.setString(counter.getAndIncrement(), "z:mine_"+j+"_"+k);
+                                ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
@@ -261,13 +253,11 @@ public class ZPlayer {
 
                         counter1.set(1);
                         mob.forEach((k,v) ->{
-                            int i = counter.intValue();
                             int j = counter1.intValue();
                             try{
-                                ps.setString(i, uuid.toString());
-                                ps.setString(i+2, "z:mob_"+j+"_"+k);
-                                ps.setLong(i+3, v);
-                                counter.getAndAdd(3);
+                                ps.setString(counter.getAndIncrement(), uuid.toString());
+                                ps.setString(counter.getAndIncrement(), "z:mob_"+j+"_"+k);
+                                ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
@@ -276,13 +266,11 @@ public class ZPlayer {
 
                         counter1.set(1);
                         slain.forEach((k,v) ->{
-                            int i = counter.intValue();
                             int j = counter1.intValue();
                             try{
-                                ps.setString(i, uuid.toString());
-                                ps.setString(i+2, "z:slain_"+j+"_"+k);
-                                ps.setLong(i+3, v);
-                                counter.getAndAdd(3);
+                                ps.setString(counter.getAndIncrement(), uuid.toString());
+                                ps.setString(counter.getAndIncrement(), "z:slain_"+j+"_"+k);
+                                ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
