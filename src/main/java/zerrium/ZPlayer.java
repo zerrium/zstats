@@ -18,16 +18,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ZPlayer {
     String name;
     UUID uuid;
-    HashMap<String, Long> x = new HashMap<>(); //convert those stupid many attributes into a hashmap
-    LinkedHashMap<Material, Long> craft = new LinkedHashMap<>();
-    LinkedHashMap<Material, Long> place = new LinkedHashMap<>();
-    LinkedHashMap<Material, Long> mine = new LinkedHashMap<>();
-    LinkedHashMap<EntityType, Long> slain = new LinkedHashMap<>();
-    LinkedHashMap<EntityType, Long> mob = new LinkedHashMap<>();
+    HashMap<String, Long> x; //convert those stupid many attributes into a hashmap
+    LinkedHashMap<Material, Long> craft;
+    LinkedHashMap<Material, Long> place;
+    LinkedHashMap<Material, Long> mine;
+    LinkedHashMap<EntityType, Long> slain;
+    LinkedHashMap<EntityType, Long> mob;
 
     public ZPlayer(UUID uuid, String name){
         this.uuid = uuid;
         this.name = name;
+        x = new HashMap<>();
+        craft = new LinkedHashMap<>();
+        place = new LinkedHashMap<>();
+        mine = new LinkedHashMap<>();
+        slain = new LinkedHashMap<>();
+        mob = new LinkedHashMap<>();
         this.x.put(Statistic.PLAY_ONE_MINUTE.toString(), 0L);
         this.x.put(Statistic.DAMAGE_DEALT.toString(), 0L);
         this.x.put(Statistic.DAMAGE_TAKEN.toString(), 0L);
@@ -44,8 +50,6 @@ public class ZPlayer {
         this.x.put(Statistic.FISH_CAUGHT.toString(), 0L);
         this.x.put(Statistic.ITEM_ENCHANTED.toString(), 0L);
         this.x.put(Statistic.SLEEP_IN_BED.toString(), 0L);
-        //this.x.put(Statistic.CRAFT_ITEM.toString(), 0L);
-        //this.x.put(Statistic.MINE_BLOCK.toString(), 0L);
         this.x.put("z:crafted", 0L);
         this.x.put("z:mined", 0L);
         this.x.put("z:pickaxe", 0L);

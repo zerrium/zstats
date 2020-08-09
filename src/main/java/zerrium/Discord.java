@@ -40,9 +40,6 @@ public class Discord {
 
     public Discord(){
         zplayer = new ArrayList<>();
-    }
-
-    public void startDiscord() {
         String botToken = SpigotEvent.fc.getString("bot_token");//"NzA3NTM3NDQ3NTMzMjgxMzUy.XrKPmA.HVzarNFEC3Dx5LOe8PMGk-Zcb3o";
         long channelID = SpigotEvent.fc.getLong("channel_id");//"704643254469001257";
         DiscordApi api = new DiscordApiBuilder().setToken(botToken).login().join();
@@ -335,13 +332,7 @@ public class Discord {
 
             }
         };
-        new MessageBuilder()
-                .append("Look at these ")
-                .setEmbed(new EmbedBuilder()
-                        .setTitle("WOW")
-                        .setDescription("Really cool pictures!")
-                        .setColor(Color.ORANGE))
-                .send(tc);
+        sendMsg();
 
         /* Add a listener which answers with "Pong!" if someone writes "!ping"
         api.addMessageCreateListener(event -> {
@@ -350,5 +341,15 @@ public class Discord {
             }
         });
         */
+    }
+
+    public void sendMsg(){
+        new MessageBuilder()
+                .append("This is BOT testing")
+                .setEmbed(new EmbedBuilder()
+                        .setTitle("UWAW it works :v")
+                        .setDescription("Ninu ninu ninu...")
+                        .setColor(Color.ORANGE))
+                .send(tc);
     }
 }
