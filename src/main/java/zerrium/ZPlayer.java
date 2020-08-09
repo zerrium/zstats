@@ -83,7 +83,7 @@ public class ZPlayer {
         }
 
         // Compare the data members and return accordingly
-        Boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZPlayer) o).uuid.toString());
+        boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZPlayer) o).uuid.toString());
         if(SpigotEvent.debug) System.out.println("ZPlayer instance, equal? "+result);
         return result;
     }
@@ -188,10 +188,9 @@ public class ZPlayer {
                     PreparedStatement pss = SpigotEvent.connection.prepareStatement("select * from stats where uuid=?");
                     pss.setString(1, uuid.toString());
                     ResultSet rs = pss.executeQuery();
-                    PreparedStatement ps;
                     if(!rs.next()){
                         if(SpigotEvent.debug) System.out.println("Insert stat to MySQL...");
-                        ps = SpigotEvent.connection.prepareStatement("insert into stats(uuid, stat, val) values" +
+                        final PreparedStatement ps = SpigotEvent.connection.prepareStatement("insert into stats(uuid, stat, val) values" +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
@@ -287,10 +286,11 @@ public class ZPlayer {
                         });
 
                         ps.executeUpdate();
+                        ps.close();
                         if(SpigotEvent.debug) System.out.println("Insert stat to MySQL done");
                     }else{
                         if(SpigotEvent.debug) System.out.println("Update stat to MySQL...");
-                        ps = SpigotEvent.connection.prepareStatement("update stats set value=? where uuid=? and stat=?");
+                        final PreparedStatement ps = SpigotEvent.connection.prepareStatement("update stats set value=? where uuid=? and stat=?");
                         x.forEach((k,v) ->{
                             try {
                                 ps.setLong(1, v);
@@ -372,10 +372,10 @@ public class ZPlayer {
                             }
                         });
 
+                        ps.close();
                         if(SpigotEvent.debug) System.out.println("Update stat to MySQL done");
                     }
                     pss.close();
-                    ps.close();
                     rs.close();
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
