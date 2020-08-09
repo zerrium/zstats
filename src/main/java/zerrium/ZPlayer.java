@@ -66,21 +66,20 @@ public class ZPlayer {
     }
 
     @Override
-    public boolean equals (Object v) {
-        boolean val = false;
-
-        if (v instanceof ZPlayer){
-            ZPlayer x = (ZPlayer) v;
-            val = (x.uuid == this.uuid);
+    public boolean equals (Object o) {
+        // If the object is compared with itself then return true
+        if (o == this) {
+            return true;
         }
-        return val;
-    }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 17 * hash + (this.uuid != null ? this.uuid.hashCode() : 0);
-        return hash;
+        /* Check if o is an instance of ZPlayer or not
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof ZPlayer)) {
+            return false;
+        }
+
+        // Compare the data members and return accordingly
+        return ((ZPlayer) o).uuid.toString().equals(uuid.toString());
     }
 
     public void updateStat(){

@@ -71,7 +71,7 @@ public class SpigotEvent extends JavaPlugin{
                     Discord.zplayer.add(new ZPlayer(UUID.fromString(rs.getString("uuid")), rs.getString("name")));
                 }
             }
-            System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found statistic data of "+ counter+1 +" players.");
+            System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found statistic data of "+ (counter+1) +" players.");
             rs.close();
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Stat2Discord]"+ChatColor.RED+" An SQL error occured:");
