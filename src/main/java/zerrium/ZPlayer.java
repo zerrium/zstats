@@ -98,15 +98,6 @@ public class ZPlayer {
     }
 
     public void updateStat(){
-        //debug temporarily
-        for(EntityType s: EntityType.values()){
-            if(s.isAlive()){
-                System.out.println("Alive: "+s.toString());
-            }else{
-                System.out.println(s.toString());
-            }
-        }
-
         //Not thread safe, cannot do it asynchronously
         Player p = Bukkit.getPlayer(this.uuid);
         this.x.forEach((k,v) ->{
@@ -320,7 +311,7 @@ public class ZPlayer {
                         if(SpigotEvent.debug) System.out.println("Insert stat to MySQL done");
                     }else{
                         if(SpigotEvent.debug) System.out.println("Update stat to MySQL...");
-                        final PreparedStatement ps = SpigotEvent.connection.prepareStatement("update stats set value=? where uuid=? and stat=?");
+                        final PreparedStatement ps = SpigotEvent.connection.prepareStatement("update stats set val=? where uuid=? and stat=?");
                         x.forEach((k,v) ->{
                             try {
                                 ps.setLong(1, v);
