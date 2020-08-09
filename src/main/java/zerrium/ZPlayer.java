@@ -118,20 +118,16 @@ public class ZPlayer {
             long y = p.getStatistic(Statistic.MINE_BLOCK, m);
             long z = p.getStatistic(Statistic.USE_ITEM, m);
             if (x != 0) {
-                //this.craft_kind++;
                 this.x.put("z:craft_kind", this.x.get("z:craft_kind")+1);
                 this.x.put("z:crafted", this.x.get("z:crafted")+x);
                 cr.put(m, x);
             }
             if (y != 0) {
-                //this.mine_kind++;
                 this.x.put("z:mine_kind", this.x.get("z:mine_kind")+1);
                 this.x.put("z:mined", this.x.get("z:mined")+y);
                 mn.put(m, y);
             }
             if (z != 0 && !ZFilter.is_tool(m)) {
-                //this.place_kind++;
-                //this.placen += z;
                 this.x.put("z:place_kind", this.x.get("z:place_kind")+1);
                 this.x.put("z:placed", this.x.get("z:placed")+z);
                 pl.put(m, z);
@@ -165,12 +161,10 @@ public class ZPlayer {
                 long x = p.getStatistic(Statistic.KILL_ENTITY, t);
                 long y = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
                 if(x != 0){
-                    //this.mob_kind++;
                     this.x.put("z:mob_kind", this.x.get("z:mob_kind")+1);
                     k.put(t, x);
                 }
                 if(y != 0){
-                    //this.slain_kind++;
                     this.x.put("z:slain_kind", this.x.get("z:slain_kind")+1);
                     kb.put(t, y);
                 }

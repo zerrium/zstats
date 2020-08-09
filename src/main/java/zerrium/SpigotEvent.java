@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SpigotEvent extends JavaPlugin{
     public static FileConfiguration fc;
@@ -66,18 +67,32 @@ public class SpigotEvent extends JavaPlugin{
                         ps.executeUpdate();
                     }
                 }
+                System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found statistic data of "+ counter +" players.");
                 ps.close();
             }else{
-                do{
-                    counter++;
-                    Discord.zplayer.add(new ZPlayer(UUID.fromString(rs.getString("uuid")), rs.getString("name")));
-                    if(debug){
-                        System.out.println(Discord.zplayer.get(counter-1).uuid+" --- "+Discord.zplayer.get(counter-1).name);
+                ResultSet finalRs = rs;
+                BukkitRunnable s = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        AtomicInteger c = new AtomicInteger(0);
+                        try{
+                            do{
+                                Discord.zplayer.add(new ZPlayer(UUID.fromString(finalRs.getString("uuid")), finalRs.getString("name")));
+                                if(debug){
+                                    System.out.println(Discord.zplayer.get(c.get()).uuid+" --- "+Discord.zplayer.get(c.get()).name);
+                                }
+                                c.getAndIncrement();
+                            }
+                            while(finalRs.next());
+                            finalRs.close();
+                            System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found statistic data of "+ c.get() +" players.");
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
                     }
-                }
-                while(rs.next());
+                };
+                s.runTaskAsynchronously(this);
             }
-            System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found statistic data of "+ counter +" players.");
             rs.close();
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Stat2Discord]"+ChatColor.RED+" An SQL error occured:");
@@ -97,6 +112,11 @@ public class SpigotEvent extends JavaPlugin{
 
     @Override
     public void onDisable() {
+        try {
+            connection.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         System.out.println(ChatColor.YELLOW+"[Stat2Discord] v0.1 disabling plugin");
     }
 
