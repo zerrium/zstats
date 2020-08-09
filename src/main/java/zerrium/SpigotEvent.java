@@ -38,8 +38,8 @@ public class SpigotEvent extends JavaPlugin{
                 st.executeUpdate("create table player(" +
                         "    uuid varchar(50) not null," +
                         "    name text not null," +
-                        "    primary key(uuid));" +
-                        "create table stats(" +
+                        "    primary key(uuid));");
+                st.executeUpdate("create table stats(" +
                         "    uuid varchar(50) not null," +
                         "    stat text not null," +
                         "    val bigint(19) not null," +
