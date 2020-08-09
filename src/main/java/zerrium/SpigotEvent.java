@@ -43,7 +43,7 @@ public class SpigotEvent extends JavaPlugin{
                         "    uuid text not null," +
                         "    stat text not null," +
                         "    val bigint(19) not null," +
-                        "    foreign key(uuid) references player(uuid);");
+                        "    foreign key(uuid) references player(uuid));");
             }
             rs = st.executeQuery("select * from player;");
             System.out.println(ChatColor.YELLOW+"[Stat2Discord] Getting player list from database...");
