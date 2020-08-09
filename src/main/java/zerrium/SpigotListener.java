@@ -17,7 +17,7 @@ public class SpigotListener implements Listener {
         Player p = event.getPlayer();
         UUID uuid = p.getUniqueId();
         String name = p.getName();
-        if(!Discord.zplayer.contains(new ZPlayer(uuid, ""))){ //not working
+        if(!Discord.zplayer.contains(new ZPlayer(uuid, name))){ //not working
             Discord.zplayer.add(new ZPlayer(uuid, name));
             System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + " Found a new player with uuid of " + uuid.toString() + " associates with " + name);
             try {
