@@ -36,11 +36,11 @@ public class SpigotEvent extends JavaPlugin{
             ResultSet rs = st.executeQuery("show tables");
             if(!rs.next()){
                 st.executeUpdate("create table player(" +
-                        "    uuid text not null," +
+                        "    uuid varchar(50) not null," +
                         "    name text not null," +
                         "    primary key(uuid));" +
                         "create table stats(" +
-                        "    uuid text not null," +
+                        "    uuid varchar(30) not null," +
                         "    stat text not null," +
                         "    val bigint(19) not null," +
                         "    foreign key(uuid) references player(uuid));");
