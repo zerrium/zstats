@@ -45,6 +45,7 @@ public class SpigotEvent extends JavaPlugin{
                         "    val bigint(19) not null," +
                         "    foreign key(uuid) references player(uuid));");
             }
+            new Discord();
             rs = st.executeQuery("select * from player;");
             System.out.println(ChatColor.YELLOW+"[Stat2Discord] Getting player list from database...");
             int counter = 0;
@@ -83,7 +84,6 @@ public class SpigotEvent extends JavaPlugin{
         BukkitRunnable r = new BukkitRunnable() {
             @Override
             public void run() {
-                new Discord();
                 new ZFilter();
             }
         };
