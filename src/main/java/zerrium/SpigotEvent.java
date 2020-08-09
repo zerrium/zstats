@@ -70,10 +70,10 @@ public class SpigotEvent extends JavaPlugin{
             }else{
                 do{
                     counter++;
-                    if(debug){
-                        System.out.println(rs.getString("uuid") + UUID.fromString(rs.getString("uuid")).toString());
-                    }
                     Discord.zplayer.add(new ZPlayer(UUID.fromString(rs.getString("uuid")), rs.getString("name")));
+                    if(debug){
+                        System.out.println(Discord.zplayer.get(counter-1).uuid+" --- "+Discord.zplayer.get(counter-1).name);
+                    }
                 }
                 while(rs.next());
             }
