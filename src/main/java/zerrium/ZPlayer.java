@@ -99,8 +99,10 @@ public class ZPlayer {
 
     public void updateStat(){
         //debug temporarily
-        for(Statistic s: Statistic.values()){
-            if(s.isSubstatistic()){
+        for(EntityType s: EntityType.values()){
+            if(s.isAlive()){
+                System.out.println("Alive: "+s.toString());
+            }else{
                 System.out.println(s.toString());
             }
         }
@@ -179,7 +181,7 @@ public class ZPlayer {
                 if(y != 0){
                     //this.slain_kind++;
                     this.x.put("z:slain_kind", this.x.get("z:slain_kind")+1);
-                    k.put(t, y);
+                    kb.put(t, y);
                 }
             }catch (IllegalArgumentException e){
                 continue;
