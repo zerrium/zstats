@@ -24,13 +24,9 @@ public class SpigotEvent extends JavaPlugin{
         //MySQL connect
         try{
             openConnection();
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException throwables) {
             System.out.println(ChatColor.YELLOW+"[Stat2Discord]"+ChatColor.RED+" Unable to connect to database:");
             throwables.printStackTrace();
-            Bukkit.getPluginManager().disablePlugin(this);
-        } catch (ClassNotFoundException e) {
-            System.out.println(ChatColor.YELLOW+"[Stat2Discord]"+ChatColor.RED+" Unable to connect to database:");
-            e.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
         }
         //database query
@@ -53,6 +49,7 @@ public class SpigotEvent extends JavaPlugin{
             int counter = 0;
             if(!rs.next()){
                 System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found nothing in database. Grabbing player lists from world save...");
+                PreparedStatement ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
                 for(OfflinePlayer i: Bukkit.getOfflinePlayers()){
                     if(i.hasPlayedBefore()) {
                         counter++;
@@ -60,12 +57,12 @@ public class SpigotEvent extends JavaPlugin{
                         String name = i.getName();
                         System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
                         Discord.zplayer.add(new ZPlayer(uuid, name));
-                        PreparedStatement ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();
                     }
                 }
+                ps.close();
             }else{
                 while(rs.next()){
                     counter++;

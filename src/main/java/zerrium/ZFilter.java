@@ -5,7 +5,7 @@ import org.bukkit.Material;
 import java.util.*;
 
 public class ZFilter {
-    private static ArrayList<Material> f = new ArrayList<>();
+    private static final ArrayList<Material> f = new ArrayList<>();
 
     public ZFilter(){
         f.add(Material.NETHERITE_PICKAXE);
@@ -50,16 +50,16 @@ public class ZFilter {
     }
 
     public static LinkedHashMap sortByValues(HashMap map) {
-        List list = new LinkedList(map.entrySet());
+        List<Object> list = new LinkedList<Object>(map.entrySet());
         // Defined Custom Comparator here
-        Collections.sort(list, Collections.reverseOrder((Comparator) (o1, o2) -> ((Comparable) ((Map.Entry) (o1)).getValue())
+        list.sort(Collections.reverseOrder((o1, o2) -> ((Comparable<Object>) ((Map.Entry) (o1)).getValue())
                 .compareTo(((Map.Entry) (o2)).getValue())));
 
         // Here I am copying the sorted list in HashMap
         // using LinkedHashMap to preserve the insertion order
         LinkedHashMap sortedHashMap = new LinkedHashMap();
-        for (Iterator it = list.iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry) it.next();
+        for (Object o : list) {
+            Map.Entry entry = (Map.Entry) o;
             sortedHashMap.put(entry.getKey(), entry.getValue());
         }
         return sortedHashMap;
