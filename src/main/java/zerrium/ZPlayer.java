@@ -69,17 +69,21 @@ public class ZPlayer {
     public boolean equals (Object o) {
         // If the object is compared with itself then return true
         if (o == this) {
+            if(SpigotEvent.debug) System.out.println("Comparing instance of itself");
             return true;
         }
 
         /* Check if o is an instance of ZPlayer or not
           "null instanceof [type]" also returns false */
         if (!(o instanceof ZPlayer)) {
+            if(SpigotEvent.debug) System.out.println("Not a ZPlayer instance");
             return false;
         }
 
         // Compare the data members and return accordingly
-        return ((ZPlayer) o).uuid.toString().equals(uuid.toString());
+        Boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString());
+        if(SpigotEvent.debug) System.out.println("ZPlayer instance, equal? "+result);
+        return result;
     }
 
     public void updateStat(){
@@ -89,6 +93,7 @@ public class ZPlayer {
             if(!k.contains("z:")){
                 assert p != null;
                 x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
+                if(SpigotEvent.debug) System.out.println(k);
             }
         });
 
@@ -120,6 +125,7 @@ public class ZPlayer {
                 pl.put(m, z);
             }
         }
+        if(SpigotEvent.debug) System.out.println("Materials substat done");
 
         //substat for kill and killed by
         HashMap<EntityType, Long> k = new HashMap<>();
@@ -141,6 +147,7 @@ public class ZPlayer {
                     k.put(t, y);
                 }
             }
+            if(SpigotEvent.debug) System.out.println("EntityType substat done");
         }
 
         //server world save size
@@ -161,6 +168,7 @@ public class ZPlayer {
                 default:
                     Discord.total_size += FileUtils.sizeOfDirectory(i.getWorldFolder());
             }
+            if(SpigotEvent.debug) System.out.println("Got world size of "+i.getName());
         });
 
         //update to SQL asynchronously
@@ -174,6 +182,7 @@ public class ZPlayer {
                     pss.close();
                     PreparedStatement ps;
                     if(!rs.next()){
+                        if(SpigotEvent.debug) System.out.println("Insert stat to MySQL...");
                         ps = SpigotEvent.connection.prepareStatement("insert into stats(uuid, stat, val) values" +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
@@ -271,7 +280,9 @@ public class ZPlayer {
 
                         ps.executeUpdate();
                         ps.close();
+                        if(SpigotEvent.debug) System.out.println("Insert stat to MySQL done");
                     }else{
+                        if(SpigotEvent.debug) System.out.println("Update stat to MySQL...");
                         ps = SpigotEvent.connection.prepareStatement("update stats set value=? where uuid=? and stat=?");
                         x.forEach((k,v) ->{
                             try {
@@ -355,6 +366,7 @@ public class ZPlayer {
                         });
 
                         ps.close();
+                        if(SpigotEvent.debug) System.out.println("Update stat to MySQL done");
                     }
                     rs.close();
                 } catch (SQLException throwables) {
@@ -375,6 +387,7 @@ public class ZPlayer {
         BukkitRunnable a = new BukkitRunnable() {
             @Override
             public void run() {
+                if(SpigotEvent.debug) System.out.println("Sorting substats...");
                 if(x.get("z:craft_kind") != 0){
                     LinkedHashMap temp = ZFilter.sortByValues(cr);
                     Iterator x = temp.entrySet().iterator();
@@ -435,6 +448,7 @@ public class ZPlayer {
                         }
                     }
                 }
+                if(SpigotEvent.debug) System.out.println("Sorting substats done");
                 r.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
                 s.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
             }

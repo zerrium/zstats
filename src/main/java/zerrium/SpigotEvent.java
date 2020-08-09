@@ -14,6 +14,7 @@ import java.util.UUID;
 public class SpigotEvent extends JavaPlugin{
     public static FileConfiguration fc;
     protected static Connection connection;
+    public static Boolean debug;
 
     @Override
     public void onEnable() {
@@ -22,6 +23,7 @@ public class SpigotEvent extends JavaPlugin{
         System.out.println(ChatColor.YELLOW+"[Stat2Discord] Connecting to MySQL database...");
         this.saveDefaultConfig(); //get config file
         fc = this.getConfig();
+        debug = fc.getBoolean("use_debug");
         //MySQL connect
         try{
             openConnection();

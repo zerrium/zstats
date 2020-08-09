@@ -39,7 +39,7 @@ public class SpigotListener implements Listener {
         String uuid = p.getUniqueId().toString();
         String name = p.getName();
         System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + name + " left the game. Updating stats...");
-        ZPlayer zp = Discord.zplayer.get(Discord.zplayer.indexOf(new ZPlayer(UUID.fromString(uuid)))); //not working
+        ZPlayer zp = Discord.zplayer.get(Discord.zplayer.indexOf(new ZPlayer(UUID.fromString(uuid))));
         zp.updateStat();
         System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + name + " stats has been updated");
     }
