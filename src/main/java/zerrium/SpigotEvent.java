@@ -49,10 +49,11 @@ public class SpigotEvent extends JavaPlugin{
                         "    val bigint(19) not null," +
                         "    foreign key(uuid) references player(uuid));");
             }
-            rs = st.executeQuery("select * from player;");
+            rs.close();
+            final ResultSet rss = st.executeQuery("select * from player;");
             System.out.println(ChatColor.YELLOW+"[Stat2Discord] Getting player list from database...");
             int counter = 0;
-            if(!rs.next()){
+            if(!rss.next()){
                 System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found nothing in database. Grabbing player lists from world save...");
                 PreparedStatement ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
                 for(OfflinePlayer i: Bukkit.getOfflinePlayers()){
@@ -69,22 +70,22 @@ public class SpigotEvent extends JavaPlugin{
                 }
                 System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found statistic data of "+ counter +" players.");
                 ps.close();
+                rss.close();
             }else{
-                ResultSet finalRs = rs;
                 BukkitRunnable s = new BukkitRunnable() {
                     @Override
                     public void run() {
                         AtomicInteger c = new AtomicInteger(0);
                         try{
                             do{
-                                Discord.zplayer.add(new ZPlayer(UUID.fromString(finalRs.getString("uuid")), finalRs.getString("name")));
+                                Discord.zplayer.add(new ZPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
                                 if(debug){
                                     System.out.println(Discord.zplayer.get(c.get()).uuid+" --- "+Discord.zplayer.get(c.get()).name);
                                 }
                                 c.getAndIncrement();
                             }
-                            while(finalRs.next());
-                            finalRs.close();
+                            while(rss.next());
+                            rss.close();
                             System.out.println(ChatColor.YELLOW+"[Stat2Discord] Found statistic data of "+ c.get() +" players.");
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
@@ -93,7 +94,6 @@ public class SpigotEvent extends JavaPlugin{
                 };
                 s.runTaskAsynchronously(this);
             }
-            rs.close();
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Stat2Discord]"+ChatColor.RED+" An SQL error occured:");
             throwables.printStackTrace();
