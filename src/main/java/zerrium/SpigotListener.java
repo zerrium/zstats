@@ -7,6 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class SpigotListener implements Listener {
@@ -18,6 +20,15 @@ public class SpigotListener implements Listener {
         if(!Discord.zplayer.contains(new ZPlayer(uuid, ""))){
             Discord.zplayer.add(new ZPlayer(uuid, name));
             System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + " Found a new player with uuid of " + uuid.toString() + " associates with " + name);
+            try {
+                PreparedStatement ps = SpigotEvent.connection.prepareStatement("insert into player(uuid,name) values (?,?)");
+                ps.setString(1, uuid.toString());
+                ps.setString(2, name);
+                ps.executeUpdate();
+                ps.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
             System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + " Added " + name + "to statistic player data.");
         }
     }
