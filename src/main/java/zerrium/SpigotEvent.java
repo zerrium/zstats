@@ -18,6 +18,7 @@ public class SpigotEvent extends JavaPlugin{
     @Override
     public void onEnable() {
         System.out.println(ChatColor.YELLOW+"[Stat2Discord] v0.1 by zerrium");
+        getServer().getPluginManager().registerEvents(new SpigotListener(), this);
         System.out.println(ChatColor.YELLOW+"[Stat2Discord] Connecting to MySQL database...");
         this.saveDefaultConfig(); //get config file
         fc = this.getConfig();

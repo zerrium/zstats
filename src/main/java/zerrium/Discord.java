@@ -25,7 +25,5 @@ public class Discord {
             }
         });
         */
-        // Print the invite url of your bot
-        System.out.println("You can invite the bot by using the following url: " + api.createBotInvite());
     }
 }

@@ -6,7 +6,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.UUID;
 
@@ -28,11 +27,9 @@ public class SpigotListener implements Listener {
         Player p = event.getPlayer();
         String uuid = p.getUniqueId().toString();
         String name = p.getName();
-        BukkitRunnable r = new BukkitRunnable() {
-            @Override
-            public void run() {
-
-            }
-        };
+        System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + name + " left the game. Updating stats...");
+        ZPlayer zp = Discord.zplayer.get(Discord.zplayer.indexOf(new ZPlayer(UUID.fromString(uuid), name)));
+        zp.updateStat();
+        System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + name + " stats has been updated");
     }
 }
