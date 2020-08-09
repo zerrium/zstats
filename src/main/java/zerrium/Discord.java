@@ -6,7 +6,7 @@ import org.javacord.api.DiscordApiBuilder;
 import java.util.ArrayList;
 
 public class Discord {
-    public static ArrayList<ZPlayer> zplayer;
+    public static ArrayList<ZPlayer> zplayer = new ArrayList<>();
     public static long world_size = 0L;
     public static long nether_size = 0L;
     public static long end_size = 0L;
