@@ -72,6 +72,13 @@ public class ZPlayer {
         return val;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 17 * hash + (this.uuid != null ? this.uuid.hashCode() : 0);
+        return hash;
+    }
+
     public void updateStat(){
         //Not thread safe, cannot do it asynchronously
         Player p = Bukkit.getPlayer(this.uuid);

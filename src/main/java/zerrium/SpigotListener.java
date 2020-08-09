@@ -17,7 +17,7 @@ public class SpigotListener implements Listener {
         Player p = event.getPlayer();
         UUID uuid = p.getUniqueId();
         String name = p.getName();
-        if(!Discord.zplayer.contains(new ZPlayer(uuid, ""))){
+        if(!Discord.zplayer.contains(new ZPlayer(uuid, ""))){ //not working
             Discord.zplayer.add(new ZPlayer(uuid, name));
             System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + " Found a new player with uuid of " + uuid.toString() + " associates with " + name);
             try {
@@ -29,7 +29,7 @@ public class SpigotListener implements Listener {
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
-            System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + " Added " + name + "to statistic player data.");
+            System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
         }
     }
 
@@ -39,7 +39,7 @@ public class SpigotListener implements Listener {
         String uuid = p.getUniqueId().toString();
         String name = p.getName();
         System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + name + " left the game. Updating stats...");
-        ZPlayer zp = Discord.zplayer.get(Discord.zplayer.indexOf(new ZPlayer(UUID.fromString(uuid), name)));
+        ZPlayer zp = Discord.zplayer.get(Discord.zplayer.indexOf(new ZPlayer(UUID.fromString(uuid), name))); //not working
         zp.updateStat();
         System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + name + " stats has been updated");
     }
