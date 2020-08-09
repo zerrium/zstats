@@ -44,8 +44,10 @@ public class ZPlayer {
         this.x.put(Statistic.FISH_CAUGHT.toString(), 0L);
         this.x.put(Statistic.ITEM_ENCHANTED.toString(), 0L);
         this.x.put(Statistic.SLEEP_IN_BED.toString(), 0L);
-        this.x.put(Statistic.CRAFT_ITEM.toString(), 0L);
-        this.x.put(Statistic.MINE_BLOCK.toString(), 0L);
+        //this.x.put(Statistic.CRAFT_ITEM.toString(), 0L);
+        //this.x.put(Statistic.MINE_BLOCK.toString(), 0L);
+        this.x.put("z:crafted", 0L);
+        this.x.put("z:mined", 0L);
         this.x.put("z:pickaxe", 0L);
         this.x.put("z:axe", 0L);
         this.x.put("z:shovel", 0L);
@@ -81,9 +83,14 @@ public class ZPlayer {
         }
 
         // Compare the data members and return accordingly
-        Boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString());
+        Boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZPlayer) o).uuid.toString());
         if(SpigotEvent.debug) System.out.println("ZPlayer instance, equal? "+result);
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return uuid.hashCode();
     }
 
     public void updateStat(){
@@ -91,9 +98,9 @@ public class ZPlayer {
         Player p = Bukkit.getPlayer(this.uuid);
         this.x.forEach((k,v) ->{
             if(!k.contains("z:")){
+                if(SpigotEvent.debug) System.out.println(k);
                 assert p != null;
                 x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
-                if(SpigotEvent.debug) System.out.println(k);
             }
         });
 
@@ -110,11 +117,13 @@ public class ZPlayer {
             if (x != 0) {
                 //this.craft_kind++;
                 this.x.put("z:craft_kind", this.x.get("z:craft_kind")+1);
+                this.x.put("z:crafted", this.x.get("z:crafted")+x);
                 cr.put(m, x);
             }
             if (y != 0) {
                 //this.mine_kind++;
                 this.x.put("z:mine_kind", this.x.get("z:mine_kind")+1);
+                this.x.put("z:mined", this.x.get("z:mined")+y);
                 mn.put(m, y);
             }
             if (z != 0 && !ZFilter.is_tool(m)) {
@@ -134,7 +143,7 @@ public class ZPlayer {
         for(EntityType t: EntityType.values()){
             if(t.isAlive()){
                 assert p != null;
-                long x = p.getStatistic(Statistic.MOB_KILLS, t);
+                long x = p.getStatistic(Statistic.KILL_ENTITY, t);
                 long y = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
                 if(x != 0){
                     //this.mob_kind++;
@@ -147,8 +156,8 @@ public class ZPlayer {
                     k.put(t, y);
                 }
             }
-            if(SpigotEvent.debug) System.out.println("EntityType substat done");
         }
+        if(SpigotEvent.debug) System.out.println("EntityType substat done");
 
         //server world save size
         Bukkit.getWorlds().forEach(i ->{
@@ -179,7 +188,6 @@ public class ZPlayer {
                     PreparedStatement pss = SpigotEvent.connection.prepareStatement("select * from stats where uuid=?");
                     pss.setString(1, uuid.toString());
                     ResultSet rs = pss.executeQuery();
-                    pss.close();
                     PreparedStatement ps;
                     if(!rs.next()){
                         if(SpigotEvent.debug) System.out.println("Insert stat to MySQL...");
@@ -279,7 +287,6 @@ public class ZPlayer {
                         });
 
                         ps.executeUpdate();
-                        ps.close();
                         if(SpigotEvent.debug) System.out.println("Insert stat to MySQL done");
                     }else{
                         if(SpigotEvent.debug) System.out.println("Update stat to MySQL...");
@@ -365,9 +372,10 @@ public class ZPlayer {
                             }
                         });
 
-                        ps.close();
                         if(SpigotEvent.debug) System.out.println("Update stat to MySQL done");
                     }
+                    pss.close();
+                    ps.close();
                     rs.close();
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
