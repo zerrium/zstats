@@ -102,7 +102,6 @@ public class ZPlayer {
         Player p = Bukkit.getPlayer(this.uuid);
         this.x.forEach((k,v) ->{
             if(!k.contains("z:")){
-                if(SpigotEvent.debug) System.out.println(k);
                 assert p != null;
                 x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
             }
@@ -207,11 +206,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), uuid.toString());
                                 ps.setString(counter.getAndIncrement(), k);
                                 ps.setLong(counter.getAndIncrement(), v);
+                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
+                        if(SpigotEvent.debug) System.out.println("Craft:");
                         AtomicInteger counter1 = new AtomicInteger(1);
                         craft.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -220,11 +221,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:craft_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
+                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
+                        if(SpigotEvent.debug) System.out.println("Place:");
                         counter1.set(1);
                         place.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -233,11 +236,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:place_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
+                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
+                        if(SpigotEvent.debug) System.out.println("Mine:");
                         counter1.set(1);
                         mine.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -246,11 +251,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:mine_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
+                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
+                        if(SpigotEvent.debug) System.out.println("Mob:");
                         counter1.set(1);
                         mob.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -259,11 +266,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:mob_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
+                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
+                        if(SpigotEvent.debug) System.out.println("Slain:");
                         counter1.set(1);
                         slain.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -272,6 +281,7 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:slain_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
+                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }

@@ -41,11 +41,12 @@ public class Discord {
     private DiscordApi api;
 
     public Discord(){
-        zplayer = new ArrayList<>();
+        if(SpigotEvent.debug) System.out.println("Javacord initiated");
         botToken = SpigotEvent.fc.getString("bot_token");
         channelID = SpigotEvent.fc.getLong("channel_id");
         api = new DiscordApiBuilder().setToken(botToken).login().join();
-        api.updateActivity("Reading minecraft statistics");
+        api.updateActivity("Zerrium Server");
+        if(SpigotEvent.debug) System.out.println("Javacord connected");
         sendMsg();
 
         /* Add a listener which answers with "Pong!" if someone writes "!ping"
@@ -58,6 +59,7 @@ public class Discord {
     }
 
     public void sendMsg(){
+        if(SpigotEvent.debug) System.out.println("Discord sendMsg() fired");
         new MessageBuilder()
                 .append("This is BOT testing sent from Zerrium's Spigot plugin")
                 .setEmbed(new EmbedBuilder()
@@ -66,5 +68,6 @@ public class Discord {
                         .setColor(Color.ORANGE))
                 .append("Haha coding go bbbrrrrrrrrrrr!!!")
                 .send(api.getTextChannelById(channelID).get());
+        if(SpigotEvent.debug) System.out.println("Discord sendMsg() done");
     }
 }
