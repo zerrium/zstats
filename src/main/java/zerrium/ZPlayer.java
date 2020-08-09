@@ -98,6 +98,13 @@ public class ZPlayer {
     }
 
     public void updateStat(){
+        //debug temporarily
+        for(Statistic s: Statistic.values()){
+            if(s.isSubstatistic()){
+                System.out.println(s.toString());
+            }
+        }
+
         //Not thread safe, cannot do it asynchronously
         Player p = Bukkit.getPlayer(this.uuid);
         this.x.forEach((k,v) ->{
@@ -135,6 +142,22 @@ public class ZPlayer {
                 this.x.put("z:place_kind", this.x.get("z:place_kind")+1);
                 this.x.put("z:placed", this.x.get("z:placed")+z);
                 pl.put(m, z);
+            }else{
+                if(m.toString().contains("_PICKAXE")){
+                    this.x.put("z:pickaxe", this.x.get("z:pickaxe")+z);
+                }else if(m.toString().contains("_AXE")){
+                    this.x.put("z:axe", this.x.get("z:axe")+z);
+                }else if(m.toString().contains("_SHOVEL")){
+                    this.x.put("z:shovel", this.x.get("z:shovel")+z);
+                }else if(m.toString().contains("_HOE")){
+                    this.x.put("z:hoe", this.x.get("z:hoe")+z);
+                }else if(m.toString().contains("_SWORD")){
+                    this.x.put("z:sword", this.x.get("z:sword")+z);
+                }else if(m.equals(Material.BOW)){
+                    this.x.put("z:bow", this.x.get("z:bow")+z);
+                }else if(m.equals(Material.TRIDENT)){
+                    this.x.put("z:trident", this.x.get("z:trident")+z);
+                }
             }
         }
         if(SpigotEvent.debug) System.out.println("Materials substat done");
@@ -144,7 +167,7 @@ public class ZPlayer {
         HashMap<EntityType, Long> kb = new HashMap<>();
 
         for(EntityType t: EntityType.values()){
-            if(t.isAlive()){
+            try{
                 assert p != null;
                 long x = p.getStatistic(Statistic.KILL_ENTITY, t);
                 long y = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
@@ -158,6 +181,8 @@ public class ZPlayer {
                     this.x.put("z:slain_kind", this.x.get("z:slain_kind")+1);
                     k.put(t, y);
                 }
+            }catch (IllegalArgumentException e){
+                continue;
             }
         }
         if(SpigotEvent.debug) System.out.println("EntityType substat done");
@@ -182,6 +207,7 @@ public class ZPlayer {
             }
             if(SpigotEvent.debug) System.out.println("Got world size of "+i.getName());
         });
+        if(SpigotEvent.debug) System.out.println("Total size "+Discord.total_size);
 
         //update to SQL asynchronously
         BukkitRunnable r = new BukkitRunnable() {
