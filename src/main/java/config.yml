@@ -7,7 +7,8 @@ password: 'yourPassword'
 
 #Discord BOT config
 bot_token: 'yourBotToken'
-channel_id: 1234567890 #yourChannelID
+stat_channel_id: 1234567890 #your Stats Channel ID
+general_channel_id: 1234567890 #your General Channel ID
 
 #Others
 use_debug: false

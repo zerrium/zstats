@@ -9,6 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,6 +35,7 @@ public class SpigotEvent extends JavaPlugin{
             Bukkit.getPluginManager().disablePlugin(this);
         }
         Discord.zplayer = new ArrayList<>();
+        Discord.online_player = new HashMap<>();
         //database query
         try {
             Statement st = connection.createStatement();
@@ -99,7 +101,7 @@ public class SpigotEvent extends JavaPlugin{
             throwables.printStackTrace();
         }
 
-        System.out.println(ChatColor.YELLOW+"[Stat2Discord] Enabling Discord asynchronously...");
+        System.out.println(ChatColor.YELLOW+"[Stat2Discord] Enabling Discord...");
         BukkitRunnable r = new BukkitRunnable() {
             @Override
             public void run() {
@@ -117,7 +119,8 @@ public class SpigotEvent extends JavaPlugin{
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        System.out.println(ChatColor.YELLOW+"[Stat2Discord] v0.1 disabling plugin");
+        System.out.println(ChatColor.YELLOW+"[Stat2Discord] Disabling Discord...");
+        Discord.close();
     }
 
     //connect to MySQL database safely

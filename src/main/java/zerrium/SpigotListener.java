@@ -18,6 +18,7 @@ public class SpigotListener implements Listener {
         Player p = event.getPlayer();
         UUID uuid = p.getUniqueId();
         String name = p.getName();
+        Discord.online_player.put(uuid, name);
         if(!Discord.zplayer.contains(new ZPlayer(uuid))){
             Discord.zplayer.add(new ZPlayer(uuid, name));
             System.out.println(ChatColor.YELLOW + "[Stat2Discord]" + ChatColor.RESET + " Found a new player with uuid of " + uuid.toString() + " associates with " + name);
@@ -43,10 +44,12 @@ public class SpigotListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
         Player p = event.getPlayer();
-        String uuid = p.getUniqueId().toString();
+        UUID uuid = p.getUniqueId();
         String name = p.getName();
+        Discord.online_player.remove(uuid);
+        if(SpigotEvent.debug) System.out.println(Discord.online_player);
         System.out.println(ChatColor.YELLOW + "[Stat2Discord] " + ChatColor.RESET + name + " left the game. Updating stats...");
-        ZPlayer zp = Discord.zplayer.get(Discord.zplayer.indexOf(new ZPlayer(UUID.fromString(uuid))));
+        ZPlayer zp = Discord.zplayer.get(Discord.zplayer.indexOf(new ZPlayer(uuid)));
         zp.updateStat();
         System.out.println(ChatColor.YELLOW + "[Stat2Discord] " + ChatColor.RESET + name + " stats has been updated");
     }
