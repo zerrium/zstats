@@ -5,10 +5,9 @@ database: 'My_Stats'
 username: 'root'
 password: 'yourPassword'
 
-#Discord BOT config
-bot_token: 'yourBotToken'
-stat_channel_id: 1234567890 #your Stats Channel ID
-general_channel_id: 1234567890 #your General Channel ID
+#DiscordSRV config
+notify_stats_update_to_discord: false
+notify_message: 'Player statistics of <player> has been updated. Check it out on https://example.com'
 
 #Others
 use_debug: false

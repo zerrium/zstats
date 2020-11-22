@@ -1,6 +1,7 @@
 package zerrium;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
@@ -75,20 +76,20 @@ public class ZPlayer {
     public boolean equals (Object o) {
         // If the object is compared with itself then return true
         if (o == this) {
-            if(SpigotEvent.debug) System.out.println("Comparing instance of itself");
+            if(Zstats.debug) System.out.println("Comparing instance of itself");
             return true;
         }
 
         /* Check if o is an instance of ZPlayer or not
           "null instanceof [type]" also returns false */
         if (!(o instanceof ZPlayer)) {
-            if(SpigotEvent.debug) System.out.println("Not a ZPlayer instance");
+            if(Zstats.debug) System.out.println("Not a ZPlayer instance");
             return false;
         }
 
         // Compare the data members and return accordingly
         boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZPlayer) o).uuid.toString());
-        if(SpigotEvent.debug) System.out.println("ZPlayer instance, equal? "+result);
+        if(Zstats.debug) System.out.println("ZPlayer instance, equal? "+result);
         return result;
     }
 
@@ -149,7 +150,7 @@ public class ZPlayer {
                 }
             }
         }
-        if(SpigotEvent.debug) System.out.println("Materials substat done");
+        if(Zstats.debug) System.out.println("Materials substat done");
 
         //substat for kill and killed by
         HashMap<EntityType, Long> k = new HashMap<>();
@@ -172,41 +173,42 @@ public class ZPlayer {
                 continue;
             }
         }
-        if(SpigotEvent.debug) System.out.println("EntityType substat done");
+        if(Zstats.debug) System.out.println("EntityType substat done");
 
         //server world save size
         Bukkit.getWorlds().forEach(i ->{
             switch(i.getEnvironment()){
                 case NORMAL:
-                    Discord.world_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
-                    Discord.total_size += Discord.world_size;
+                    Zstats.world_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    Zstats.total_size += Zstats.world_size;
                     break;
                 case NETHER:
-                    Discord.nether_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
-                    Discord.total_size += Discord.nether_size;
+                    Zstats.nether_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    Zstats.total_size += Zstats.nether_size;
                     break;
                 case THE_END:
-                    Discord.end_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
-                    Discord.total_size += Discord.end_size;
+                    Zstats.end_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    Zstats.total_size += Zstats.end_size;
                     break;
                 default:
-                    Discord.total_size += FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    Zstats.total_size += FileUtils.sizeOfDirectory(i.getWorldFolder());
             }
-            if(SpigotEvent.debug) System.out.println("Got world size of "+i.getName());
+            if(Zstats.debug) System.out.println("Got world size of "+i.getName());
         });
-        if(SpigotEvent.debug) System.out.println("Total size "+Discord.total_size);
+        if(Zstats.debug) System.out.println("Total size "+Zstats.total_size);
 
         //update to SQL asynchronously
         BukkitRunnable r = new BukkitRunnable() {
             @Override
             public void run() {
                 try {
-                    PreparedStatement pss = SpigotEvent.connection.prepareStatement("select * from stats where uuid=?");
+                    System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Updating stats of " + uuid.toString() + " associates with " + name + " to database...");
+                    PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=?");
                     pss.setString(1, uuid.toString());
                     ResultSet rs = pss.executeQuery();
                     if(!rs.next()){
-                        if(SpigotEvent.debug) System.out.println("Insert stat to MySQL...");
-                        final PreparedStatement ps = SpigotEvent.connection.prepareStatement("insert into stats(uuid, stat, val) values" +
+                        if(Zstats.debug) System.out.println("Insert stat to MySQL...");
+                        final PreparedStatement ps = Zstats.connection.prepareStatement("insert into stats(uuid, stat, val) values" +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
@@ -219,13 +221,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), uuid.toString());
                                 ps.setString(counter.getAndIncrement(), k);
                                 ps.setLong(counter.getAndIncrement(), v);
-                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
+                                if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
-                        if(SpigotEvent.debug) System.out.println("Craft:");
+                        if(Zstats.debug) System.out.println("Craft:");
                         AtomicInteger counter1 = new AtomicInteger(1);
                         craft.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -234,13 +236,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:craft_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
-                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
+                                if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
-                        if(SpigotEvent.debug) System.out.println("Place:");
+                        if(Zstats.debug) System.out.println("Place:");
                         counter1.set(1);
                         place.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -249,13 +251,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:place_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
-                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
+                                if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
-                        if(SpigotEvent.debug) System.out.println("Mine:");
+                        if(Zstats.debug) System.out.println("Mine:");
                         counter1.set(1);
                         mine.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -264,13 +266,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:mine_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
-                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
+                                if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
-                        if(SpigotEvent.debug) System.out.println("Mob:");
+                        if(Zstats.debug) System.out.println("Mob:");
                         counter1.set(1);
                         mob.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -279,13 +281,13 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:mob_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
-                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
+                                if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
                         });
 
-                        if(SpigotEvent.debug) System.out.println("Slain:");
+                        if(Zstats.debug) System.out.println("Slain:");
                         counter1.set(1);
                         slain.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -294,7 +296,7 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), "z:slain_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
                                 counter1.getAndIncrement();
-                                if(SpigotEvent.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
+                                if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
                             }
@@ -302,10 +304,11 @@ public class ZPlayer {
 
                         ps.executeUpdate();
                         ps.close();
-                        if(SpigotEvent.debug) System.out.println("Insert stat to MySQL done");
+                        if(Zstats.debug) System.out.println("Insert stat to MySQL done");
+                        System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Updated stats of " + uuid.toString() + " associates with " + name + " to database.");
                     }else{
-                        if(SpigotEvent.debug) System.out.println("Update stat to MySQL...");
-                        final PreparedStatement ps = SpigotEvent.connection.prepareStatement("update stats set val=? where uuid=? and stat=?");
+                        if(Zstats.debug) System.out.println("Update stat to MySQL...");
+                        final PreparedStatement ps = Zstats.connection.prepareStatement("update stats set val=? where uuid=? and stat=?");
                         x.forEach((k,v) ->{
                             try {
                                 ps.setLong(1, v);
@@ -388,7 +391,8 @@ public class ZPlayer {
                         });
 
                         ps.close();
-                        if(SpigotEvent.debug) System.out.println("Update stat to MySQL done");
+                        if(Zstats.debug) System.out.println("Update stat to MySQL done");
+                        System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Updated stats of " + uuid.toString() + " associates with " + name + " to database.");
                     }
                     pss.close();
                     rs.close();
@@ -398,19 +402,11 @@ public class ZPlayer {
             }
         };
 
-        //update to Discord asynchronously
-        BukkitRunnable s = new BukkitRunnable() {
-            @Override
-            public void run() {
-                //Javacord API
-            }
-        };
-
         //sort substats asynchronously
         BukkitRunnable a = new BukkitRunnable() {
             @Override
             public void run() {
-                if(SpigotEvent.debug) System.out.println("Sorting substats...");
+                if(Zstats.debug) System.out.println("Sorting substats...");
                 if(x.get("z:craft_kind") != 0){
                     LinkedHashMap temp = ZFilter.sortByValues(cr);
                     Iterator x = temp.entrySet().iterator();
@@ -471,11 +467,31 @@ public class ZPlayer {
                         }
                     }
                 }
-                if(SpigotEvent.debug) System.out.println("Sorting substats done");
-                r.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
-                s.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
+                if(Zstats.debug) System.out.println("Sorting substats done");
+                r.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
             }
         };
-        a.runTaskAsynchronously(SpigotEvent.getPlugin(SpigotEvent.class));
+        a.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
+    }
+
+    public void deleteStat(){
+        //delete from SQL asynchronously
+        BukkitRunnable r = new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Deleting stats of " + uuid.toString() + " associates with " + name + " from database...");
+                    PreparedStatement pss = Zstats.connection.prepareStatement("delete from stats where uuid=?");
+                    pss.setString(1, uuid.toString());
+                    int row = pss.executeUpdate();
+                    pss.close();
+                    System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET +
+                            (row > 0 ? " Deleted stats of " + uuid.toString() + " associates with " + name + " from database." : " No stats of "  + uuid.toString() + " associates with " + name + " found on the database. No rows affected."));
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        };
+        r.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
     }
 }

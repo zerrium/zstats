@@ -1,5 +1,11 @@
-name: Stat2Discord
-version: 0.1
-main: zerrium.SpigotEvent
+name: Zstats
+version: 0.2
+main: zerrium.Zstats
 api-version: 1.13
 author: zerrium
+softdepend: [DiscordSRV, Essentials]
+commands:
+  zstats:
+    description: Modify player stats data on database
+    usage: /zstats <update/delete> <player_name>
+    permission: Zstats.use
