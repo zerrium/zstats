@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ZPlayer {
     String name;
     UUID uuid;
+    long afk_time;
     HashMap<String, Long> x; //convert those stupid many attributes into a hashmap
     LinkedHashMap<Material, Long> craft;
     LinkedHashMap<Material, Long> place;
@@ -29,6 +30,28 @@ public class ZPlayer {
     public ZPlayer(UUID uuid, String name){
         this.uuid = uuid;
         this.name = name;
+        BukkitRunnable r = new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    if(Zstats.debug) System.out.println("Get player AFK time from db");
+                    PreparedStatement pss = Zstats.connection.prepareStatement("select val from stats where uuid=? and stat=?");
+                    pss.setString(1, uuid.toString());
+                    pss.setString(2, "z:afk_time");
+                    ResultSet rs = pss.executeQuery();
+                    if (!rs.next()) {
+                        if(Zstats.debug) System.out.println("AFK stat Not found. set it to 0");
+                        afk_time = 0L;
+                    }else{
+                        afk_time = rs.getLong(1);
+                        if(Zstats.debug) System.out.println("AFK value: " + afk_time);
+                    }
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        };
+        r.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
         x = new HashMap<>();
         craft = new LinkedHashMap<>();
         place = new LinkedHashMap<>();
@@ -214,7 +237,7 @@ public class ZPlayer {
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
-                                "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?);");
+                                "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?);");
                         AtomicInteger counter = new AtomicInteger(1);
                         x.forEach((k,v) ->{
                             try {
@@ -302,6 +325,16 @@ public class ZPlayer {
                             }
                         });
 
+                        if(Zstats.debug) System.out.println("AFK time:");
+                        try{
+                            ps.setString(counter.getAndIncrement(), uuid.toString());
+                            ps.setString(counter.getAndIncrement(), "z:afk_time");
+                            ps.setLong(counter.getAndIncrement(), afk_time);
+                            if(Zstats.debug) System.out.println(uuid.toString() + " - " + "z:afk_time" +" - " + afk_time + " - " + counter.get());
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+
                         ps.executeUpdate();
                         ps.close();
                         if(Zstats.debug) System.out.println("Insert stat to MySQL done");
@@ -309,6 +342,10 @@ public class ZPlayer {
                     }else{
                         if(Zstats.debug) System.out.println("Update stat to MySQL...");
                         final PreparedStatement ps = Zstats.connection.prepareStatement("update stats set val=? where uuid=? and stat=?");
+                        ps.setLong(1, afk_time);
+                        ps.setString(2, uuid.toString());
+                        ps.setString(3, "z:afk_time");
+
                         x.forEach((k,v) ->{
                             try {
                                 ps.setLong(1, v);

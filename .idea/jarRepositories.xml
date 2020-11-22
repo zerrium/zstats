@@ -36,5 +36,20 @@
       <option name="name" value="maven4" />
       <option name="url" value="https://ci.ender.zone/plugin/repository/everything/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="Vankka-Nexus" />
+      <option name="name" value="Vankka-Nexus" />
+      <option name="url" value="https://nexus.vankka.dev/repository/maven-public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="papermc" />
+      <option name="name" value="papermc" />
+      <option name="url" value="https://papermc.io/repo/repository/maven-public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="BintrayJCenter" />
+      <option name="name" value="BintrayJCenter" />
+      <option name="url" value="https://jcenter.bintray.com/" />
+    </remote-repository>
   </component>
 </project>
