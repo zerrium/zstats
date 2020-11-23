@@ -127,7 +127,7 @@ public class ZPlayer {
                 x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
             }else if(k.equals("z:last_played")){
                 assert p != null;
-                x.put(k, p.getLastPlayed());
+                x.put(k, p.getLastPlayed()/1000);
             }
         });
 
