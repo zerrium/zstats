@@ -464,7 +464,7 @@ public class ZPlayer {
 
                 System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Updating stats of " + uuid.toString() + " associates with " + name + " to database...");
                 try {
-                    PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stats=?");
+                    PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
                     pss.setString(1, uuid.toString());
                     pss.setString(2, "z:afk_time");
                     ResultSet rs = pss.executeQuery();
@@ -483,7 +483,7 @@ public class ZPlayer {
 
                 x.forEach((k, v) -> {
                     try {
-                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stats=?");
+                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
                         pss.setString(1, uuid.toString());
                         pss.setString(2, k);
                         ResultSet rs = pss.executeQuery();
@@ -503,7 +503,7 @@ public class ZPlayer {
                 craft.forEach((k, v) -> {
                     int j = counter.intValue();
                     try {
-                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stats=?");
+                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
                         pss.setString(1, uuid.toString());
                         pss.setString(2, k.toString());
                         ResultSet rs = pss.executeQuery();
@@ -524,7 +524,7 @@ public class ZPlayer {
                 place.forEach((k, v) -> {
                     int j = counter.intValue();
                     try {
-                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stats=?");
+                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
                         pss.setString(1, uuid.toString());
                         pss.setString(2, k.toString());
                         ResultSet rs = pss.executeQuery();
@@ -545,7 +545,7 @@ public class ZPlayer {
                 mine.forEach((k, v) -> {
                     int j = counter.intValue();
                     try {
-                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stats=?");
+                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
                         pss.setString(1, uuid.toString());
                         pss.setString(2, k.toString());
                         ResultSet rs = pss.executeQuery();
@@ -566,7 +566,7 @@ public class ZPlayer {
                 mob.forEach((k, v) -> {
                     int j = counter.intValue();
                     try {
-                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stats=?");
+                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
                         pss.setString(1, uuid.toString());
                         pss.setString(2, k.toString());
                         ResultSet rs = pss.executeQuery();
@@ -587,7 +587,7 @@ public class ZPlayer {
                 slain.forEach((k, v) -> {
                     int j = counter.intValue();
                     try {
-                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stats=?");
+                        PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
                         pss.setString(1, uuid.toString());
                         pss.setString(2, k.toString());
                         ResultSet rs = pss.executeQuery();
