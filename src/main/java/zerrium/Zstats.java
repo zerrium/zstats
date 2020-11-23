@@ -120,7 +120,7 @@ public class Zstats extends JavaPlugin{
             has_discordSrv = false;
         }
         if(Bukkit.getPluginManager().getPlugin("Essentials") != null || Bukkit.getPluginManager().getPlugin("EssentialsX") != null){
-            System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for sleep notification is hooked.");
+            System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
             hasEssentials = true;
         }else{
             System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK detection for sleep notification");
