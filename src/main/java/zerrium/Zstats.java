@@ -94,6 +94,7 @@ public class Zstats extends JavaPlugin{
                         AtomicInteger c = new AtomicInteger(0);
                         try{
                             do{
+                                if(rss.getString("uuid").equals("000")) continue;
                                 zplayer.add(new ZPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
                                 if(debug){
                                     System.out.println(zplayer.get(c.get()).uuid+" --- "+zplayer.get(c.get()).name);
