@@ -28,7 +28,7 @@ public class Zstats extends JavaPlugin{
 
     @Override
     public void onEnable() {
-        System.out.println(ChatColor.YELLOW+"[Zstats] v0.2 by zerrium");
+        System.out.println(ChatColor.YELLOW+"[Zstats] v0.3 by zerrium");
         getServer().getPluginManager().registerEvents(new SpigotListener(), this);
         this.getCommand("zstats").setExecutor(new ZUpdater());
         System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
