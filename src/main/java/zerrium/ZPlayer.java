@@ -231,6 +231,7 @@ public class ZPlayer {
                     ResultSet rs = pss.executeQuery();
                     if(!rs.next()){
                         if(Zstats.debug) System.out.println("Insert stat to MySQL...");
+                        /*
                         final PreparedStatement ps = Zstats.connection.prepareStatement("insert into stats(uuid, stat, val) values" +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
@@ -238,12 +239,15 @@ public class ZPlayer {
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," +
                                 "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?)," + "(?, ?, ?);");
+                         */
+                        final PreparedStatement ps = Zstats.connection.prepareStatement("insert into stats(uuid, stat, val) values (?, ?, ?)");
                         AtomicInteger counter = new AtomicInteger(1);
                         x.forEach((k,v) ->{
                             try {
                                 ps.setString(counter.getAndIncrement(), uuid.toString());
                                 ps.setString(counter.getAndIncrement(), k);
                                 ps.setLong(counter.getAndIncrement(), v);
+                                ps.executeUpdate();
                                 if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
@@ -251,6 +255,7 @@ public class ZPlayer {
                         });
 
                         if(Zstats.debug) System.out.println("Craft:");
+                        counter.set(1);
                         AtomicInteger counter1 = new AtomicInteger(1);
                         craft.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -258,6 +263,7 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), uuid.toString());
                                 ps.setString(counter.getAndIncrement(), "z:craft_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
+                                ps.executeUpdate();
                                 counter1.getAndIncrement();
                                 if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
@@ -266,6 +272,7 @@ public class ZPlayer {
                         });
 
                         if(Zstats.debug) System.out.println("Place:");
+                        counter.set(1);
                         counter1.set(1);
                         place.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -273,6 +280,7 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), uuid.toString());
                                 ps.setString(counter.getAndIncrement(), "z:place_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
+                                ps.executeUpdate();
                                 counter1.getAndIncrement();
                                 if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
@@ -281,6 +289,7 @@ public class ZPlayer {
                         });
 
                         if(Zstats.debug) System.out.println("Mine:");
+                        counter.set(1);
                         counter1.set(1);
                         mine.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -288,6 +297,7 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), uuid.toString());
                                 ps.setString(counter.getAndIncrement(), "z:mine_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
+                                ps.executeUpdate();
                                 counter1.getAndIncrement();
                                 if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
@@ -296,6 +306,7 @@ public class ZPlayer {
                         });
 
                         if(Zstats.debug) System.out.println("Mob:");
+                        counter.set(1);
                         counter1.set(1);
                         mob.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -303,6 +314,7 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), uuid.toString());
                                 ps.setString(counter.getAndIncrement(), "z:mob_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
+                                ps.executeUpdate();
                                 counter1.getAndIncrement();
                                 if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
@@ -311,6 +323,7 @@ public class ZPlayer {
                         });
 
                         if(Zstats.debug) System.out.println("Slain:");
+                        counter.set(1);
                         counter1.set(1);
                         slain.forEach((k,v) ->{
                             int j = counter1.intValue();
@@ -318,6 +331,7 @@ public class ZPlayer {
                                 ps.setString(counter.getAndIncrement(), uuid.toString());
                                 ps.setString(counter.getAndIncrement(), "z:slain_"+j+"_"+k);
                                 ps.setLong(counter.getAndIncrement(), v);
+                                ps.executeUpdate();
                                 counter1.getAndIncrement();
                                 if(Zstats.debug) System.out.println(uuid.toString() + " - " + k +" - " + v + " - " + counter.get());
                             } catch (SQLException throwables) {
@@ -326,16 +340,17 @@ public class ZPlayer {
                         });
 
                         if(Zstats.debug) System.out.println("AFK time:");
+                        counter.set(1);
                         try{
                             ps.setString(counter.getAndIncrement(), uuid.toString());
                             ps.setString(counter.getAndIncrement(), "z:afk_time");
                             ps.setLong(counter.getAndIncrement(), afk_time);
+                            ps.executeUpdate();
                             if(Zstats.debug) System.out.println(uuid.toString() + " - " + "z:afk_time" +" - " + afk_time + " - " + counter.get());
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
                         }
 
-                        ps.executeUpdate();
                         ps.close();
                         if(Zstats.debug) System.out.println("Insert stat to MySQL done");
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Updated stats of " + uuid.toString() + " associates with " + name + " to database.");
