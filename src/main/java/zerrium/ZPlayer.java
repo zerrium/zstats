@@ -123,7 +123,7 @@ public class ZPlayer {
 
     public void updateStat(){
         //Not thread safe, cannot do it asynchronously
-        Player p = Bukkit.getPlayer(this.uuid);
+        Player p = Bukkit.getPlayer(this.uuid) == null ? (Player) Bukkit.getOfflinePlayer(this.uuid) : Bukkit.getPlayer(this.uuid);
         this.x.forEach((k,v) ->{
             if(!k.contains("z:")){
                 assert p != null;
