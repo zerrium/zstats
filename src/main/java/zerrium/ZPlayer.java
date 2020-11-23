@@ -1,11 +1,7 @@
 package zerrium;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Statistic;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.apache.commons.io.FileUtils;
 
@@ -89,6 +85,7 @@ public class ZPlayer {
         this.x.put("z:place_kind", 0L);
         this.x.put("z:mob_kind", 0L);
         this.x.put("z:slain_kind", 0L);
+        this.x.put("z:last_played", 0L);
     }
 
     public ZPlayer(UUID uuid){
@@ -123,11 +120,14 @@ public class ZPlayer {
 
     public void updateStat(){
         //Not thread safe, cannot do it asynchronously
-        Player p = Bukkit.getPlayer(this.uuid) == null ? (Player) Bukkit.getOfflinePlayer(this.uuid) : Bukkit.getPlayer(this.uuid);
+        OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
         this.x.forEach((k,v) ->{
             if(!k.contains("z:")){
                 assert p != null;
                 x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
+            }else if(k.equals("z:last_played")){
+                assert p != null;
+                x.put(k, p.getLastPlayed());
             }
         });
 
@@ -224,6 +224,74 @@ public class ZPlayer {
         BukkitRunnable r = new BukkitRunnable() {
             @Override
             public void run() {
+                try {
+                    PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
+                    pss.setString(1, "000");
+                    pss.setString(2, "z:world_size");
+                    ResultSet rs = pss.executeQuery();
+                    final PreparedStatement ps = Zstats.connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
+                    pss.close();
+                    ps.setLong(1, Zstats.world_size);
+                    ps.setString(2, "000");
+                    ps.setString(3, "z:world_size");
+                    if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:world_size" + " - " + Zstats.world_size);
+                    ps.executeUpdate();
+                    ps.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+
+                try {
+                    PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
+                    pss.setString(1, "000");
+                    pss.setString(2, "z:nether_size");
+                    ResultSet rs = pss.executeQuery();
+                    final PreparedStatement ps = Zstats.connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
+                    pss.close();
+                    ps.setLong(1, Zstats.nether_size);
+                    ps.setString(2, "000");
+                    ps.setString(3, "z:nether_size");
+                    if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:nether_size" + " - " + Zstats.nether_size);
+                    ps.executeUpdate();
+                    ps.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+
+                try {
+                    PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
+                    pss.setString(1, "000");
+                    pss.setString(2, "z:end_size");
+                    ResultSet rs = pss.executeQuery();
+                    final PreparedStatement ps = Zstats.connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
+                    pss.close();
+                    ps.setLong(1, Zstats.end_size);
+                    ps.setString(2, "000");
+                    ps.setString(3, "z:end_size");
+                    if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:end_size" + " - " + Zstats.end_size);
+                    ps.executeUpdate();
+                    ps.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+
+                try {
+                    PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
+                    pss.setString(1, "000");
+                    pss.setString(2, "z:world_size");
+                    ResultSet rs = pss.executeQuery();
+                    final PreparedStatement ps = Zstats.connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
+                    pss.close();
+                    ps.setLong(1, Zstats.world_size);
+                    ps.setString(2, "000");
+                    ps.setString(3, "z:world_size");
+                    if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:world_size" + " - " + Zstats.world_size);
+                    ps.executeUpdate();
+                    ps.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+
                 System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Updating stats of " + uuid.toString() + " associates with " + name + " to database...");
                 try {
                     PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");

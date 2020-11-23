@@ -81,6 +81,9 @@ public class Zstats extends JavaPlugin{
                         ps.executeUpdate();
                     }
                 }
+                ps.setString(1, "000");
+                ps.setString(2, "Server");
+                ps.executeUpdate();
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ counter +" players.");
                 ps.close();
                 rss.close();
