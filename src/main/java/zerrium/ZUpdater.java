@@ -23,7 +23,6 @@ public class ZUpdater implements CommandExecutor {
                 if(args[0].equalsIgnoreCase("update")){
                     sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
                     Zstats.zplayer.forEach(ZPlayer::updateStat);
-                    sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " update stats done.");
                     if(Zstats.notify_discord && Zstats.has_discordSrv){
                         DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
                                 .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), "all players"))
@@ -39,7 +38,6 @@ public class ZUpdater implements CommandExecutor {
                         for(ZPlayer z : Zstats.zplayer){
                             if(args[1].equalsIgnoreCase(z.name)){
                                 z.updateStat();
-                                sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " update stats of " + args[1] +" done.");
                                 return true;
                             }
                         }
@@ -50,7 +48,6 @@ public class ZUpdater implements CommandExecutor {
                         for(ZPlayer z : Zstats.zplayer){
                             if(args[1].equalsIgnoreCase(z.name)){
                                 z.deleteStat();
-                                sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " deleted stats of " + args[1] +".");
                                 return true;
                             }
                         }

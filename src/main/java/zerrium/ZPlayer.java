@@ -213,8 +213,6 @@ public class ZPlayer {
                     Zstats.end_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
                     Zstats.total_size += Zstats.end_size;
                     break;
-                default:
-                    Zstats.total_size += FileUtils.sizeOfDirectory(i.getWorldFolder());
             }
             if(Zstats.debug) System.out.println("Got world size of "+i.getName());
         });
@@ -438,6 +436,8 @@ public class ZPlayer {
                         throwables.printStackTrace();
                     }
                 });
+
+                System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
             }
         };
 
