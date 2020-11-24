@@ -177,15 +177,21 @@ public class ZPlayer {
         HashMap<EntityType, Long> kb = new HashMap<>();
 
         for(EntityType t: EntityType.values()){
-            long x = p.getStatistic(Statistic.KILL_ENTITY, t);
-            long y = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
-            if(x != 0){
-                this.x.put("z:mob_kind", this.x.get("z:mob_kind")+1);
-                k.put(t, x);
-            }
-            if(y != 0){
-                this.x.put("z:slain_kind", this.x.get("z:slain_kind")+1);
-                kb.put(t, y);
+            try {
+                if(t.isAlive()) {
+                    long x = p.getStatistic(Statistic.KILL_ENTITY, t);
+                    long y = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                    if (x != 0) {
+                        this.x.put("z:mob_kind", this.x.get("z:mob_kind") + 1);
+                        k.put(t, x);
+                    }
+                    if (y != 0) {
+                        this.x.put("z:slain_kind", this.x.get("z:slain_kind") + 1);
+                        kb.put(t, y);
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
             }
         }
         if(Zstats.debug) System.out.println("EntityType substat done");
