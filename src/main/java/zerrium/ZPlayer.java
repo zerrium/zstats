@@ -123,10 +123,8 @@ public class ZPlayer {
         OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
         this.x.forEach((k,v) ->{
             if(!k.contains("z:")){
-                assert p != null;
                 x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
             }else if(k.equals("z:last_played")){
-                assert p != null;
                 x.put(k, p.getLastPlayed()/1000);
             }
         });
@@ -137,7 +135,6 @@ public class ZPlayer {
         HashMap<Material, Long> pl = new HashMap<>();
 
         for(Material m: Material.values()) {
-            assert p != null;
             long x = p.getStatistic(Statistic.CRAFT_ITEM, m);
             long y = p.getStatistic(Statistic.MINE_BLOCK, m);
             long z = p.getStatistic(Statistic.USE_ITEM, m);
@@ -180,20 +177,15 @@ public class ZPlayer {
         HashMap<EntityType, Long> kb = new HashMap<>();
 
         for(EntityType t: EntityType.values()){
-            try{
-                assert p != null;
-                long x = p.getStatistic(Statistic.KILL_ENTITY, t);
-                long y = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
-                if(x != 0){
-                    this.x.put("z:mob_kind", this.x.get("z:mob_kind")+1);
-                    k.put(t, x);
-                }
-                if(y != 0){
-                    this.x.put("z:slain_kind", this.x.get("z:slain_kind")+1);
-                    kb.put(t, y);
-                }
-            }catch (IllegalArgumentException e){
-                continue;
+            long x = p.getStatistic(Statistic.KILL_ENTITY, t);
+            long y = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
+            if(x != 0){
+                this.x.put("z:mob_kind", this.x.get("z:mob_kind")+1);
+                k.put(t, x);
+            }
+            if(y != 0){
+                this.x.put("z:slain_kind", this.x.get("z:slain_kind")+1);
+                kb.put(t, y);
             }
         }
         if(Zstats.debug) System.out.println("EntityType substat done");
