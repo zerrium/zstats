@@ -26,28 +26,39 @@ public class ZPlayer {
     public ZPlayer(UUID uuid, String name){
         this.uuid = uuid;
         this.name = name;
-        BukkitRunnable r = new BukkitRunnable() {
-            @Override
-            public void run() {
-                try {
-                    if(Zstats.debug) System.out.println("Get player AFK time from db");
-                    PreparedStatement pss = Zstats.connection.prepareStatement("select val from stats where uuid=? and stat=?");
-                    pss.setString(1, uuid.toString());
-                    pss.setString(2, "z:afk_time");
-                    ResultSet rs = pss.executeQuery();
-                    if (!rs.next()) {
-                        if(Zstats.debug) System.out.println("AFK stat Not found. set it to 0");
-                        afk_time = 0L;
-                    }else{
-                        afk_time = rs.getLong(1);
-                        if(Zstats.debug) System.out.println("AFK value: " + afk_time);
-                    }
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-            }
-        };
-        r.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
+    }
+
+    public ZPlayer(UUID uuid){
+        this.uuid = uuid;
+    }
+
+    @Override
+    public boolean equals (Object o) {
+        // If the object is compared with itself then return true
+        if (o == this) {
+            if(Zstats.debug) System.out.println("Comparing instance of itself");
+            return true;
+        }
+
+        /* Check if o is an instance of ZPlayer or not
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof ZPlayer)) {
+            if(Zstats.debug) System.out.println("Not a ZPlayer instance");
+            return false;
+        }
+
+        // Compare the data members and return accordingly
+        boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZPlayer) o).uuid.toString());
+        if(Zstats.debug) System.out.println("ZPlayer instance, equal? "+result);
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return uuid.hashCode();
+    }
+
+    public void updateStat(){
         x = new HashMap<>();
         craft = new LinkedHashMap<>();
         place = new LinkedHashMap<>();
@@ -86,39 +97,30 @@ public class ZPlayer {
         this.x.put("z:mob_kind", 0L);
         this.x.put("z:slain_kind", 0L);
         this.x.put("z:last_played", 0L);
-    }
 
-    public ZPlayer(UUID uuid){
-        this.uuid = uuid;
-    }
+        BukkitRunnable rr = new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    if(Zstats.debug) System.out.println("Get player AFK time from db");
+                    PreparedStatement pss = Zstats.connection.prepareStatement("select val from stats where uuid=? and stat=?");
+                    pss.setString(1, uuid.toString());
+                    pss.setString(2, "z:afk_time");
+                    ResultSet rs = pss.executeQuery();
+                    if (!rs.next()) {
+                        if(Zstats.debug) System.out.println("AFK stat Not found. set it to 0");
+                        afk_time = 0L;
+                    }else{
+                        afk_time = rs.getLong(1);
+                        if(Zstats.debug) System.out.println("AFK value: " + afk_time);
+                    }
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        };
+        rr.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
 
-    @Override
-    public boolean equals (Object o) {
-        // If the object is compared with itself then return true
-        if (o == this) {
-            if(Zstats.debug) System.out.println("Comparing instance of itself");
-            return true;
-        }
-
-        /* Check if o is an instance of ZPlayer or not
-          "null instanceof [type]" also returns false */
-        if (!(o instanceof ZPlayer)) {
-            if(Zstats.debug) System.out.println("Not a ZPlayer instance");
-            return false;
-        }
-
-        // Compare the data members and return accordingly
-        boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZPlayer) o).uuid.toString());
-        if(Zstats.debug) System.out.println("ZPlayer instance, equal? "+result);
-        return result;
-    }
-
-    @Override
-    public int hashCode() {
-        return uuid.hashCode();
-    }
-
-    public void updateStat(){
         //Not thread safe, cannot do it asynchronously
         OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
         this.x.forEach((k,v) ->{
