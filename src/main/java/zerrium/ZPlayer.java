@@ -278,14 +278,14 @@ public class ZPlayer {
                 try {
                     PreparedStatement pss = Zstats.connection.prepareStatement("select * from stats where uuid=? and stat=?");
                     pss.setString(1, "000");
-                    pss.setString(2, "z:world_size");
+                    pss.setString(2, "z:total_size");
                     ResultSet rs = pss.executeQuery();
                     final PreparedStatement ps = Zstats.connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
                     pss.close();
-                    ps.setLong(1, Zstats.world_size);
+                    ps.setLong(1, Zstats.total_size);
                     ps.setString(2, "000");
-                    ps.setString(3, "z:world_size");
-                    if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:world_size" + " - " + Zstats.world_size);
+                    ps.setString(3, "z:total_size");
+                    if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:total_size" + " - " + Zstats.total_size);
                     ps.executeUpdate();
                     ps.close();
                 } catch (SQLException throwables) {
