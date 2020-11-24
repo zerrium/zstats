@@ -199,6 +199,11 @@ public class ZPlayer {
         if(Zstats.debug) System.out.println("EntityType substat done");
 
         //server world save size
+        Zstats.end_size = 0L;
+        Zstats.nether_size = 0L;
+        Zstats.world_size = 0L;
+        Zstats.total_size = 0L;
+
         Bukkit.getWorlds().forEach(i ->{
             switch(i.getEnvironment()){
                 case NORMAL:
@@ -212,6 +217,9 @@ public class ZPlayer {
                 case THE_END:
                     Zstats.end_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
                     Zstats.total_size += Zstats.end_size;
+                    break;
+                default:
+                    Zstats.total_size += Zstats.total_size;
                     break;
             }
             if(Zstats.debug) System.out.println("Got world size of "+i.getName());
