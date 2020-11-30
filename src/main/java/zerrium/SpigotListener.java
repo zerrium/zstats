@@ -1,6 +1,5 @@
 package zerrium;
 
-import github.scarsz.discordsrv.DiscordSRV;
 import net.ess3.api.IUser;
 import net.ess3.api.events.AfkStatusChangeEvent;
 import org.bukkit.ChatColor;
