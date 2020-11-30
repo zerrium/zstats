@@ -12,9 +12,9 @@ public class SqlCon {
     private final static String password = Zstats.fc.getString("password");
 
     //connect to MySQL database safely
-    protected Connection openConnection() throws SQLException, ClassNotFoundException {
+    protected Connection openConnection() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         synchronized (this) {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
             return DriverManager.getConnection("jdbc:mysql://" + hostname + ":" + port + "/" + db_name, username, password);
         }
     }
