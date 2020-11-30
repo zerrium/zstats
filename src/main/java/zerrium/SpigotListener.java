@@ -29,14 +29,14 @@ public class SpigotListener implements Listener {
                 @Override
                 public void run() {
                     try {
-                        Connection connection = new SqlCon().openConnection();
+                        Connection connection = SqlCon.openConnection();
                         PreparedStatement ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();
                         ps.close();
                         connection.close();
-                    } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
+                    } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
                     System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
@@ -56,10 +56,10 @@ public class SpigotListener implements Listener {
         System.out.println(ChatColor.YELLOW + "[Zstats] " + ChatColor.RESET + name + " left the game. Updating stats...");
         ZPlayer zp = Zstats.zplayer.get(Zstats.zplayer.indexOf(new ZPlayer(uuid)));
         try {
-            Connection connection = new SqlCon().openConnection();
+            Connection connection = SqlCon.openConnection();
             zp.updateStat(connection);
             connection.close();
-        } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
+        } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }

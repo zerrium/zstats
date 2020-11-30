@@ -40,13 +40,11 @@ public class Zstats extends JavaPlugin{
         notify_discord_message = fc.getString("notify_message");
         //MySQL connect
         try{
-            connection = new SqlCon().openConnection();
-        } catch (SQLException | ClassNotFoundException throwables) {
+            connection = SqlCon.openConnection();
+        } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" Unable to connect to database:");
             throwables.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
-        } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
         }
         zplayer = new ArrayList<>();
         online_player = new HashMap<>();

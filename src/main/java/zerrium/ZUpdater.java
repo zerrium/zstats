@@ -26,12 +26,12 @@ public class ZUpdater implements CommandExecutor {
                 if(args[0].equalsIgnoreCase("update")){
                     sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
                     try {
-                        Connection connection = new SqlCon().openConnection();
+                        Connection connection = SqlCon.openConnection();
                         for(ZPlayer p : Zstats.zplayer){
                             p.updateStat(connection);
                         }
                         connection.close();
-                    } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
+                    } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
                     if(Zstats.notify_discord && Zstats.has_discordSrv){
@@ -49,10 +49,10 @@ public class ZUpdater implements CommandExecutor {
                         for(ZPlayer z : Zstats.zplayer){
                             if(args[1].equalsIgnoreCase(z.name)){
                                 try {
-                                    Connection connection = new SqlCon().openConnection();
+                                    Connection connection = SqlCon.openConnection();
                                     z.updateStat(connection);
                                     connection.close();
-                                } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
+                                } catch (SQLException throwables) {
                                     throwables.printStackTrace();
                                 }
                                 return true;
@@ -65,10 +65,10 @@ public class ZUpdater implements CommandExecutor {
                         for(ZPlayer z : Zstats.zplayer){
                             if(args[1].equalsIgnoreCase(z.name)){
                                 try {
-                                    Connection connection = new SqlCon().openConnection();
+                                    Connection connection = SqlCon.openConnection();
                                     z.deleteStat(connection);
                                     connection.close();
-                                } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
+                                } catch (SQLException throwables) {
                                     throwables.printStackTrace();
                                 }
                                 return true;
