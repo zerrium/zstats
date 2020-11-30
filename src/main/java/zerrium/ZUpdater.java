@@ -7,6 +7,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class ZUpdater implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -22,7 +25,17 @@ public class ZUpdater implements CommandExecutor {
             case 1: //update all
                 if(args[0].equalsIgnoreCase("update")){
                     sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
-                    Zstats.zplayer.forEach(ZPlayer::updateStat);
+                    try {
+                        Connection connection = new SqlCon().openConnection();
+                        for(ZPlayer p : Zstats.zplayer){
+                            p.updateStat(connection);
+                        }
+                        connection.close();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     if(Zstats.notify_discord && Zstats.has_discordSrv){
                         DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
                                 .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), "all players"))
@@ -37,7 +50,15 @@ public class ZUpdater implements CommandExecutor {
                     case "update":
                         for(ZPlayer z : Zstats.zplayer){
                             if(args[1].equalsIgnoreCase(z.name)){
-                                z.updateStat();
+                                try {
+                                    Connection connection = new SqlCon().openConnection();
+                                    z.updateStat(connection);
+                                    connection.close();
+                                } catch (SQLException throwables) {
+                                    throwables.printStackTrace();
+                                } catch (ClassNotFoundException e) {
+                                    e.printStackTrace();
+                                }
                                 return true;
                             }
                         }
@@ -47,7 +68,15 @@ public class ZUpdater implements CommandExecutor {
                     case "delete":
                         for(ZPlayer z : Zstats.zplayer){
                             if(args[1].equalsIgnoreCase(z.name)){
-                                z.deleteStat();
+                                try {
+                                    Connection connection = new SqlCon().openConnection();
+                                    z.deleteStat(connection);
+                                    connection.close();
+                                } catch (SQLException throwables) {
+                                    throwables.printStackTrace();
+                                } catch (ClassNotFoundException e) {
+                                    e.printStackTrace();
+                                }
                                 return true;
                             }
                         }

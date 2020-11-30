@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -29,18 +30,22 @@ public class SpigotListener implements Listener {
                 @Override
                 public void run() {
                     try {
-                        PreparedStatement ps = Zstats.connection.prepareStatement("insert into player(uuid,name) values (?,?)");
+                        Connection connection = new SqlCon().openConnection();
+                        PreparedStatement ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();
                         ps.close();
+                        connection.close();
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
                     }
+                    System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
                 }
             };
             r.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
-            System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
         }
     }
 
@@ -53,12 +58,14 @@ public class SpigotListener implements Listener {
         if(Zstats.debug) System.out.println(Zstats.online_player);
         System.out.println(ChatColor.YELLOW + "[Zstats] " + ChatColor.RESET + name + " left the game. Updating stats...");
         ZPlayer zp = Zstats.zplayer.get(Zstats.zplayer.indexOf(new ZPlayer(uuid)));
-        zp.updateStat();
-        System.out.println(ChatColor.YELLOW + "[Zstats] " + ChatColor.RESET + name + " stats has been updated");
-        if(Zstats.notify_discord && Zstats.has_discordSrv){
-            DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
-                    .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), zp.name))
-                    .queue();
+        try {
+            Connection connection = new SqlCon().openConnection();
+            zp.updateStat(connection);
+            connection.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 

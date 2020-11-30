@@ -14,21 +14,21 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Zstats extends JavaPlugin{
-    public static FileConfiguration fc;
-    protected static Connection connection;
-    public static Boolean debug, notify_discord;
-    public static String notify_discord_message;
-    public static ArrayList<ZPlayer> zplayer;
-    public static HashMap<UUID, String> online_player;
-    public static long world_size = 0L;
-    public static long nether_size = 0L;
-    public static long end_size = 0L;
-    public static long total_size = 0L;
-    public static boolean has_discordSrv, hasEssentials;
+    static FileConfiguration fc;
+    private Connection connection;
+    static Boolean debug, notify_discord;
+    static String notify_discord_message;
+    static ArrayList<ZPlayer> zplayer;
+    static HashMap<UUID, String> online_player;
+    static long world_size = 0L;
+    static long nether_size = 0L;
+    static long end_size = 0L;
+    static long total_size = 0L;
+    static boolean has_discordSrv, hasEssentials;
 
     @Override
     public void onEnable() {
-        System.out.println(ChatColor.YELLOW+"[Zstats] v0.6 by zerrium");
+        System.out.println(ChatColor.YELLOW+"[Zstats] v0.7 by zerrium");
         getServer().getPluginManager().registerEvents(new SpigotListener(), this);
         this.getCommand("zstats").setExecutor(new ZUpdater());
         System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
@@ -39,7 +39,7 @@ public class Zstats extends JavaPlugin{
         notify_discord_message = fc.getString("notify_message");
         //MySQL connect
         try{
-            openConnection();
+            connection = new SqlCon().openConnection();
         } catch (SQLException | ClassNotFoundException throwables) {
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" Unable to connect to database:");
             throwables.printStackTrace();
@@ -47,6 +47,7 @@ public class Zstats extends JavaPlugin{
         }
         zplayer = new ArrayList<>();
         online_player = new HashMap<>();
+
         //database query
         try {
             Statement st = connection.createStatement();
@@ -87,6 +88,7 @@ public class Zstats extends JavaPlugin{
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ counter +" players.");
                 ps.close();
                 rss.close();
+                connection.close();
             }else{
                 BukkitRunnable s = new BukkitRunnable() {
                     @Override
@@ -103,6 +105,7 @@ public class Zstats extends JavaPlugin{
                             }
                             while(rss.next());
                             rss.close();
+                            connection.close();
                             System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c.get() +" players.");
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
@@ -141,27 +144,6 @@ public class Zstats extends JavaPlugin{
 
     @Override
     public void onDisable() {
-        try {
-            connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
         System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
-    }
-
-    //connect to MySQL database safely
-    private void openConnection() throws SQLException, ClassNotFoundException {
-        if (connection != null && !connection.isClosed()) {
-            return;
-        }
-
-        synchronized (this) {
-            if (connection != null && !connection.isClosed()) {
-                return;
-            }
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://" + fc.getString("hostname")+ ":" + fc.getInt("port") +
-                    "/" + fc.getString("database"), fc.getString("username"), fc.getString("password"));
-        }
     }
 }
