@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ZPlayer {
     String name;
     UUID uuid;
-    long afk_time;
+    long afk_time, last_played;
     HashMap<String, Long> x; //convert those stupid many attributes into a hashmap
     LinkedHashMap<Material, Long> craft;
     LinkedHashMap<Material, Long> place;
@@ -28,6 +28,45 @@ public class ZPlayer {
     public ZPlayer(UUID uuid, String name){
         this.uuid = uuid;
         this.name = name;
+        BukkitRunnable rr = new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    Connection connection = SqlCon.openConnection();
+                    if(Zstats.debug) System.out.println("Get player AFK time from db");
+                    PreparedStatement pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
+                    pss.setString(1, uuid.toString());
+                    pss.setString(2, "z:afk_time");
+                    ResultSet rs = pss.executeQuery();
+                    if (!rs.next()) {
+                        if(Zstats.debug) System.out.println("AFK stat Not found. set it to 0");
+                        afk_time = 0L;
+                    }else{
+                        afk_time = rs.getLong(1);
+                        if(Zstats.debug) System.out.println("AFK value: " + afk_time);
+                    }
+
+                    if(Zstats.debug) System.out.println("Get player last played time from db");
+                    pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
+                    pss.setString(1, uuid.toString());
+                    pss.setString(2, "z:last_played");
+                    rs = pss.executeQuery();
+                    if (!rs.next()) {
+                        OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
+                        if(Zstats.debug) System.out.println("Last played stat Not found. set it to OfflinePlayer#getLastPlayed");
+                        last_played = p.getLastPlayed()/1000;
+                    }else{
+                        last_played = rs.getLong(1);
+                        if(Zstats.debug) System.out.println("Last played value: " + last_played);
+                    }
+                    pss.close();
+                    rs.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        };
+        rr.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
     }
 
     public ZPlayer(UUID uuid){
@@ -100,36 +139,13 @@ public class ZPlayer {
         this.x.put("z:slain_kind", 0L);
         this.x.put("z:last_played", 0L);
 
-        BukkitRunnable rr = new BukkitRunnable() {
-            @Override
-            public void run() {
-                try {
-                    if(Zstats.debug) System.out.println("Get player AFK time from db");
-                    PreparedStatement pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
-                    pss.setString(1, uuid.toString());
-                    pss.setString(2, "z:afk_time");
-                    ResultSet rs = pss.executeQuery();
-                    if (!rs.next()) {
-                        if(Zstats.debug) System.out.println("AFK stat Not found. set it to 0");
-                        afk_time = 0L;
-                    }else{
-                        afk_time = rs.getLong(1);
-                        if(Zstats.debug) System.out.println("AFK value: " + afk_time);
-                    }
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-            }
-        };
-        rr.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
-
         //Not thread safe, cannot do it asynchronously
         OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
         this.x.forEach((k,v) ->{
             if(!k.contains("z:")){
                 x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
             }else if(k.equals("z:last_played")){
-                x.put(k, p.getLastPlayed()/1000);
+                x.put(k, last_played);
             }
         });
 

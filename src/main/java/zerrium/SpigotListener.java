@@ -54,6 +54,7 @@ public class SpigotListener implements Listener {
         if(Zstats.debug) System.out.println(Zstats.online_player);
         System.out.println(ChatColor.YELLOW + "[Zstats] " + ChatColor.RESET + name + " left the game. Updating stats...");
         ZPlayer zp = Zstats.zplayer.get(Zstats.zplayer.indexOf(new ZPlayer(uuid)));
+        zp.last_played = System.currentTimeMillis()/1000;
         try {
             Connection connection = SqlCon.openConnection();
             zp.updateStat(connection);
