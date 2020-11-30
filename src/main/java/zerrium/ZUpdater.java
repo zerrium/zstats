@@ -31,14 +31,8 @@ public class ZUpdater implements CommandExecutor {
                             p.updateStat(connection);
                         }
                         connection.close();
-                    } catch (SQLException throwables) {
+                    } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
                         throwables.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
                     }
                     if(Zstats.notify_discord && Zstats.has_discordSrv){
                         DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
@@ -58,14 +52,8 @@ public class ZUpdater implements CommandExecutor {
                                     Connection connection = new SqlCon().openConnection();
                                     z.updateStat(connection);
                                     connection.close();
-                                } catch (SQLException throwables) {
+                                } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
                                     throwables.printStackTrace();
-                                } catch (ClassNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IllegalAccessException e) {
-                                    e.printStackTrace();
-                                } catch (InstantiationException e) {
-                                    e.printStackTrace();
                                 }
                                 return true;
                             }
@@ -80,14 +68,8 @@ public class ZUpdater implements CommandExecutor {
                                     Connection connection = new SqlCon().openConnection();
                                     z.deleteStat(connection);
                                     connection.close();
-                                } catch (SQLException throwables) {
+                                } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
                                     throwables.printStackTrace();
-                                } catch (ClassNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IllegalAccessException e) {
-                                    e.printStackTrace();
-                                } catch (InstantiationException e) {
-                                    e.printStackTrace();
                                 }
                                 return true;
                             }

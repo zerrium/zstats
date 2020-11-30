@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,7 +31,7 @@ public class Zstats extends JavaPlugin{
     public void onEnable() {
         System.out.println(ChatColor.YELLOW+"[Zstats] v0.7 by zerrium");
         getServer().getPluginManager().registerEvents(new SpigotListener(), this);
-        this.getCommand("zstats").setExecutor(new ZUpdater());
+        Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZUpdater());
         System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
         this.saveDefaultConfig(); //get config file
         fc = this.getConfig();
@@ -44,6 +45,8 @@ public class Zstats extends JavaPlugin{
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" Unable to connect to database:");
             throwables.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
+        } catch (IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
         }
         zplayer = new ArrayList<>();
         online_player = new HashMap<>();
@@ -133,13 +136,7 @@ public class Zstats extends JavaPlugin{
             System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK detection for sleep notification");
             hasEssentials = false;
         }
-        BukkitRunnable r = new BukkitRunnable() {
-            @Override
-            public void run() {
-                new ZFilter();
-            }
-        };
-        r.runTaskAsynchronously(this);
+        ZFilter.begin();
     }
 
     @Override

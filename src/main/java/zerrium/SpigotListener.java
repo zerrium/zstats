@@ -36,14 +36,8 @@ public class SpigotListener implements Listener {
                         ps.executeUpdate();
                         ps.close();
                         connection.close();
-                    } catch (SQLException throwables) {
+                    } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
                         throwables.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
                     }
                     System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
                 }
@@ -65,14 +59,8 @@ public class SpigotListener implements Listener {
             Connection connection = new SqlCon().openConnection();
             zp.updateStat(connection);
             connection.close();
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException throwables) {
             throwables.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
         }
     }
 

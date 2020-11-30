@@ -8,7 +8,7 @@ public class ZFilter {
     private static final ArrayList<Material> f = new ArrayList<>();
     private static final ArrayList<String> g = new ArrayList<>();
 
-    public ZFilter(){
+    protected static void begin(){
         f.add(Material.BOW);
         f.add(Material.TRIDENT);
         f.add(Material.SHEARS);
@@ -23,7 +23,7 @@ public class ZFilter {
         g.add("_HOE");
     }
 
-    public static boolean is_tool(Material m){
+    protected static boolean is_tool(Material m){
         if (f.contains(m)) return true;
         else{
             for(String s: g){
@@ -33,7 +33,7 @@ public class ZFilter {
         return false;
     }
 
-    public static LinkedHashMap sortByValues(HashMap map) {
+    protected static LinkedHashMap sortByValues(HashMap map) {
         List<Object> list = new LinkedList<Object>(map.entrySet());
         // Defined Custom Comparator here
         list.sort(Collections.reverseOrder((o1, o2) -> ((Comparable<Object>) ((Map.Entry) (o1)).getValue())
