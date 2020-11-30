@@ -30,7 +30,6 @@ public class ZUpdater implements CommandExecutor {
                         for(ZPlayer p : Zstats.zplayer){
                             p.updateStat(connection);
                         }
-                        connection.close();
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
@@ -51,7 +50,6 @@ public class ZUpdater implements CommandExecutor {
                                 try {
                                     Connection connection = SqlCon.openConnection();
                                     z.updateStat(connection);
-                                    connection.close();
                                 } catch (SQLException throwables) {
                                     throwables.printStackTrace();
                                 }
@@ -67,7 +65,6 @@ public class ZUpdater implements CommandExecutor {
                                 try {
                                     Connection connection = SqlCon.openConnection();
                                     z.deleteStat(connection);
-                                    connection.close();
                                 } catch (SQLException throwables) {
                                     throwables.printStackTrace();
                                 }

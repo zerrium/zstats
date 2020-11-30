@@ -89,7 +89,6 @@ public class Zstats extends JavaPlugin{
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ counter +" players.");
                 ps.close();
                 rss.close();
-                connection.close();
             }else{
                 BukkitRunnable s = new BukkitRunnable() {
                     @Override
@@ -106,7 +105,6 @@ public class Zstats extends JavaPlugin{
                             }
                             while(rss.next());
                             rss.close();
-                            connection.close();
                             System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c.get() +" players.");
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
@@ -139,6 +137,7 @@ public class Zstats extends JavaPlugin{
 
     @Override
     public void onDisable() {
+        SqlCon.closeConnection();
         System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
     }
 }

@@ -35,7 +35,6 @@ public class SpigotListener implements Listener {
                         ps.setString(2, name);
                         ps.executeUpdate();
                         ps.close();
-                        connection.close();
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
@@ -58,7 +57,6 @@ public class SpigotListener implements Listener {
         try {
             Connection connection = SqlCon.openConnection();
             zp.updateStat(connection);
-            connection.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

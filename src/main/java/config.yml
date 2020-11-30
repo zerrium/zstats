@@ -4,6 +4,7 @@ port: 3306
 database: 'My_Stats'
 username: 'root'
 password: 'yourPassword'
+use_SSL: false
 
 #DiscordSRV config
 notify_stats_update_to_discord: false

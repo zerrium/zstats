@@ -1,10 +1,11 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="zstats:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/zstats_jar</output-path>
+    <output-path>$PROJECT_DIR$/out/artifacts/zstats</output-path>
     <root id="archive" name="zstats.jar">
-      <element id="module-output" name="zstats.main" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/19.0.0/efbff6752f67a7c9de3e4251c086a88e23591dfd/annotations-19.0.0.jar" path-in-jar="/" />
+      <element id="module-output" name="mc_statbot.main" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.zaxxer/HikariCP/3.4.5/aa1a2c00aae8e4ba8308e19940711bb9525b103d/HikariCP-3.4.5.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.7/3f2bd4ba11c4162733c13cc90ca7c7ea09967102/commons-io-2.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/19.0.0/efbff6752f67a7c9de3e4251c086a88e23591dfd/annotations-19.0.0.jar" path-in-jar="/" />
       <element id="file-copy" path="$PROJECT_DIR$/src/main/java/config.yml" />
       <element id="file-copy" path="$PROJECT_DIR$/src/main/java/plugin.yml" />
     </root>

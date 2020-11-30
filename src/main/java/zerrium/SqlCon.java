@@ -12,6 +12,7 @@ public class SqlCon {
     private final static String db_name = Zstats.fc.getString("database");
     private final static String username = Zstats.fc.getString("username");
     private final static String password = Zstats.fc.getString("password");
+    private final static boolean useSSL = Zstats.fc.getBoolean("use_SSL");
     private final static HikariConfig config = new HikariConfig();
     private final static HikariDataSource ds;
 
@@ -23,6 +24,7 @@ public class SqlCon {
         config.addDataSourceProperty( "cachePrepStmts" , "true" );
         config.addDataSourceProperty( "prepStmtCacheSize" , "250" );
         config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );
+        config.addDataSourceProperty("useSSL", useSSL);
         ds = new HikariDataSource( config );
     }
 
@@ -30,5 +32,9 @@ public class SqlCon {
 
     protected static Connection openConnection() throws SQLException {
         return ds.getConnection();
+    }
+
+    protected static void closeConnection(){
+        ds.close();
     }
 }
