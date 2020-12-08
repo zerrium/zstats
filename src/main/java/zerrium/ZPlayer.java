@@ -67,12 +67,14 @@ public class ZPlayer {
                     try {
                         assert pss != null;
                         pss.close();
-                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
-                    try {
+
                         assert rs != null;
                         rs.close();
-                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
-                    try { connection.close(); } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+
+                        connection.close();
+                    } catch (Exception e) {
+                        if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                    }
                 }
             }
         };
@@ -451,15 +453,15 @@ public class ZPlayer {
                     try {
                         assert pss != null;
                         pss.close();
-                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
-                    try {
+
                         assert rs != null;
                         rs.close();
-                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
-                    try {
+
                         assert ps != null;
                         ps.close();
-                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+                    } catch (Exception e) {
+                        if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                    }
                 }
                 /*
                 x.forEach((k, v) -> {
@@ -692,7 +694,9 @@ public class ZPlayer {
                     try {
                         assert pss != null;
                         pss.close();
-                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+                    } catch (Exception e) {
+                        if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                    }
                 }
             }
         };

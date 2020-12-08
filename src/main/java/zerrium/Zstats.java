@@ -112,20 +112,20 @@ public class Zstats extends JavaPlugin{
             try {
                 assert st != null;
                 st.close();
-            } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
-            try {
+
                 assert rs != null;
                 rs.close();
-            } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
-            try {
+
                 assert rss != null;
                 rss.close();
-            } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
-            try {
+
                 assert ps != null;
                 ps.close();
-            } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
-            try { connection.close(); } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
+
+                connection.close();
+            } catch (Exception e) {
+                if(debug) System.out.println("[Zstats] "+ e );
+            }
         }
 
         if(Bukkit.getPluginManager().getPlugin("DiscordSRV") != null || Bukkit.getPluginManager().getPlugin("discordsrv") != null){

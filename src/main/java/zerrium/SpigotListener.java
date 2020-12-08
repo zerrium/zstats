@@ -42,8 +42,10 @@ public class SpigotListener implements Listener {
                         try {
                             assert ps != null;
                             ps.close();
-                        } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
-                        try { connection.close(); } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+                            connection.close();
+                        } catch (Exception e) {
+                            if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                        }
                     }
                     System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
                 }
@@ -72,7 +74,9 @@ public class SpigotListener implements Listener {
             try {
                 assert connection != null;
                 connection.close();
-            } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+            } catch (Exception e) {
+                if(Zstats.debug) System.out.println("[Zstats] "+ e );
+            }
         }
     }
 
