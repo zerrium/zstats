@@ -97,8 +97,11 @@ public class ZUpdater implements CommandExecutor {
                         }
                         sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
                         return true;
+
+                    default:
+                        sender.sendMessage(message);
+                        return false;
                 }
-                break;
 
             default:
                 sender.sendMessage(message);
