@@ -25,13 +25,16 @@ public class ZUpdater implements CommandExecutor {
             case 1: //update all
                 if(args[0].equalsIgnoreCase("update")){
                     sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
+                    Connection connection = null;
                     try {
-                        Connection connection = SqlCon.openConnection();
+                        connection = SqlCon.openConnection();
                         for(ZPlayer p : Zstats.zplayer){
                             p.updateStat(connection);
                         }
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
+                    } finally {
+                        try { connection.close(); } catch (Exception e) {};
                     }
                     if(Zstats.notify_discord && Zstats.has_discordSrv){
                         DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
@@ -47,11 +50,14 @@ public class ZUpdater implements CommandExecutor {
                     case "update":
                         for(ZPlayer z : Zstats.zplayer){
                             if(args[1].equalsIgnoreCase(z.name)){
+                                Connection connection = null;
                                 try {
-                                    Connection connection = SqlCon.openConnection();
+                                    connection = SqlCon.openConnection();
                                     z.updateStat(connection);
                                 } catch (SQLException throwables) {
                                     throwables.printStackTrace();
+                                } finally {
+                                    try { connection.close(); } catch (Exception e) {};
                                 }
                                 return true;
                             }
@@ -62,11 +68,14 @@ public class ZUpdater implements CommandExecutor {
                     case "delete":
                         for(ZPlayer z : Zstats.zplayer){
                             if(args[1].equalsIgnoreCase(z.name)){
+                                Connection connection = null;
                                 try {
-                                    Connection connection = SqlCon.openConnection();
+                                    connection = SqlCon.openConnection();
                                     z.deleteStat(connection);
                                 } catch (SQLException throwables) {
                                     throwables.printStackTrace();
+                                } finally {
+                                    try { connection.close(); } catch (Exception e) {};
                                 }
                                 return true;
                             }

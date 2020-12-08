@@ -5,14 +5,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Zstats extends JavaPlugin{
     static FileConfiguration fc;
@@ -50,9 +48,13 @@ public class Zstats extends JavaPlugin{
         online_player = new HashMap<>();
 
         //database query
+        Statement st = null;
+        ResultSet rs = null;
+        ResultSet rss = null;
+        PreparedStatement ps = null;
         try {
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("show tables");
+            st = connection.createStatement();
+            rs = st.executeQuery("show tables");
             if(!rs.next()){
                 st.executeUpdate("create table player(" +
                         "    uuid varchar(50) not null," +
@@ -64,13 +66,12 @@ public class Zstats extends JavaPlugin{
                         "    val bigint(19) not null," +
                         "    foreign key(uuid) references player(uuid));");
             }
-            rs.close();
-            final ResultSet rss = st.executeQuery("select * from player;");
+            rss = st.executeQuery("select * from player;");
             System.out.println(ChatColor.YELLOW+"[Zstats] Getting player list from database...");
             int counter = 0;
             if(!rss.next()){
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found nothing in database. Grabbing player lists from world save...");
-                PreparedStatement ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
+                ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
                 for(OfflinePlayer i: Bukkit.getOfflinePlayers()){
                     if(i.hasPlayedBefore()) {
                         counter++;
@@ -87,35 +88,32 @@ public class Zstats extends JavaPlugin{
                 ps.setString(2, "Server");
                 ps.executeUpdate();
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ counter +" players.");
-                ps.close();
-                rss.close();
             }else{
-                BukkitRunnable s = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        AtomicInteger c = new AtomicInteger(0);
-                        try{
-                            do{
-                                if(rss.getString("uuid").equals("000")) continue;
-                                zplayer.add(new ZPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
-                                if(debug){
-                                    System.out.println(zplayer.get(c.get()).uuid+" --- "+zplayer.get(c.get()).name);
-                                }
-                                c.getAndIncrement();
+                    int c = 0;
+                    try{
+                        do{
+                            if(rss.getString("uuid").equals("000")) continue;
+                            zplayer.add(new ZPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
+                            if(debug){
+                                System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
                             }
-                            while(rss.next());
-                            rss.close();
-                            System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c.get() +" players.");
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
+                            c++;
                         }
+                        while(rss.next());
+                        System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
                     }
-                };
-                s.runTaskAsynchronously(this);
             }
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:");
             throwables.printStackTrace();
+        } finally {
+            try { st.close(); } catch (Exception e) {};
+            try { rs.close(); } catch (Exception e) {};
+            try { rss.close(); } catch (Exception e) {};
+            try { ps.close(); } catch (Exception e) {};
+            try { connection.close(); } catch (Exception e) {};
         }
 
         if(Bukkit.getPluginManager().getPlugin("DiscordSRV") != null || Bukkit.getPluginManager().getPlugin("discordsrv") != null){

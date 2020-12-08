@@ -28,15 +28,19 @@ public class SpigotListener implements Listener {
             BukkitRunnable r = new BukkitRunnable() {
                 @Override
                 public void run() {
+                    Connection connection = null;
+                    PreparedStatement ps = null;
                     try {
-                        Connection connection = SqlCon.openConnection();
-                        PreparedStatement ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
+                        connection = SqlCon.openConnection();
+                        ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();
-                        ps.close();
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
+                    } finally {
+                        try { ps.close(); } catch (Exception e) {};
+                        try { connection.close(); } catch (Exception e) {};
                     }
                     System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
                 }
@@ -55,11 +59,14 @@ public class SpigotListener implements Listener {
         System.out.println(ChatColor.YELLOW + "[Zstats] " + ChatColor.RESET + name + " left the game. Updating stats...");
         ZPlayer zp = Zstats.zplayer.get(Zstats.zplayer.indexOf(new ZPlayer(uuid)));
         zp.last_played = System.currentTimeMillis()/1000;
+        Connection connection = null;
         try {
-            Connection connection = SqlCon.openConnection();
+            connection = SqlCon.openConnection();
             zp.updateStat(connection);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            try { connection.close(); } catch (Exception e) {};
         }
     }
 
