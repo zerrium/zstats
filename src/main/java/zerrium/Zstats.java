@@ -109,11 +109,23 @@ public class Zstats extends JavaPlugin{
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:");
             throwables.printStackTrace();
         } finally {
-            try { st.close(); } catch (Exception e) {};
-            try { rs.close(); } catch (Exception e) {};
-            try { rss.close(); } catch (Exception e) {};
-            try { ps.close(); } catch (Exception e) {};
-            try { connection.close(); } catch (Exception e) {};
+            try {
+                assert st != null;
+                st.close();
+            } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
+            try {
+                assert rs != null;
+                rs.close();
+            } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
+            try {
+                assert rss != null;
+                rss.close();
+            } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
+            try {
+                assert ps != null;
+                ps.close();
+            } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
+            try { connection.close(); } catch (Exception e) {if(debug) System.out.println("[Zstats] "+ e );}
         }
 
         if(Bukkit.getPluginManager().getPlugin("DiscordSRV") != null || Bukkit.getPluginManager().getPlugin("discordsrv") != null){

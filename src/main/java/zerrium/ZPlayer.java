@@ -64,9 +64,15 @@ public class ZPlayer {
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 } finally {
-                    try { pss.close(); } catch (Exception e) {};
-                    try { rs.close(); } catch (Exception e) {};
-                    try { connection.close(); } catch (Exception e) {};
+                    try {
+                        assert pss != null;
+                        pss.close();
+                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+                    try {
+                        assert rs != null;
+                        rs.close();
+                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+                    try { connection.close(); } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
                 }
             }
         };
@@ -442,9 +448,18 @@ public class ZPlayer {
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 } finally {
-                    try { pss.close(); } catch (Exception e) {};
-                    try { rs.close(); } catch (Exception e) {};
-                    try { ps.close(); } catch (Exception e) {};
+                    try {
+                        assert pss != null;
+                        pss.close();
+                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+                    try {
+                        assert rs != null;
+                        rs.close();
+                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
+                    try {
+                        assert ps != null;
+                        ps.close();
+                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
                 }
                 /*
                 x.forEach((k, v) -> {
@@ -674,7 +689,10 @@ public class ZPlayer {
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 } finally {
-                    try { pss.close(); } catch (Exception e) {};
+                    try {
+                        assert pss != null;
+                        pss.close();
+                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
                 }
             }
         };

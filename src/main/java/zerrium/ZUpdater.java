@@ -34,7 +34,10 @@ public class ZUpdater implements CommandExecutor {
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     } finally {
-                        try { connection.close(); } catch (Exception e) {};
+                        try {
+                            assert connection != null;
+                            connection.close();
+                        } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
                     }
                     if(Zstats.notify_discord && Zstats.has_discordSrv){
                         DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
@@ -57,7 +60,10 @@ public class ZUpdater implements CommandExecutor {
                                 } catch (SQLException throwables) {
                                     throwables.printStackTrace();
                                 } finally {
-                                    try { connection.close(); } catch (Exception e) {};
+                                    try {
+                                        assert connection != null;
+                                        connection.close();
+                                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
                                 }
                                 return true;
                             }
@@ -75,7 +81,10 @@ public class ZUpdater implements CommandExecutor {
                                 } catch (SQLException throwables) {
                                     throwables.printStackTrace();
                                 } finally {
-                                    try { connection.close(); } catch (Exception e) {};
+                                    try {
+                                        assert connection != null;
+                                        connection.close();
+                                    } catch (Exception e) {if(Zstats.debug) System.out.println("[Zstats] "+ e );}
                                 }
                                 return true;
                             }
