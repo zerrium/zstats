@@ -33,6 +33,7 @@ public class ZUpdater implements CommandExecutor {
                             try {
                                 connection = SqlCon.openConnection();
                                 for(ZPlayer p : Zstats.zplayer){
+                                    if(p.is_updating) continue;
                                     p.updateStat(connection);
                                 }
                             } catch (SQLException throwables) {
@@ -64,6 +65,7 @@ public class ZUpdater implements CommandExecutor {
                             public void run() {
                                 for(ZPlayer z : Zstats.zplayer){
                                     if(args[1].equalsIgnoreCase(z.name)){
+                                        if(z.is_updating) return;
                                         Connection connection = null;
                                         try {
                                             connection = SqlCon.openConnection();

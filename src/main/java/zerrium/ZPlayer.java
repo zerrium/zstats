@@ -14,6 +14,7 @@ public class ZPlayer {
     String name;
     UUID uuid;
     long afk_time, last_played;
+    boolean is_updating; //flag to prevent double update to the same Object simultaneously
     HashMap<String, Long> x; //convert those stupid many attributes into a hashmap
     LinkedHashMap<Material, Long> craft;
     LinkedHashMap<Material, Long> place;
@@ -56,6 +57,7 @@ public class ZPlayer {
         pss.close();
         rs.close();
         connection.close();
+        this.is_updating = false;
     }
 
     public ZPlayer(UUID uuid){
@@ -130,6 +132,7 @@ public class ZPlayer {
     }
 
     public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
+        this.is_updating = true;
         //Clear existing Stats
         this.clearStat();
 
@@ -222,10 +225,12 @@ public class ZPlayer {
         }
 
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
+        this.is_updating = false;
     }
 
     public void deleteStat(Connection connection) throws SQLException { //Should be called Asynchronously
         //delete from SQL
+        if(this.is_updating) return;
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Deleting stats of " + uuid.toString() + " associates with " + name + " from database...");
         PreparedStatement pss = connection.prepareStatement("delete from stats where uuid=?");
         pss.setString(1, uuid.toString());
