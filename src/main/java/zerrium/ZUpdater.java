@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -23,79 +24,95 @@ public class ZUpdater implements CommandExecutor {
                 return true;
 
             case 1: //update all
-                if(args[0].equalsIgnoreCase("update")){
-                    sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
-                    Connection connection = null;
-                    try {
-                        connection = SqlCon.openConnection();
-                        for(ZPlayer p : Zstats.zplayer){
-                            p.updateStat(connection);
-                        }
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    } finally {
-                        try {
-                            assert connection != null;
-                            connection.close();
-                        } catch (Exception e) {
-                            if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                BukkitRunnable r = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if(args[0].equalsIgnoreCase("update")){
+                            sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
+                            Connection connection = null;
+                            try {
+                                connection = SqlCon.openConnection();
+                                for(ZPlayer p : Zstats.zplayer){
+                                    p.updateStat(connection);
+                                }
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
+                            } finally {
+                                try {
+                                    assert connection != null;
+                                    connection.close();
+                                } catch (Exception e) {
+                                    if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                                }
+                            }
+                            if(Zstats.notify_discord && Zstats.has_discordSrv){
+                                DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
+                                        .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), "all players"))
+                                        .queue();
+                            }
                         }
                     }
-                    if(Zstats.notify_discord && Zstats.has_discordSrv){
-                        DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
-                                .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), "all players"))
-                                .queue();
-                    }
-                    return true;
-                }
-                break;
+                };
+                r.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
+                return true;
 
             case 2: //update or delete specific player
                 switch(args[0].toLowerCase()){
                     case "update":
-                        for(ZPlayer z : Zstats.zplayer){
-                            if(args[1].equalsIgnoreCase(z.name)){
-                                Connection connection = null;
-                                try {
-                                    connection = SqlCon.openConnection();
-                                    z.updateStat(connection);
-                                } catch (SQLException throwables) {
-                                    throwables.printStackTrace();
-                                } finally {
-                                    try {
-                                        assert connection != null;
-                                        connection.close();
-                                    } catch (Exception e) {
-                                        if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                        BukkitRunnable rr = new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                for(ZPlayer z : Zstats.zplayer){
+                                    if(args[1].equalsIgnoreCase(z.name)){
+                                        Connection connection = null;
+                                        try {
+                                            connection = SqlCon.openConnection();
+                                            z.updateStat(connection);
+                                        } catch (SQLException throwables) {
+                                            throwables.printStackTrace();
+                                        } finally {
+                                            try {
+                                                assert connection != null;
+                                                connection.close();
+                                            } catch (Exception e) {
+                                                if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                                            }
+                                        }
                                     }
                                 }
-                                return true;
+                                sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
                             }
-                        }
-                        sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
+                        };
+                        rr.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
                         return true;
 
                     case "delete":
-                        for(ZPlayer z : Zstats.zplayer){
-                            if(args[1].equalsIgnoreCase(z.name)){
-                                Connection connection = null;
-                                try {
-                                    connection = SqlCon.openConnection();
-                                    z.deleteStat(connection);
-                                } catch (SQLException throwables) {
-                                    throwables.printStackTrace();
-                                } finally {
-                                    try {
-                                        assert connection != null;
-                                        connection.close();
-                                    } catch (Exception e) {
-                                        if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                        BukkitRunnable s = new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                for(ZPlayer z : Zstats.zplayer){
+                                    if(args[1].equalsIgnoreCase(z.name)){
+                                        Connection connection = null;
+                                        try {
+                                            connection = SqlCon.openConnection();
+                                            z.deleteStat(connection);
+                                        } catch (SQLException throwables) {
+                                            throwables.printStackTrace();
+                                        } finally {
+                                            try {
+                                                assert connection != null;
+                                                connection.close();
+                                            } catch (Exception e) {
+                                                if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                                            }
+                                        }
+                                        return;
                                     }
                                 }
-                                return true;
+                                sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
                             }
-                        }
-                        sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
+                        };
+                        s.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
                         return true;
 
                     default:
@@ -107,7 +124,5 @@ public class ZUpdater implements CommandExecutor {
                 sender.sendMessage(message);
                 return false;
         }
-        sender.sendMessage(message);
-        return false;
     }
 }
