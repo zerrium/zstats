@@ -91,20 +91,16 @@ public class Zstats extends JavaPlugin{
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ counter +" players.");
             }else{
                     int c = 0;
-                    try{
-                        do{
-                            if(rss.getString("uuid").equals("000")) continue;
-                            zplayer.add(new ZPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
-                            if(debug){
-                                System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
-                            }
-                            c++;
+                    do{
+                        if(rss.getString("uuid").equals("000")) continue;
+                        zplayer.add(new ZPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
+                        if(debug){
+                            System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
                         }
-                        while(rss.next());
-                        System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
+                        c++;
                     }
+                    while(rss.next());
+                    System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
             }
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:");
