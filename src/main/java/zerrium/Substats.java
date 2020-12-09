@@ -94,64 +94,55 @@ public class Substats{ //Manage substats
 
     protected void sort_substats(){ //Sort all substats
         if(Zstats.debug) System.out.println("Sorting substats...");
+        int i = 0;
         if(zp.x.get("z:craft_kind") != 0){
             LinkedHashMap temp = ZFilter.sortByValues(this.craft);
             Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    zp.craft.put((Material) e.getKey(), (Long) e.getValue());
-                }else{
-                    zp.craft.put(null, 0L);
-                }
+            i = 0;
+            while(x.hasNext() && i<3){
+                Map.Entry e = (Map.Entry) x.next();
+                zp.craft.put((Material) e.getKey(), (Long) e.getValue());
+                i++;
             }
         }
         if(zp.x.get("z:place_kind") != 0){
             LinkedHashMap temp = ZFilter.sortByValues(this.place);
             Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    zp.place.put((Material) e.getKey(), (Long) e.getValue());
-                }else{
-                    zp.place.put(null, 0L);
-                }
+            i = 0;
+            while(x.hasNext() && i<3){
+                Map.Entry e = (Map.Entry) x.next();
+                zp.place.put((Material) e.getKey(), (Long) e.getValue());
+                i++;
             }
         }
         if(zp.x.get("z:mine_kind") != 0){
             LinkedHashMap temp = ZFilter.sortByValues(this.mine);
             Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    zp.mine.put((Material) e.getKey(), (Long) e.getValue());
-                }else{
-                    zp.mine.put(null, 0L);
-                }
+            i = 0;
+            while(x.hasNext() && i<3){
+                Map.Entry e = (Map.Entry) x.next();
+                zp.mine.put((Material) e.getKey(), (Long) e.getValue());
+                i++;
             }
         }
         if(zp.x.get("z:mob_kind") != 0){
             LinkedHashMap temp = ZFilter.sortByValues(this.kill);
             Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    zp.mob.put((EntityType) e.getKey(), (Long) e.getValue());
-                }else{
-                    zp.mob.put(null, 0L);
-                }
+            i = 0;
+            while(x.hasNext() && i<3){
+                Map.Entry e = (Map.Entry) x.next();
+                zp.mob.put((EntityType) e.getKey(), (Long) e.getValue());
+                i++;
             }
         }
         if(zp.x.get("z:slain_kind") != 0){
             LinkedHashMap temp = ZFilter.sortByValues(this.kill_by);
             Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    zp.slain.put((EntityType) e.getKey(), (Long) e.getValue());
-                }else{
-                    zp.slain.put(null, 0L);
-                }
+            i = 0;
+            while(x.hasNext() && i<3){
+                Map.Entry e = (Map.Entry) x.next();
+                zp.slain.put((EntityType) e.getKey(), (Long) e.getValue());
+                i++;
             }
         }
         if(Zstats.debug) System.out.println("Sorting substats done");
