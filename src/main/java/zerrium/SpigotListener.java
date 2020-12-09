@@ -1,5 +1,6 @@
 package zerrium;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import net.ess3.api.IUser;
 import net.ess3.api.events.AfkStatusChangeEvent;
 import org.bukkit.ChatColor;
@@ -71,6 +72,11 @@ public class SpigotListener implements Listener {
                 try {
                     connection = SqlCon.openConnection();
                     zp.updateStat(connection);
+                    if(Zstats.notify_discord && Zstats.has_discordSrv){
+                        DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
+                                .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), name))
+                                .queue();
+                    }
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 } finally {

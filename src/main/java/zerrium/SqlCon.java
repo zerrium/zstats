@@ -25,6 +25,7 @@ public class SqlCon {
         config.addDataSourceProperty( "prepStmtCacheSize" , "250" );
         config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );
         config.addDataSourceProperty("useSSL", useSSL);
+        config.addDataSourceProperty("maxLifetime", 18000);
         ds = new HikariDataSource( config );
     }
 

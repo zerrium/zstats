@@ -1,6 +1,5 @@
 package zerrium;
 
-import github.scarsz.discordsrv.DiscordSRV;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 
@@ -139,9 +138,9 @@ public class ZPlayer {
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
             if(!k.contains("z:")){
-                x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
+                this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
             }else if(k.equals("z:last_played")){
-                x.put(k, last_played);
+                this.x.put(k, last_played);
             }
         }
 
@@ -171,7 +170,7 @@ public class ZPlayer {
         this.SQL_query(connection, afk_time, uuid.toString(), "z:afk_time");
 
         //General stats
-        for(Map.Entry<String, Long> me:x.entrySet()){
+        for(Map.Entry<String, Long> me:this.x.entrySet()){
             String k = me.getKey();
             long v = me.getValue();
             this.SQL_query(connection, v, uuid.toString(), k);
@@ -179,7 +178,7 @@ public class ZPlayer {
 
         //Crafting stats
         int j = 1;
-        for(Map.Entry<Material, Long> me:craft.entrySet()){
+        for(Map.Entry<Material, Long> me:this.craft.entrySet()){
             Material k = me.getKey();
             long v = me.getValue();
             this.SQL_query(connection, v, uuid.toString(), "z:craft_", k.toString(), j);
@@ -188,7 +187,7 @@ public class ZPlayer {
 
         //Placed items/blocks stats
         j = 1;
-        for(Map.Entry<Material, Long> me:place.entrySet()){
+        for(Map.Entry<Material, Long> me:this.place.entrySet()){
             Material k = me.getKey();
             long v = me.getValue();
             this.SQL_query(connection, v, uuid.toString(), "z:place_", k.toString(), j);
@@ -197,7 +196,7 @@ public class ZPlayer {
 
         //Mined blocks stats
         j = 1;
-        for(Map.Entry<Material, Long> me:mine.entrySet()){
+        for(Map.Entry<Material, Long> me:this.mine.entrySet()){
             Material k = me.getKey();
             long v = me.getValue();
             this.SQL_query(connection, v, uuid.toString(), "z:mine_", k.toString(), j);
@@ -206,7 +205,7 @@ public class ZPlayer {
 
         //Killing stats
         j = 1;
-        for(Map.Entry<EntityType, Long> me:mob.entrySet()){
+        for(Map.Entry<EntityType, Long> me:this.mob.entrySet()){
             EntityType k = me.getKey();
             long v = me.getValue();
             this.SQL_query(connection, v, uuid.toString(), "z:mob_", k.toString(), j);
@@ -215,7 +214,7 @@ public class ZPlayer {
 
         //Slain stats
         j = 1;
-        for(Map.Entry<EntityType, Long> me:slain.entrySet()){
+        for(Map.Entry<EntityType, Long> me:this.slain.entrySet()){
             EntityType k = me.getKey();
             long v = me.getValue();
             this.SQL_query(connection, v, uuid.toString(), "z:slain_", k.toString(), j);
@@ -223,12 +222,6 @@ public class ZPlayer {
         }
 
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
-        if(Zstats.notify_discord && Zstats.has_discordSrv){
-            DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
-                    .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), name))
-                    .queue();
-        }
-
     }
 
     public void deleteStat(Connection connection) throws SQLException { //Should be called Asynchronously
@@ -266,7 +259,8 @@ public class ZPlayer {
         PreparedStatement ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
         ps.setLong(1, val);
         ps.setString(2, uuid);
-        ps.setString(3, "z:craft_" + j + "_" + substat);
+        ps.setString(3, stat + j + "_" + substat);
+        ps.execute();
         if (Zstats.debug) System.out.println(uuid + " - " + stat + j + "_" + substat + " - " + val);
         pss.close();
         ps.close();
