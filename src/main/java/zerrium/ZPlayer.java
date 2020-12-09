@@ -268,5 +268,7 @@ public class ZPlayer {
         ps.setString(2, uuid);
         ps.setString(3, "z:craft_" + j + "_" + substat);
         if (Zstats.debug) System.out.println(uuid + " - " + stat + j + "_" + substat + " - " + val);
+        pss.close();
+        ps.close();
     }
 }
