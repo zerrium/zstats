@@ -94,7 +94,7 @@ public class Substats{ //Manage substats
 
     protected void sort_substats(){ //Sort all substats
         if(Zstats.debug) System.out.println("Sorting substats...");
-        int i = 0;
+        int i;
         if(zp.x.get("z:craft_kind") != 0){
             LinkedHashMap temp = ZFilter.sortByValues(this.craft);
             Iterator x = temp.entrySet().iterator();
