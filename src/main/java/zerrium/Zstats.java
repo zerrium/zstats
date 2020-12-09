@@ -1,5 +1,6 @@
 package zerrium;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -149,5 +150,34 @@ public class Zstats extends JavaPlugin{
     public void onDisable() {
         SqlCon.closeConnection();
         System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
+    }
+
+    protected static void updateWorldSize(){
+        end_size = 0L;
+        nether_size = 0L;
+        world_size = 0L;
+        total_size = 0L;
+
+        Bukkit.getWorlds().forEach(i ->{
+            switch(i.getEnvironment()){
+                case NORMAL:
+                    world_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    total_size += world_size;
+                    break;
+                case NETHER:
+                    nether_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    total_size += nether_size;
+                    break;
+                case THE_END:
+                    end_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
+                    total_size += end_size;
+                    break;
+                default:
+                    total_size += total_size;
+                    break;
+            }
+            if(debug) System.out.println("Got world size of "+i.getName());
+        });
+        if(debug) System.out.println("Total size "+total_size);
     }
 }

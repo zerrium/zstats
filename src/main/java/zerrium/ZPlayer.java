@@ -3,7 +3,6 @@ package zerrium;
 import github.scarsz.discordsrv.DiscordSRV;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
-import org.apache.commons.io.FileUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -90,13 +89,13 @@ public class ZPlayer {
         return uuid.hashCode();
     }
 
-    public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
-        x = new HashMap<>();
-        craft = new LinkedHashMap<>();
-        place = new LinkedHashMap<>();
-        mine = new LinkedHashMap<>();
-        slain = new LinkedHashMap<>();
-        mob = new LinkedHashMap<>();
+    private void clearStat(){
+        this.x = new HashMap<>();
+        this.craft = new LinkedHashMap<>();
+        this.place = new LinkedHashMap<>();
+        this.mine = new LinkedHashMap<>();
+        this.slain = new LinkedHashMap<>();
+        this.mob = new LinkedHashMap<>();
         this.x.put(Statistic.PLAY_ONE_MINUTE.toString(), 0L);
         this.x.put(Statistic.DAMAGE_DEALT.toString(), 0L);
         this.x.put(Statistic.DAMAGE_TAKEN.toString(), 0L);
@@ -129,8 +128,13 @@ public class ZPlayer {
         this.x.put("z:mob_kind", 0L);
         this.x.put("z:slain_kind", 0L);
         this.x.put("z:last_played", 0L);
+    }
 
-        //Not thread safe, cannot do it asynchronously
+    public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
+        //Clear existing Stats
+        this.clearStat();
+
+        //Rewrite with the latest stats
         OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
@@ -142,243 +146,35 @@ public class ZPlayer {
         }
 
         //server world save size
-        Zstats.end_size = 0L;
-        Zstats.nether_size = 0L;
-        Zstats.world_size = 0L;
-        Zstats.total_size = 0L;
+        Zstats.updateWorldSize();
 
-        Bukkit.getWorlds().forEach(i ->{
-            switch(i.getEnvironment()){
-                case NORMAL:
-                    Zstats.world_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
-                    Zstats.total_size += Zstats.world_size;
-                    break;
-                case NETHER:
-                    Zstats.nether_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
-                    Zstats.total_size += Zstats.nether_size;
-                    break;
-                case THE_END:
-                    Zstats.end_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
-                    Zstats.total_size += Zstats.end_size;
-                    break;
-                default:
-                    Zstats.total_size += Zstats.total_size;
-                    break;
-            }
-            if(Zstats.debug) System.out.println("Got world size of "+i.getName());
-        });
-        if(Zstats.debug) System.out.println("Total size "+Zstats.total_size);
-
-        //substat for item crafted, mined and placed
-        HashMap<Material, Long> cr = new HashMap<>();
-        HashMap<Material, Long> mn = new HashMap<>();
-        HashMap<Material, Long> pl = new HashMap<>();
-
-        for(Material m: Material.values()) {
-            long a = p.getStatistic(Statistic.CRAFT_ITEM, m);
-            long b = p.getStatistic(Statistic.MINE_BLOCK, m);
-            long c = p.getStatistic(Statistic.USE_ITEM, m);
-            if (a != 0) {
-                x.put("z:craft_kind", x.get("z:craft_kind")+1);
-                x.put("z:crafted", x.get("z:crafted")+a);
-                cr.put(m, a);
-            }
-            if (b != 0) {
-                x.put("z:mine_kind", x.get("z:mine_kind")+1);
-                x.put("z:mined", x.get("z:mined")+b);
-                mn.put(m, b);
-            }
-            if (c != 0 && !ZFilter.is_tool(m)) {
-                x.put("z:place_kind", x.get("z:place_kind")+1);
-                x.put("z:placed", x.get("z:placed")+c);
-                pl.put(m, c);
-            }else{
-                if(m.toString().contains("_PICKAXE")){
-                    x.put("z:pickaxe", x.get("z:pickaxe")+c);
-                }else if(m.toString().contains("_AXE")){
-                    x.put("z:axe", x.get("z:axe")+c);
-                }else if(m.toString().contains("_SHOVEL")){
-                    x.put("z:shovel", x.get("z:shovel")+c);
-                }else if(m.toString().contains("_HOE")){
-                    x.put("z:hoe", x.get("z:hoe")+c);
-                }else if(m.toString().contains("_SWORD")){
-                    x.put("z:sword", x.get("z:sword")+c);
-                }else if(m.equals(Material.BOW)){
-                    x.put("z:bow", x.get("z:bow")+c);
-                }else if(m.equals(Material.TRIDENT)){
-                    x.put("z:trident", x.get("z:trident")+c);
-                }
-            }
-        }
-        if(Zstats.debug) System.out.println("Materials substat done");
-
-        //substat for kill and killed by
-        HashMap<EntityType, Long> ki = new HashMap<>();
-        HashMap<EntityType, Long> kb = new HashMap<>();
-
-        for(EntityType t: EntityType.values()){
-            try {
-                if(t.isAlive()) {
-                    long a = p.getStatistic(Statistic.KILL_ENTITY, t);
-                    long b = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
-                    if (a != 0) {
-                        x.put("z:mob_kind", x.get("z:mob_kind") + 1);
-                        ki.put(t, a);
-                    }
-                    if (b != 0) {
-                        x.put("z:slain_kind", x.get("z:slain_kind") + 1);
-                        kb.put(t, b);
-                    }
-                }
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
-        }
-        if(Zstats.debug) System.out.println("EntityType substat done");
-
-        //Sort substats
-        if(Zstats.debug) System.out.println("Sorting substats...");
-        if(x.get("z:craft_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(cr);
-            Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    craft.put((Material) e.getKey(), (Long) e.getValue());
-                }else{
-                    craft.put(null, 0L);
-                }
-            }
-        }
-        if(x.get("z:place_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(pl);
-            Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    place.put((Material) e.getKey(), (Long) e.getValue());
-                }else{
-                    place.put(null, 0L);
-                }
-            }
-        }
-        if(x.get("z:mine_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(mn);
-            Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    mine.put((Material) e.getKey(), (Long) e.getValue());
-                }else{
-                    mine.put(null, 0L);
-                }
-            }
-        }
-        if(x.get("z:mob_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(ki);
-            Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    mob.put((EntityType) e.getKey(), (Long) e.getValue());
-                }else{
-                    mob.put(null, 0L);
-                }
-            }
-        }
-        if(x.get("z:slain_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(kb);
-            Iterator x = temp.entrySet().iterator();
-            for(int i=0; i<3; i++){
-                if(x.hasNext()){
-                    Map.Entry e = (Map.Entry) x.next();
-                    slain.put((EntityType) e.getKey(), (Long) e.getValue());
-                }else{
-                    slain.put(null, 0L);
-                }
-            }
-        }
-        if(Zstats.debug) System.out.println("Sorting substats done");
+        //substats
+        Substats s = new Substats(this);
+        s.substats_Material();
+        s.substats_Entity();
+        s.sort_substats();
 
         //Update to SQL
-
         //World Size
-        PreparedStatement pss = connection.prepareStatement("select * from stats where uuid=? and stat=?");
-        pss.setString(1, "000");
-        pss.setString(2, "z:world_size");
-        ResultSet rs = pss.executeQuery();
-        PreparedStatement ps = connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
-        ps.setLong(1, Zstats.world_size);
-        ps.setString(2, "000");
-        ps.setString(3, "z:world_size");
-        if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:world_size" + " - " + Zstats.world_size);
-        ps.executeUpdate();
+        this.SQL_query(connection, Zstats.world_size, "000", "z:world_size");
 
         //Nether Size
-        pss = connection.prepareStatement("select * from stats where uuid=? and stat=?");
-        pss.setString(1, "000");
-        pss.setString(2, "z:nether_size");
-        rs = pss.executeQuery();
-        ps = connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
-        ps.setLong(1, Zstats.nether_size);
-        ps.setString(2, "000");
-        ps.setString(3, "z:nether_size");
-        if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:nether_size" + " - " + Zstats.nether_size);
-        ps.executeUpdate();
+        this.SQL_query(connection, Zstats.nether_size, "000", "z:nether_size");
 
         //The End Size
-        pss = connection.prepareStatement("select * from stats where uuid=? and stat=?");
-        pss.setString(1, "000");
-        pss.setString(2, "z:end_size");
-        rs = pss.executeQuery();
-        ps = connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
-        ps.setLong(1, Zstats.end_size);
-        ps.setString(2, "000");
-        ps.setString(3, "z:end_size");
-        if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:end_size" + " - " + Zstats.end_size);
-        ps.executeUpdate();
+        this.SQL_query(connection, Zstats.end_size, "000", "z:end_size");
 
         //Total Size
-        pss = connection.prepareStatement("select * from stats where uuid=? and stat=?");
-        pss.setString(1, "000");
-        pss.setString(2, "z:total_size");
-        rs = pss.executeQuery();
-        ps = connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
-        ps.setLong(1, Zstats.total_size);
-        ps.setString(2, "000");
-        ps.setString(3, "z:total_size");
-        if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:total_size" + " - " + Zstats.total_size);
-        ps.executeUpdate();
+        this.SQL_query(connection, Zstats.total_size, "000", "z:total_size");
 
         //AFK time
-        pss = connection.prepareStatement("select * from stats where uuid=? and stat=?");
-        pss.setString(1, uuid.toString());
-        pss.setString(2, "z:afk_time");
-        rs = pss.executeQuery();
-        ps = connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
-        ps.setLong(1, afk_time);
-        ps.setString(2, uuid.toString());
-        ps.setString(3, "z:afk_time");
-        if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:afk_time" + " - " + afk_time);
-        ps.executeUpdate();
+        this.SQL_query(connection, afk_time, uuid.toString(), "z:afk_time");
 
         //General stats
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
             long v = me.getValue();
-
-            pss = connection.prepareStatement("select * from stats where uuid=? and stat=?");
-            pss.setString(1, uuid.toString());
-            pss.setString(2, k);
-            rs = pss.executeQuery();
-            ps = connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
-            pss.close();
-            ps.setLong(1, v);
-            ps.setString(2, uuid.toString());
-            ps.setString(3, k);
-            if (Zstats.debug) System.out.println(uuid.toString() + " - " + k + " - " + v);
-            ps.executeUpdate();
-            ps.close();
+            this.SQL_query(connection, v, uuid.toString(), k);
         }
 
         //Crafting stats
@@ -386,16 +182,7 @@ public class ZPlayer {
         for(Map.Entry<Material, Long> me:craft.entrySet()){
             Material k = me.getKey();
             long v = me.getValue();
-
-            pss = connection.prepareStatement("delete from stats where uuid=? and stat like ?");
-            pss.setString(1, uuid.toString());
-            pss.setString(2, "z:craft_" + j + "_%");
-            pss.executeUpdate();
-            ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
-            ps.setLong(1, v);
-            ps.setString(2, uuid.toString());
-            ps.setString(3, "z:craft_" + j + "_" + k);
-            if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:craft_" + j + "_" + k + " - " + v);
+            this.SQL_query(connection, v, uuid.toString(), "z:craft_", k.toString(), j);
             j++;
         }
 
@@ -404,17 +191,7 @@ public class ZPlayer {
         for(Map.Entry<Material, Long> me:place.entrySet()){
             Material k = me.getKey();
             long v = me.getValue();
-
-            pss = connection.prepareStatement("delete from stats where uuid=? and stat like ?");
-            pss.setString(1, uuid.toString());
-            pss.setString(2, "z:place_" + j + "_%");
-            pss.executeUpdate();
-            ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
-            ps.setLong(1, v);
-            ps.setString(2, uuid.toString());
-            ps.setString(3, "z:place_" + j + "_" + k);
-            if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:place_" + j + "_" + k + " - " + v);
-            ps.executeUpdate();
+            this.SQL_query(connection, v, uuid.toString(), "z:place_", k.toString(), j);
             j++;
         }
 
@@ -423,17 +200,7 @@ public class ZPlayer {
         for(Map.Entry<Material, Long> me:mine.entrySet()){
             Material k = me.getKey();
             long v = me.getValue();
-
-            pss = connection.prepareStatement("delete from stats where uuid=? and stat like ?");
-            pss.setString(1, uuid.toString());
-            pss.setString(2, "z:mine_" + j + "_%");
-            pss.executeUpdate();
-            ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
-            ps.setLong(1, v);
-            ps.setString(2, uuid.toString());
-            ps.setString(3, "z:mine_" + j + "_" + k);
-            if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:mine_" + j + "_" + k + " - " + v);
-            ps.executeUpdate();
+            this.SQL_query(connection, v, uuid.toString(), "z:mine_", k.toString(), j);
             j++;
         }
 
@@ -442,17 +209,7 @@ public class ZPlayer {
         for(Map.Entry<EntityType, Long> me:mob.entrySet()){
             EntityType k = me.getKey();
             long v = me.getValue();
-
-            pss = connection.prepareStatement("delete from stats where uuid=? and stat like ?");
-            pss.setString(1, uuid.toString());
-            pss.setString(2, "z:mob_" + j + "_%");
-            pss.executeUpdate();
-            ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
-            ps.setLong(1, v);
-            ps.setString(2, uuid.toString());
-            ps.setString(3, "z:mob_" + j + "_" + k);
-            if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:mob_" + j + "_" + k + " - " + v);
-            ps.executeUpdate();
+            this.SQL_query(connection, v, uuid.toString(), "z:mob_", k.toString(), j);
             j++;
         }
 
@@ -461,23 +218,9 @@ public class ZPlayer {
         for(Map.Entry<EntityType, Long> me:slain.entrySet()){
             EntityType k = me.getKey();
             long v = me.getValue();
-
-            pss = connection.prepareStatement("delete from stats where uuid=? and stat like ?");
-            pss.setString(1, uuid.toString());
-            pss.setString(2, "z:slain_" + j + "_%");
-            pss.executeUpdate();
-            ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
-            ps.setLong(1, v);
-            ps.setString(2, uuid.toString());
-            ps.setString(3, "z:slain_" + j + "_" + k);
-            if (Zstats.debug) System.out.println(uuid.toString() + " - " + "z:slain_" + j + "_" + k + " - " + v);
-            ps.executeUpdate();
+            this.SQL_query(connection, v, uuid.toString(), "z:slain_", k.toString(), j);
             j++;
         }
-
-        pss.close();
-        rs.close();
-        ps.close();
 
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
         if(Zstats.notify_discord && Zstats.has_discordSrv){
@@ -497,5 +240,180 @@ public class ZPlayer {
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET +
                 (row > 0 ? " Deleted stats of " + uuid.toString() + " associates with " + name + " from database." : " No stats of "  + uuid.toString() + " associates with " + name + " found on the database. No rows affected."));
         pss.close();
+    }
+
+    private void SQL_query(Connection connection, long val, String uuid, String stat) throws SQLException{ //For general stats
+        PreparedStatement pss = connection.prepareStatement("select * from stats where uuid=? and stat=?");
+        pss.setString(1, uuid);
+        pss.setString(2, stat);
+        ResultSet rs = pss.executeQuery();
+        PreparedStatement ps = connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
+        ps.setLong(1, val);
+        ps.setString(2, uuid);
+        ps.setString(3, stat);
+        if (Zstats.debug) System.out.println(uuid + " - " + stat + " - " + val);
+        ps.executeUpdate();
+        pss.close();
+        rs.close();
+        ps.close();
+    }
+
+    private void SQL_query(Connection connection, long val, String uuid, String stat, String substat, int j) throws SQLException{ //For substats
+        PreparedStatement pss = connection.prepareStatement("delete from stats where uuid=? and stat like ?");
+        pss.setString(1, uuid);
+        pss.setString(2, stat + j + "_%");
+        pss.executeUpdate();
+        PreparedStatement ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
+        ps.setLong(1, val);
+        ps.setString(2, uuid);
+        ps.setString(3, "z:craft_" + j + "_" + substat);
+        if (Zstats.debug) System.out.println(uuid + " - " + stat + j + "_" + substat + " - " + val);
+    }
+}
+
+class Substats{ //Manage substats
+    final private HashMap<Material, Long> craft;
+    final private HashMap<Material, Long> mine;
+    final private HashMap<Material, Long> place;
+    final private HashMap<EntityType, Long> kill;
+    final private HashMap<EntityType, Long> kill_by;
+    final private OfflinePlayer p;
+    final private ZPlayer zp;
+
+    protected Substats(ZPlayer zp){ //Preparation
+        this.craft = new HashMap<>();
+        this.mine = new HashMap<>();
+        this.place = new HashMap<>();
+        this.kill = new HashMap<>();
+        this.kill_by = new HashMap<>();
+        this.p = Bukkit.getOfflinePlayer(zp.uuid);
+        this.zp = zp;
+    }
+
+    protected void substats_Material(){ //Substats for crafting, mining and placing blocks or items
+        for(Material m: Material.values()) {
+            long a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
+            long b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
+            long c = this.p.getStatistic(Statistic.USE_ITEM, m);
+            if (a != 0) {
+                zp.x.put("z:craft_kind", zp.x.get("z:craft_kind")+1);
+                zp.x.put("z:crafted", zp.x.get("z:crafted")+a);
+                this.craft.put(m, a);
+            }
+            if (b != 0) {
+                zp.x.put("z:mine_kind", zp.x.get("z:mine_kind")+1);
+                zp.x.put("z:mined", zp.x.get("z:mined")+b);
+                this.mine.put(m, b);
+            }
+            if (c != 0 && !ZFilter.is_tool(m)) {
+                zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
+                zp.x.put("z:placed", zp.x.get("z:placed")+c);
+                this.place.put(m, c);
+            }else{
+                if(m.toString().contains("_PICKAXE")){
+                    zp.x.put("z:pickaxe", zp.x.get("z:pickaxe")+c);
+                }else if(m.toString().contains("_AXE")){
+                    zp.x.put("z:axe", zp.x.get("z:axe")+c);
+                }else if(m.toString().contains("_SHOVEL")){
+                    zp.x.put("z:shovel", zp.x.get("z:shovel")+c);
+                }else if(m.toString().contains("_HOE")){
+                    zp.x.put("z:hoe", zp.x.get("z:hoe")+c);
+                }else if(m.toString().contains("_SWORD")){
+                    zp.x.put("z:sword", zp.x.get("z:sword")+c);
+                }else if(m.equals(Material.BOW)){
+                    zp.x.put("z:bow", zp.x.get("z:bow")+c);
+                }else if(m.equals(Material.TRIDENT)){
+                    zp.x.put("z:trident", zp.x.get("z:trident")+c);
+                }
+            }
+        }
+        if(Zstats.debug) System.out.println("Materials substat done");
+    }
+
+    protected void substats_Entity(){ //Substats for killing or killed by entities
+        for(EntityType t: EntityType.values()){
+            try {
+                if(t.isAlive()) {
+                    long a = p.getStatistic(Statistic.KILL_ENTITY, t);
+                    long b = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                    if (a != 0) {
+                        zp.x.put("z:mob_kind", zp.x.get("z:mob_kind") + 1);
+                        this.kill.put(t, a);
+                    }
+                    if (b != 0) {
+                        zp.x.put("z:slain_kind", zp.x.get("z:slain_kind") + 1);
+                        this.kill_by.put(t, b);
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+        if(Zstats.debug) System.out.println("EntityType substat done");
+    }
+
+    protected void sort_substats(){ //Sort all substats
+        if(Zstats.debug) System.out.println("Sorting substats...");
+        if(zp.x.get("z:craft_kind") != 0){
+            LinkedHashMap temp = ZFilter.sortByValues(this.craft);
+            Iterator x = temp.entrySet().iterator();
+            for(int i=0; i<3; i++){
+                if(x.hasNext()){
+                    Map.Entry e = (Map.Entry) x.next();
+                    zp.craft.put((Material) e.getKey(), (Long) e.getValue());
+                }else{
+                    zp.craft.put(null, 0L);
+                }
+            }
+        }
+        if(zp.x.get("z:place_kind") != 0){
+            LinkedHashMap temp = ZFilter.sortByValues(this.place);
+            Iterator x = temp.entrySet().iterator();
+            for(int i=0; i<3; i++){
+                if(x.hasNext()){
+                    Map.Entry e = (Map.Entry) x.next();
+                    zp.place.put((Material) e.getKey(), (Long) e.getValue());
+                }else{
+                    zp.place.put(null, 0L);
+                }
+            }
+        }
+        if(zp.x.get("z:mine_kind") != 0){
+            LinkedHashMap temp = ZFilter.sortByValues(this.mine);
+            Iterator x = temp.entrySet().iterator();
+            for(int i=0; i<3; i++){
+                if(x.hasNext()){
+                    Map.Entry e = (Map.Entry) x.next();
+                    zp.mine.put((Material) e.getKey(), (Long) e.getValue());
+                }else{
+                    zp.mine.put(null, 0L);
+                }
+            }
+        }
+        if(zp.x.get("z:mob_kind") != 0){
+            LinkedHashMap temp = ZFilter.sortByValues(this.kill);
+            Iterator x = temp.entrySet().iterator();
+            for(int i=0; i<3; i++){
+                if(x.hasNext()){
+                    Map.Entry e = (Map.Entry) x.next();
+                    zp.mob.put((EntityType) e.getKey(), (Long) e.getValue());
+                }else{
+                    zp.mob.put(null, 0L);
+                }
+            }
+        }
+        if(zp.x.get("z:slain_kind") != 0){
+            LinkedHashMap temp = ZFilter.sortByValues(this.kill_by);
+            Iterator x = temp.entrySet().iterator();
+            for(int i=0; i<3; i++){
+                if(x.hasNext()){
+                    Map.Entry e = (Map.Entry) x.next();
+                    zp.slain.put((EntityType) e.getKey(), (Long) e.getValue());
+                }else{
+                    zp.slain.put(null, 0L);
+                }
+            }
+        }
+        if(Zstats.debug) System.out.println("Sorting substats done");
     }
 }
