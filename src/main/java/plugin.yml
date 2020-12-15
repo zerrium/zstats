@@ -1,7 +1,7 @@
 name: Zstats
 version: 0.8
 main: zerrium.Zstats
-api-version: 1.13
+api-version: 1.12
 author: zerrium
 softdepend: [DiscordSRV, Essentials]
 commands:

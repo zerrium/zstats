@@ -10,7 +10,6 @@ public class ZFilter {
 
     protected static void begin(){
         f.add(Material.BOW);
-        f.add(Material.TRIDENT);
         f.add(Material.SHEARS);
         f.add(Material.FLINT_AND_STEEL);
         f.add(Material.SHIELD);
