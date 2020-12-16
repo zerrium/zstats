@@ -30,11 +30,17 @@ public class Substats{ //Manage substats
         this.zp = zp;
     }
 
-    protected void substats_Material(){ //Substats for crafting, mining and placing blocks or items
+    protected void substats_Material() throws IllegalArgumentException, NullPointerException{ //Substats for crafting, mining and placing blocks or items
         for(Material m: Material.values()) {
-            long a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
-            long b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
-            long c = this.p.getStatistic(Statistic.USE_ITEM, m);
+            long a, b, c;
+            try{
+                a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
+                b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
+                c = this.p.getStatistic(Statistic.USE_ITEM, m);
+            }catch (IllegalArgumentException e){
+                continue;
+            }
+
             if (a != 0) {
                 zp.x.put("z:craft_kind", zp.x.get("z:craft_kind")+1);
                 zp.x.put("z:crafted", zp.x.get("z:crafted")+a);
@@ -68,7 +74,7 @@ public class Substats{ //Manage substats
         if(Zstats.debug) System.out.println("Materials substat done");
     }
 
-    protected void substats_Entity(){ //Substats for killing or killed by entities
+    protected void substats_Entity() throws IllegalArgumentException, NullPointerException{ //Substats for killing or killed by entities
         for(EntityType t: EntityType.values()){
             try {
                 if(t.isAlive()) {
@@ -83,8 +89,8 @@ public class Substats{ //Manage substats
                         this.kill_by.put(t, b);
                     }
                 }
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+            } catch (IllegalArgumentException | NullPointerException e) {
+                //e.printStackTrace();
             }
         }
         if(Zstats.debug) System.out.println("EntityType substat done");

@@ -41,7 +41,7 @@ public class ZUpdater implements CommandExecutor {
                                     if(pl == null) continue;
                                     p.updateStat(connection, pl);
                                 }
-                            } catch (SQLException throwables) {
+                            } catch (SQLException | IllegalArgumentException | NullPointerException throwables) {
                                 throwables.printStackTrace();
                             } finally {
                                 try {
@@ -85,7 +85,7 @@ public class ZUpdater implements CommandExecutor {
                                                         .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), z.name))
                                                         .queue();
                                             }
-                                        } catch (SQLException throwables) {
+                                        } catch (SQLException | IllegalArgumentException | NullPointerException throwables) {
                                             throwables.printStackTrace();
                                         } finally {
                                             try {

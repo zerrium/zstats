@@ -150,7 +150,7 @@ public class ZPlayer {
         if(Zstats.debug) System.out.println("ZPlayer#clearStat 3");
     }
 
-    public void updateStat(Connection connection, Player p) throws SQLException, NullPointerException { //Should be called Asynchronously
+    public void updateStat(Connection connection, Player p) throws SQLException, NullPointerException, IllegalArgumentException { //Should be called Asynchronously
         if(Zstats.debug) System.out.println("ZPlayer#updateStat");
         if(!p.getUniqueId().equals(this.uuid)) return;
         this.is_updating = true;

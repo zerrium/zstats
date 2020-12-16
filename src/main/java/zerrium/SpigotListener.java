@@ -78,7 +78,7 @@ public class SpigotListener implements Listener {
                                 .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), name))
                                 .queue();
                     }
-                } catch (SQLException throwables) {
+                } catch (SQLException | IllegalArgumentException | NullPointerException throwables) {
                     throwables.printStackTrace();
                 } finally {
                     try {
