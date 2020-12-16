@@ -2,9 +2,9 @@ package zerrium;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,16 +17,16 @@ public class Substats{ //Manage substats
     final private HashMap<Material, Long> place;
     final private HashMap<EntityType, Long> kill;
     final private HashMap<EntityType, Long> kill_by;
-    final private OfflinePlayer p;
+    final private Player p;
     final private ZPlayer zp;
 
-    protected Substats(ZPlayer zp){ //Preparation
+    protected Substats(ZPlayer zp, Player p){ //Preparation
         this.craft = new HashMap<>();
         this.mine = new HashMap<>();
         this.place = new HashMap<>();
         this.kill = new HashMap<>();
         this.kill_by = new HashMap<>();
-        this.p = Bukkit.getOfflinePlayer(zp.uuid);
+        this.p = p;
         this.zp = zp;
     }
 
@@ -62,8 +62,6 @@ public class Substats{ //Manage substats
                     zp.x.put("z:sword", zp.x.get("z:sword")+c);
                 }else if(m.equals(Material.BOW)){
                     zp.x.put("z:bow", zp.x.get("z:bow")+c);
-                }else if(m.equals(Material.TRIDENT)){
-                    zp.x.put("z:trident", zp.x.get("z:trident")+c);
                 }
             }
         }

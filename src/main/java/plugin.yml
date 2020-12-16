@@ -1,5 +1,5 @@
 name: Zstats
-version: 0.8
+version: 0.8.2
 main: zerrium.Zstats
 api-version: 1.12
 author: zerrium

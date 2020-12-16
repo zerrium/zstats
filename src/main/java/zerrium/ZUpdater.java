@@ -1,10 +1,12 @@
 package zerrium;
 
 import github.scarsz.discordsrv.DiscordSRV;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,13 +30,16 @@ public class ZUpdater implements CommandExecutor {
                     @Override
                     public void run() {
                         if(args[0].equalsIgnoreCase("update")){
-                            sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
+                            sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all online player...");
                             Connection connection = null;
                             try {
                                 connection = SqlCon.openConnection();
+                                if(Zstats.debug) System.out.println("Loop begin");
                                 for(ZPlayer p : Zstats.zplayer){
                                     if(p.is_updating) continue;
-                                    p.updateStat(connection);
+                                    Player pl = Bukkit.getServer().getPlayer(p.uuid);
+                                    if(pl == null) continue;
+                                    p.updateStat(connection, pl);
                                 }
                             } catch (SQLException throwables) {
                                 throwables.printStackTrace();
@@ -48,7 +53,7 @@ public class ZUpdater implements CommandExecutor {
                             }
                             if(Zstats.notify_discord && Zstats.has_discordSrv){
                                 DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
-                                        .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), "all players"))
+                                        .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), "all online players"))
                                         .queue();
                             }
                         }
@@ -66,10 +71,15 @@ public class ZUpdater implements CommandExecutor {
                                 for(ZPlayer z : Zstats.zplayer){
                                     if(args[1].equalsIgnoreCase(z.name)){
                                         if(z.is_updating) return;
+                                        Player p = Bukkit.getServer().getPlayer(z.uuid);
+                                        if(p == null){
+                                            sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Can't update stats of player " + args[1] + " as he is offline.");
+                                            return;
+                                        }
                                         Connection connection = null;
                                         try {
                                             connection = SqlCon.openConnection();
-                                            z.updateStat(connection);
+                                            z.updateStat(connection, p);
                                             if(Zstats.notify_discord && Zstats.has_discordSrv){
                                                 DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
                                                         .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), z.name))

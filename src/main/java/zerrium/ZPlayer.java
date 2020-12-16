@@ -2,6 +2,7 @@ package zerrium;
 
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -91,28 +92,46 @@ public class ZPlayer {
     }
 
     private void clearStat(){
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat");
         this.x = new HashMap<>();
         this.craft = new LinkedHashMap<>();
         this.place = new LinkedHashMap<>();
         this.mine = new LinkedHashMap<>();
         this.slain = new LinkedHashMap<>();
         this.mob = new LinkedHashMap<>();
-        this.x.put(Statistic.PLAY_ONE_MINUTE.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1");
+        this.x.put(Statistic.PLAY_ONE_TICK.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-1");
         this.x.put(Statistic.DAMAGE_DEALT.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-2");
         this.x.put(Statistic.DAMAGE_TAKEN.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-3");
         this.x.put(Statistic.MOB_KILLS.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-4");
         this.x.put(Statistic.DEATHS.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-5");
         this.x.put(Statistic.SPRINT_ONE_CM.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-6");
         this.x.put(Statistic.WALK_ONE_CM.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-7");
         this.x.put(Statistic.CROUCH_ONE_CM.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-8");
         this.x.put(Statistic.BOAT_ONE_CM.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-9");
         this.x.put(Statistic.AVIATE_ONE_CM.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-10");
         this.x.put(Statistic.TRADED_WITH_VILLAGER.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-11");
         this.x.put(Statistic.TALKED_TO_VILLAGER.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-12");
         this.x.put(Statistic.CHEST_OPENED.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-13");
         this.x.put(Statistic.FISH_CAUGHT.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-14");
         this.x.put(Statistic.ITEM_ENCHANTED.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 1-15");
         this.x.put(Statistic.SLEEP_IN_BED.toString(), 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 2");
         this.x.put("z:crafted", 0L);
         this.x.put("z:mined", 0L);
         this.x.put("z:pickaxe", 0L);
@@ -121,7 +140,6 @@ public class ZPlayer {
         this.x.put("z:hoe", 0L);
         this.x.put("z:sword", 0L);
         this.x.put("z:bow", 0L);
-        this.x.put("z:trident", 0L);
         this.x.put("z:placed", 0L);
         this.x.put("z:craft_kind", 0L);
         this.x.put("z:mine_kind", 0L);
@@ -129,15 +147,19 @@ public class ZPlayer {
         this.x.put("z:mob_kind", 0L);
         this.x.put("z:slain_kind", 0L);
         this.x.put("z:last_played", 0L);
+        if(Zstats.debug) System.out.println("ZPlayer#clearStat 3");
     }
 
-    public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
+    public void updateStat(Connection connection, Player p) throws SQLException, NullPointerException { //Should be called Asynchronously
+        if(Zstats.debug) System.out.println("ZPlayer#updateStat");
+        if(!p.getUniqueId().equals(this.uuid)) return;
         this.is_updating = true;
+        if(Zstats.debug) System.out.println("ZPlayer#updateStat clear");
         //Clear existing Stats
         this.clearStat();
 
+        if(Zstats.debug) System.out.println("ZPlayer#updateStat rewrite try 3");
         //Rewrite with the latest stats
-        OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
             if(!k.contains("z:")){
@@ -147,15 +169,18 @@ public class ZPlayer {
             }
         }
 
+        if(Zstats.debug) System.out.println("ZPlayer#updateStat: world size");
         //server world save size
         Zstats.updateWorldSize();
 
+        if(Zstats.debug) System.out.println("ZPlayer#updateStat substat");
         //substats
-        Substats s = new Substats(this);
+        Substats s = new Substats(this, p);
         s.substats_Material();
         s.substats_Entity();
         s.sort_substats();
 
+        if(Zstats.debug) System.out.println("ZPlayer#updateStat SQL begin");
         //Update to SQL
         //World Size
         this.SQL_query(connection, Zstats.world_size, "000", "z:world_size");

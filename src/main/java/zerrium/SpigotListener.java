@@ -72,7 +72,7 @@ public class SpigotListener implements Listener {
                 Connection connection = null;
                 try {
                     connection = SqlCon.openConnection();
-                    zp.updateStat(connection);
+                    zp.updateStat(connection, p);
                     if(Zstats.notify_discord && Zstats.has_discordSrv){
                         DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
                                 .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), name))
