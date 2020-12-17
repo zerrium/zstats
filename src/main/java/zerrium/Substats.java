@@ -37,7 +37,7 @@ public class Substats{ //Manage substats
                 a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
                 b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
                 c = this.p.getStatistic(Statistic.USE_ITEM, m);
-            }catch (IllegalArgumentException e){
+            }catch (IllegalArgumentException | NullPointerException e){
                 continue;
             }
 
