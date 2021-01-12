@@ -89,6 +89,11 @@ public class Zstats extends JavaPlugin{
                         counter++;
                         UUID uuid = i.getUniqueId();
                         String name = i.getName();
+                        if(name == null){
+                            System.out.println(ChatColor.YELLOW+"[Zstats] Warning! Found a player with uuid of " + uuid.toString() + " has null display name. Skipped this player.");
+                            System.out.println(ChatColor.YELLOW+"[Zstats] Suggestion: you need to check your online_mode option in your server.properties and check if you have mixed online and offline players in your world save.");
+                            continue;
+                        }
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
                         zplayer.add(new ZPlayer(uuid, name));
                         ps.setString(1, uuid.toString());
