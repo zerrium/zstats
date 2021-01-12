@@ -89,6 +89,10 @@ public class Zstats extends JavaPlugin{
                         UUID uuid = i.getUniqueId();
                         String name = i.getName();
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
+                        if(uuid == null){
+                            System.out.println(ChatColor.YELLOW+"[Zstats] Warning! Found a null player, skipped this player");
+                            continue;
+                        }
                         zplayer.add(new ZPlayer(uuid, (name == null ? "null" : name)));
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
