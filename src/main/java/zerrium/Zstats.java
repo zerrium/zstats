@@ -37,22 +37,26 @@ public class Zstats extends JavaPlugin{
         Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZUpdater());
         version = getVersion();
 
-        boolean generate_stat_config = false;
-        File file = new File(getDataFolder(), "config.yml");
-        if (!file.exists()) generate_stat_config = true;
-
         this.saveDefaultConfig(); //get or create config file
-        if(generate_stat_config){
+        fc = this.getConfig();
+        debug = fc.getBoolean("use_debug");
+        substat_top = fc.getInt("zstats_top");
+        notify_discord = fc.getBoolean("notify_stats_update_to_discord");
+        notify_discord_message = fc.getString("notify_message");
+
+        if(fc.getString("vanilla_stats.MOB_KILLS") == null){
             System.out.println(ChatColor.YELLOW+"[Zstats] Writing config file...");
-            try(FileWriter fw = new FileWriter("config.yml", true);
-                BufferedWriter bw = new BufferedWriter(fw);
-                PrintWriter out = new PrintWriter(bw)) {
+            try (FileWriter fw = new FileWriter(new File(getDataFolder(), "config.yml"), true);
+                 BufferedWriter bw = new BufferedWriter(fw);
+                 PrintWriter out = new PrintWriter(bw)) {
+
                 ArrayList<Statistic> stat = getDefaultStat();
-                for(Statistic s:Statistic.values()){
-                    if(s.isSubstatistic()) continue;
-                    if(s.toString().contains("PLAY_ONE_")){
+                for (Statistic s : Statistic.values()) {
+                    if (s.isSubstatistic()) continue;
+                    if (debug) System.out.println(s.toString());
+                    if (s.toString().contains("PLAY_ONE_")) {
                         out.println("  " + s.toString() + ": true");
-                    }else{
+                    } else {
                         out.println("  " + s.toString() + (stat.contains(s) ? ": true" : ": false"));
                     }
                 }
@@ -60,11 +64,6 @@ public class Zstats extends JavaPlugin{
                 System.out.println(ChatColor.YELLOW+"[Zstats] An error occurred during config file write:\n" + e);
             }
         }
-        fc = this.getConfig();
-        debug = fc.getBoolean("use_debug");
-        substat_top = fc.getInt("zstats_top");
-        notify_discord = fc.getBoolean("notify_stats_update_to_discord");
-        notify_discord_message = fc.getString("notify_message");
 
         System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
 
