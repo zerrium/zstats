@@ -228,6 +228,7 @@ public class ZPlayer {
 
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
         this.is_updating = false;
+        players.remove(new OldPlayer(this.uuid));
     }
 
     public void deleteStat(Connection connection) throws SQLException { //Should be called Asynchronously

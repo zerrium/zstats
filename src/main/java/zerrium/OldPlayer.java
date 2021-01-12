@@ -27,21 +27,20 @@ public class OldPlayer {
     public boolean equals (Object o) {
         // If the object is compared with itself then return true
         if (o == this) {
-            if(Zstats.debug) System.out.println("Comparing instance of itself");
+            //if(Zstats.debug) System.out.println("Comparing instance of itself");
             return true;
         }
 
         /* Check if o is an instance of ZPlayer or not
           "null instanceof [type]" also returns false */
         if (!(o instanceof OldPlayer)) {
-            if(Zstats.debug) System.out.println("Not a OldPlayer instance");
+            //if(Zstats.debug) System.out.println("Not a OldPlayer instance");
             return false;
         }
 
         // Compare the data members and return accordingly
-        boolean result = ((OldPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((OldPlayer) o).uuid.toString());
-        if(Zstats.debug) System.out.println("OldPlayer instance, equal? "+result);
-        return result;
+        //if(Zstats.debug) System.out.println("OldPlayer instance, equal? "+result);
+        return ((OldPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((OldPlayer) o).uuid.toString());
     }
 
     @Override
