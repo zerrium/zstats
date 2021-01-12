@@ -18,17 +18,16 @@ import java.util.UUID;
 public class Zstats extends JavaPlugin{
     static FileConfiguration fc;
     static int version, substat_top;
-    private Connection connection;
-    static Boolean debug, notify_discord;
+    static boolean debug, notify_discord;
     static String notify_discord_message;
     static ArrayList<ZPlayer> zplayer;
     static HashMap<UUID, String> online_player;
-    static long world_size = 0L;
-    static long nether_size = 0L;
-    static long end_size = 0L;
-    static long total_size = 0L;
+    static long world_size, nether_size, end_size, total_size;
     static boolean has_discordSrv, hasEssentials;
     static HashMap<String, Boolean> zstats, vanilla_stats;
+
+    private Connection connection;
+    private boolean is_writing_config = false;
 
     @Override
     public void onEnable() {
@@ -44,26 +43,7 @@ public class Zstats extends JavaPlugin{
         notify_discord = fc.getBoolean("notify_stats_update_to_discord");
         notify_discord_message = fc.getString("notify_message");
 
-        if(fc.getString("vanilla_stats.MOB_KILLS") == null){
-            System.out.println(ChatColor.YELLOW+"[Zstats] Writing config file...");
-            try (FileWriter fw = new FileWriter(new File(getDataFolder(), "config.yml"), true);
-                 BufferedWriter bw = new BufferedWriter(fw);
-                 PrintWriter out = new PrintWriter(bw)) {
-
-                ArrayList<Statistic> stat = getDefaultStat();
-                for (Statistic s : Statistic.values()) {
-                    if (s.isSubstatistic()) continue;
-                    if (debug) System.out.println(s.toString());
-                    if (s.toString().contains("PLAY_ONE_")) {
-                        out.println("  " + s.toString() + ": true");
-                    } else {
-                        out.println("  " + s.toString() + (stat.contains(s) ? ": true" : ": false"));
-                    }
-                }
-            } catch (IOException e) {
-                System.out.println(ChatColor.YELLOW+"[Zstats] An error occurred during config file write:\n" + e);
-            }
-        }
+        write_config();
 
         System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
 
@@ -97,7 +77,7 @@ public class Zstats extends JavaPlugin{
                         "    val bigint(19) not null," +
                         "    foreign key(uuid) references player(uuid));");
             }
-            rss = st.executeQuery("select * from player;");
+            rss = st.executeQuery("select * from player where uuid != \"000\";");
             System.out.println(ChatColor.YELLOW+"[Zstats] Getting player list from database...");
             int counter = 0;
             if(!rss.next()){
@@ -109,7 +89,7 @@ public class Zstats extends JavaPlugin{
                         UUID uuid = i.getUniqueId();
                         String name = i.getName();
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
-                        zplayer.add(new ZPlayer(uuid, name));
+                        zplayer.add(new ZPlayer(uuid, (name == null ? "null" : name)));
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();
@@ -170,7 +150,52 @@ public class Zstats extends JavaPlugin{
             hasEssentials = false;
         }
         ZFilter.begin();
+        read_config();
+    }
 
+    @Override
+    public void onDisable() {
+        SqlCon.closeConnection();
+        System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
+    }
+
+    private synchronized void write_config(){
+        if(fc.getString("vanilla_stats.MOB_KILLS") == null){
+            System.out.println(ChatColor.YELLOW+"[Zstats] Writing config file...");
+            is_writing_config = true;
+            try (FileWriter fw = new FileWriter(new File(getDataFolder(), "config.yml"), true);
+                 BufferedWriter bw = new BufferedWriter(fw);
+                 PrintWriter out = new PrintWriter(bw)) {
+
+                ArrayList<Statistic> stat = getDefaultStat();
+                for (Statistic s : Statistic.values()) {
+                    if (s.isSubstatistic()) continue;
+                    if (debug) System.out.println(s.toString());
+                    if (s.toString().contains("PLAY_ONE_")) {
+                        out.println("  " + s.toString() + ": true");
+                    } else {
+                        out.println("  " + s.toString() + (stat.contains(s) ? ": true" : ": false"));
+                    }
+                }
+                if (debug) System.out.println("Write file done");
+                fc = this.getConfig();
+                notifyAll();
+                is_writing_config = false;
+            } catch (IOException e) {
+                System.out.println(ChatColor.YELLOW+"[Zstats] An error occurred during config file write:\n" + e);
+            }
+        }
+    }
+
+    private synchronized void read_config(){
+        System.out.println(ChatColor.YELLOW+"[Zstats] Waiting for write config file...");
+        while(is_writing_config){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                if(debug) e.printStackTrace();
+            }
+        }
         System.out.println(ChatColor.YELLOW+"[Zstats] Reading config file...");
         zstats = new HashMap<>();
         vanilla_stats = new HashMap<>();
@@ -181,12 +206,6 @@ public class Zstats extends JavaPlugin{
             vanilla_stats.put(s, fc.getBoolean("vanilla_stats."+s));
         }
         System.out.println(ChatColor.YELLOW+"[Zstats] Done.");
-    }
-
-    @Override
-    public void onDisable() {
-        SqlCon.closeConnection();
-        System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
     }
 
     protected static void updateWorldSize(){
