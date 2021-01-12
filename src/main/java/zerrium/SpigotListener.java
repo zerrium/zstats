@@ -56,6 +56,7 @@ public class SpigotListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
         Player p = event.getPlayer();
+        if (Zstats.version < 5) ZPlayer.players.add(new OldPlayer(p));
         UUID uuid = p.getUniqueId();
         String name = p.getName();
         Zstats.online_player.remove(uuid);

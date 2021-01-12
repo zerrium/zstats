@@ -37,9 +37,9 @@ public class Substats{ //Manage substats
                     b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.MINE_BLOCK, m);
                     c = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.USE_ITEM, m);
                 }else{
-                    a = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.CRAFT_ITEM, m);
-                    b = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.MINE_BLOCK, m);
-                    c = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.USE_ITEM, m);
+                    a = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.CRAFT_ITEM, m);
+                    b = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.MINE_BLOCK, m);
+                    c = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.USE_ITEM, m);
                 }
             }else{
                 a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
@@ -107,8 +107,8 @@ public class Substats{ //Manage substats
                             a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.KILL_ENTITY, t);
                             b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.ENTITY_KILLED_BY, t);
                         }else{
-                            a = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.KILL_ENTITY, t);
-                            b = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                            a = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.KILL_ENTITY, t);
+                            b = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.ENTITY_KILLED_BY, t);
                         }
                     }else{
                         a = this.p.getStatistic(Statistic.KILL_ENTITY, t);
