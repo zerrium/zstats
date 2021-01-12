@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class Zstats extends JavaPlugin{
     static FileConfiguration fc;
-    static int version;
+    static int version, substat_top;
     private Connection connection;
     static Boolean debug, notify_discord;
     static String notify_discord_message;
@@ -49,7 +49,12 @@ public class Zstats extends JavaPlugin{
                 PrintWriter out = new PrintWriter(bw)) {
                 ArrayList<Statistic> stat = getDefaultStat();
                 for(Statistic s:Statistic.values()){
-                    out.println("  " + s.toString() + (stat.contains(s) ? ": true" : ": false"));
+                    if(s.isSubstatistic()) continue;
+                    if(s.toString().contains("PLAY_ONE_")){
+                        out.println("  " + s.toString() + ": true");
+                    }else{
+                        out.println("  " + s.toString() + (stat.contains(s) ? ": true" : ": false"));
+                    }
                 }
             } catch (IOException e) {
                 System.out.println(ChatColor.YELLOW+"[Zstats] An error occurred during config file write:\n" + e);
@@ -57,6 +62,7 @@ public class Zstats extends JavaPlugin{
         }
         fc = this.getConfig();
         debug = fc.getBoolean("use_debug");
+        substat_top = fc.getInt("zstats_top");
         notify_discord = fc.getBoolean("notify_stats_update_to_discord");
         notify_discord_message = fc.getString("notify_message");
 
@@ -230,7 +236,7 @@ public class Zstats extends JavaPlugin{
 
             else return 0;
         }
-        //AVIATE_ONE_CM (elytra distance) stat, SLEEP_IN_BED stat
+        //AVIATE_ONE_CM (elytra distance) stat, SLEEP_IN_BED stat, SHIELD stat
         else if (v.contains("1.9")) return 2;
         else if (v.contains("1.10")) return 2;
         else if (v.contains("1.11")) return 2;
@@ -254,9 +260,6 @@ public class Zstats extends JavaPlugin{
 
     private ArrayList<Statistic> getDefaultStat(){
         ArrayList<Statistic> x= new ArrayList<>();
-
-        if(version > 2) x.add(Statistic.PLAY_ONE_MINUTE); //<1.12 PLAY_ONE_TICK
-        else x.add(Statistic.PLAY_ONE_TICK);
 
         if(version > 1){
             x.add(Statistic.AVIATE_ONE_CM); //1.9+

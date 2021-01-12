@@ -143,19 +143,19 @@ public class ZPlayer {
 
         //Update to SQL
         //World Size
-        this.SQL_query(connection, Zstats.world_size, "000", "z:world_size");
+        if(Zstats.zstats.get("z:world_size")) this.SQL_query(connection, Zstats.world_size, "000", "z:world_size");
 
         //Nether Size
-        this.SQL_query(connection, Zstats.nether_size, "000", "z:nether_size");
+        if(Zstats.zstats.get("z:nether_size")) this.SQL_query(connection, Zstats.nether_size, "000", "z:nether_size");
 
         //The End Size
-        this.SQL_query(connection, Zstats.end_size, "000", "z:end_size");
+        if(Zstats.zstats.get("z:end_size")) this.SQL_query(connection, Zstats.end_size, "000", "z:end_size");
 
         //Total Size
-        this.SQL_query(connection, Zstats.total_size, "000", "z:total_size");
+        if(Zstats.zstats.get("z:total_size")) this.SQL_query(connection, Zstats.total_size, "000", "z:total_size");
 
         //AFK time
-        this.SQL_query(connection, afk_time, uuid.toString(), "z:afk_time");
+        if(Zstats.zstats.get("z:afk_size")) this.SQL_query(connection, afk_time, uuid.toString(), "z:afk_time");
 
         //General stats
         for(Map.Entry<String, Long> me:this.x.entrySet()){
@@ -244,14 +244,14 @@ public class ZPlayer {
     private void SQL_query(Connection connection, long val, String uuid, String stat, String substat, int j) throws SQLException{ //For substats
         PreparedStatement pss = connection.prepareStatement("delete from stats where uuid=? and stat like ?");
         pss.setString(1, uuid);
-        pss.setString(2, stat + j + "_%");
+        pss.setString(2, stat + String.format("%04d", j) + "_%");
         pss.executeUpdate();
         PreparedStatement ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
         ps.setLong(1, val);
         ps.setString(2, uuid);
-        ps.setString(3, stat + j + "_" + substat);
+        ps.setString(3, stat + String.format("%04d", j) + "_" + substat);
         ps.execute();
-        if (Zstats.debug) System.out.println(uuid + " - " + stat + j + "_" + substat + " - " + val);
+        if (Zstats.debug) System.out.println(uuid + " - " + stat + String.format("%04d", j) + "_" + substat + " - " + val);
         pss.close();
         ps.close();
     }

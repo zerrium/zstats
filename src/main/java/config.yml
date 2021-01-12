@@ -19,8 +19,11 @@ notify_message: 'Player statistics of <player> has been updated. Check it out on
 ##Others
 use_debug: false #Do not touch if you do not know what this is
 
-##Zerrium's Statistics config, change to false to disable
-zstats:
+##Zerrium's Statistics config
+#Store top 3 (default) items/blocks crafted, mined, placed (if enabled) and mob kills and killed by mobs (if enabled) to database
+#change to 0 to disable, change to 9999 to display all (not recommended), I recommend you 3 for a large player base server
+zstats_top: 3
+zstats: #change to false to disable
   #Records how many items crafted, placed, mined and how many kind of items
   z:crafted: true
   z:craft_kind: true
@@ -49,7 +52,7 @@ zstats:
   z:last_played: true
 
   #Records how many kind of entities killed and killed by them
-  z:mob_kind: true #kind of mobs a player has killed
+  z:mob_kind: true #kind of mobs a player has killed, for the total number of mob, check vanilla_stats MOB_KILLS
   z:slain_kind: true #kind of mobs have killed a player
 
   #Records how big is the world save size for each dimensions
