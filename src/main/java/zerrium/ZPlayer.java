@@ -155,7 +155,7 @@ public class ZPlayer {
         if(Zstats.zstats.get("z:total_size")) this.SQL_query(connection, Zstats.total_size, "000", "z:total_size");
 
         //AFK time
-        if(Zstats.zstats.get("z:afk_size")) this.SQL_query(connection, afk_time, uuid.toString(), "z:afk_time");
+        if(Zstats.zstats.get("z:afk_time")) this.SQL_query(connection, afk_time, uuid.toString(), "z:afk_time");
 
         //General stats
         for(Map.Entry<String, Long> me:this.x.entrySet()){
