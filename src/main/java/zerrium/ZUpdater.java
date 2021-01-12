@@ -1,6 +1,7 @@
 package zerrium;
 
 import github.scarsz.discordsrv.DiscordSRV;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,6 +35,7 @@ public class ZUpdater implements CommandExecutor {
                                 connection = SqlCon.openConnection();
                                 for(ZPlayer p : Zstats.zplayer){
                                     if(p.is_updating) continue;
+                                    if(Zstats.version < 5 && !Bukkit.getOfflinePlayer(p.uuid).isOnline()) continue; //update only when the player is online on version <1.15
                                     p.updateStat(connection);
                                 }
                             } catch (SQLException throwables) {
@@ -66,6 +68,10 @@ public class ZUpdater implements CommandExecutor {
                                 for(ZPlayer z : Zstats.zplayer){
                                     if(args[1].equalsIgnoreCase(z.name)){
                                         if(z.is_updating) return;
+                                        if(Zstats.version < 5 && !Bukkit.getOfflinePlayer(z.uuid).isOnline()){ //update only when the player is online on version <1.15
+                                            sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Can't update stats of player " + args[1] + " as he is offline.");
+                                            return;
+                                        }
                                         Connection connection = null;
                                         try {
                                             connection = SqlCon.openConnection();

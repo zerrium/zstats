@@ -1,14 +1,66 @@
-#Database Config (MySQL)
+#--------------------------#
+#  Config for Zstats v1.0  #
+#--------------------------#
+#   Developed by: Zerrium  #
+#--------------------------#
+
+##Database Config (MySQL)
 hostname: 'localhost'
 port: 3306
 database: 'My_Stats'
 username: 'root'
-password: 'yourPassword'
+password: '' #leave it if you don't have database password
 use_SSL: false
 
-#DiscordSRV config
+##DiscordSRV config set to false if you don't have DiscordSRV installed
 notify_stats_update_to_discord: false
 notify_message: 'Player statistics of <player> has been updated. Check it out on https://example.com'
 
-#Others
-use_debug: false
+##Others
+use_debug: false #Do not touch if you do not know what this is
+
+##Zerrium's Statistics config
+#Store top 3 (default) items/blocks crafted, mined, placed (if enabled) and mob kills and killed by mobs (if enabled) to database
+#change to 0 to disable, change to 9999 to display all (not recommended), I recommend you 3 for a large player base server
+zstats_top: 3
+zstats: #change to false to disable
+  #Records how many items crafted, placed, mined and how many kind of items
+  z:crafted: true
+  z:craft_kind: true
+  z:mined: true
+  z:mine_kind: true
+  z:placed: true
+  z:place_kind: true
+
+  #Records how much tools durability points used (vanilla tools only, it cant record custom tools from plugin or mods)
+  z:axe: true
+  z:bow: true
+  z:crossbow: false #1.14+ only
+  z:flint_and_steel: false
+  z:hoe: true
+  z:pickaxe: true
+  z:shears: false
+  z:shield: false #1.9+ only
+  z:shovel: true
+  z:sword: true
+  z:trident: true #1.13+ only
+
+  #Records how long a player has been AFK (requires EssentialsX) set to false if you don't have EssentialsX installed
+  z:afk_time: true
+
+  #Records players' last logout time
+  z:last_played: true
+
+  #Records how many kind of entities killed and killed by them
+  z:mob_kind: true #kind of mobs a player has killed, for the total number of mob, check vanilla_stats MOB_KILLS
+  z:slain_kind: true #kind of mobs have killed a player
+
+  #Records how big is the world save size for each dimensions
+  z:world_size: true #overworld
+  z:nether_size: true #the nether
+  z:end_size: true #the end
+  z:total_size: true #Total for all dimensions including custom dimensions (disable if the custom dimension is not from Spigot plugin like Forge)
+
+##Vanilla stats config, change to false to disable (regenerate this config file if you change your server minecraft version)
+vanilla_stats: #to check what each of these stats are, read minecraft wiki and SpigotAPI docs: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Statistic.html
+  dump: false #Ignore this one

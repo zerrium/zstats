@@ -10,10 +10,11 @@ public class ZFilter {
 
     protected static void begin(){
         f.add(Material.BOW);
-        f.add(Material.TRIDENT);
+        if(Zstats.version >=4) f.add(Material.CROSSBOW); //1.14+
+        if(Zstats.version >=3) f.add(Material.TRIDENT); //1.13+
         f.add(Material.SHEARS);
         f.add(Material.FLINT_AND_STEEL);
-        f.add(Material.SHIELD);
+        if(Zstats.version >=2) f.add(Material.SHIELD); //1.9+
         f.add(Material.COMPASS);
 
         g.add("_PICKAXE");
