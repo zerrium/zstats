@@ -31,16 +31,20 @@ public class Substats{ //Manage substats
         for(Material m: Material.values()) {
             long a, b, c;
 
-            if(Zstats.version < 5 && p.isOnline()){
-                a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.CRAFT_ITEM, m);
-                b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.MINE_BLOCK, m);
-                c = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.USE_ITEM, m);
-            }else if(Zstats.version >= 5){
+            if(Zstats.version < 5){
+                if(p.isOnline()){
+                    a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.CRAFT_ITEM, m);
+                    b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.MINE_BLOCK, m);
+                    c = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.USE_ITEM, m);
+                }else{
+                    a = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.CRAFT_ITEM, m);
+                    b = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.MINE_BLOCK, m);
+                    c = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.USE_ITEM, m);
+                }
+            }else{
                 a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
                 b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
                 c = this.p.getStatistic(Statistic.USE_ITEM, m);
-            }else{
-                return;
             }
 
             if (a != 0) {
@@ -98,14 +102,17 @@ public class Substats{ //Manage substats
                 if(t.isAlive()) {
                     long a, b;
 
-                    if(Zstats.version < 5 && p.isOnline()){
-                        a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.KILL_ENTITY, t);
-                        b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.ENTITY_KILLED_BY, t);
-                    }else if(Zstats.version >= 5){
+                    if(Zstats.version < 5){
+                        if(p.isOnline()){
+                            a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.KILL_ENTITY, t);
+                            b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                        }else{
+                            a = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.KILL_ENTITY, t);
+                            b = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid).getPlayer())).getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                        }
+                    }else{
                         a = this.p.getStatistic(Statistic.KILL_ENTITY, t);
                         b = this.p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
-                    }else{
-                        return;
                     }
 
                     if (a != 0 && Zstats.zstats.get("z:mob_kind")) {

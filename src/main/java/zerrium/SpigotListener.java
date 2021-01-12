@@ -1,8 +1,6 @@
 package zerrium;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import net.ess3.api.IUser;
-import net.ess3.api.events.AfkStatusChangeEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -91,18 +89,5 @@ public class SpigotListener implements Listener {
             }
         };
         r.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
-    }
-
-    @EventHandler
-    public void onPlayerAfkToggle(AfkStatusChangeEvent event){
-        if(Zstats.hasEssentials){
-            IUser p = event.getAffected();
-            if (!event.getValue()) { //back from AFK
-                long x = (System.currentTimeMillis() - p.getAfkSince())/1000; //AFK time in seconds
-                ZPlayer zp = Zstats.zplayer.get(Zstats.zplayer.indexOf(new ZPlayer(p.getBase().getUniqueId())));
-                zp.afk_time += x;
-                if(Zstats.debug) System.out.println("[Zstats] " + p.getName() + " has been AFK for " + x +" seconds.");
-            }
-        }
     }
 }

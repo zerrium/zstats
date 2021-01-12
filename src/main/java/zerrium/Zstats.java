@@ -149,6 +149,7 @@ public class Zstats extends JavaPlugin{
             has_discordSrv = false;
         }
         if(Bukkit.getPluginManager().getPlugin("Essentials") != null || Bukkit.getPluginManager().getPlugin("EssentialsX") != null){
+            getServer().getPluginManager().registerEvents(new EssentialsListener(), this);
             System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
             hasEssentials = true;
         }else{

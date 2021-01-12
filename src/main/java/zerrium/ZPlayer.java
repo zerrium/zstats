@@ -2,6 +2,7 @@ package zerrium;
 
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,6 +12,8 @@ import java.util.*;
 
 
 public class ZPlayer {
+    static ArrayList<Player> players = new ArrayList<>(); //This class is for <1.15 Player instance where we save that Online Player instance to this class as we can't update the stats when the player is offline
+
     String name;
     UUID uuid;
     long afk_time, last_played;
@@ -111,7 +114,6 @@ public class ZPlayer {
         this.mine = new LinkedHashMap<>();
         this.slain = new LinkedHashMap<>();
         this.mob = new LinkedHashMap<>();
-
     }
 
     public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
@@ -127,9 +129,11 @@ public class ZPlayer {
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
             if(!k.contains("z:")){
-                if(Zstats.version < 5 && p.isOnline()) this.x.put(k, (long) Objects.requireNonNull(p.getPlayer()).getStatistic(Statistic.valueOf(k)));
-                else if(Zstats.version >= 5) this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
-                else return;
+                if(Zstats.version < 5){
+                    if(p.isOnline()) this.x.put(k, (long) Objects.requireNonNull(p.getPlayer()).getStatistic(Statistic.valueOf(k)));
+                    else this.x.put(k, (long) players.get(players.indexOf(new OldPlayer(this.uuid).getPlayer())).getStatistic(Statistic.valueOf(k)));
+                }
+                else this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
             }else{
                 switch (k){
                     case "z:last_played":
