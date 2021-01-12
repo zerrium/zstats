@@ -27,33 +27,41 @@ public class ZPlayer {
         this.name = name;
 
         Connection connection = SqlCon.openConnection();
-        if(Zstats.debug) System.out.println("Get player AFK time from db");
-        PreparedStatement pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
-        pss.setString(1, uuid.toString());
-        pss.setString(2, "z:afk_time");
-        ResultSet rs = pss.executeQuery();
-        if (!rs.next()) {
-            if(Zstats.debug) System.out.println("AFK stat Not found. set it to 0");
-            afk_time = 0L;
-        }else{
-            afk_time = rs.getLong(1);
-            if(Zstats.debug) System.out.println("AFK value: " + afk_time);
+        PreparedStatement pss = null;
+        ResultSet rs = null;
+
+        if(Zstats.zstats.get("z:afk_time")){
+            if(Zstats.debug) System.out.println("Get player AFK time from db");
+            pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
+            pss.setString(1, uuid.toString());
+            pss.setString(2, "z:afk_time");
+            rs = pss.executeQuery();
+            if (!rs.next()) {
+                if(Zstats.debug) System.out.println("AFK stat Not found. set it to 0");
+                afk_time = 0L;
+            }else{
+                afk_time = rs.getLong(1);
+                if(Zstats.debug) System.out.println("AFK value: " + afk_time);
+            }
         }
 
-        if(Zstats.debug) System.out.println("Get player last played time from db");
-        pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
-        pss.setString(1, uuid.toString());
-        pss.setString(2, "z:last_played");
-        rs = pss.executeQuery();
-        if (!rs.next()) {
-            OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
-            if(Zstats.debug) System.out.println("Last played stat Not found. set it to OfflinePlayer#getLastPlayed");
-            last_played = p.getLastPlayed()/1000;
-        }else{
-            last_played = rs.getLong(1);
-            if(Zstats.debug) System.out.println("Last played value: " + last_played);
+        if(Zstats.zstats.get("z:last_played")){
+            if(Zstats.debug) System.out.println("Get player last played time from db");
+            pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
+            pss.setString(1, uuid.toString());
+            pss.setString(2, "z:last_played");
+            rs = pss.executeQuery();
+            if (!rs.next()) {
+                OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
+                if(Zstats.debug) System.out.println("Last played stat Not found. set it to OfflinePlayer#getLastPlayed");
+                last_played = p.getLastPlayed()/1000;
+            }else{
+                last_played = rs.getLong(1);
+                if(Zstats.debug) System.out.println("Last played value: " + last_played);
+            }
         }
 
+        assert pss != null;
         pss.close();
         rs.close();
         connection.close();
@@ -92,43 +100,18 @@ public class ZPlayer {
 
     private void clearStat(){
         this.x = new HashMap<>();
+        for(Map.Entry<String, Boolean> st:Zstats.vanilla_stats.entrySet()){
+            if(st.getValue()) x.put(st.getKey(), 0L);
+        }
+        for(Map.Entry<String, Boolean> st:Zstats.zstats.entrySet()){
+            if(st.getValue()) x.put(st.getKey(), 0L);
+        }
         this.craft = new LinkedHashMap<>();
         this.place = new LinkedHashMap<>();
         this.mine = new LinkedHashMap<>();
         this.slain = new LinkedHashMap<>();
         this.mob = new LinkedHashMap<>();
-        this.x.put(Statistic.PLAY_ONE_MINUTE.toString(), 0L);
-        this.x.put(Statistic.DAMAGE_DEALT.toString(), 0L);
-        this.x.put(Statistic.DAMAGE_TAKEN.toString(), 0L);
-        this.x.put(Statistic.MOB_KILLS.toString(), 0L);
-        this.x.put(Statistic.DEATHS.toString(), 0L);
-        this.x.put(Statistic.SPRINT_ONE_CM.toString(), 0L);
-        this.x.put(Statistic.WALK_ONE_CM.toString(), 0L);
-        this.x.put(Statistic.CROUCH_ONE_CM.toString(), 0L);
-        this.x.put(Statistic.BOAT_ONE_CM.toString(), 0L);
-        this.x.put(Statistic.AVIATE_ONE_CM.toString(), 0L);
-        this.x.put(Statistic.TRADED_WITH_VILLAGER.toString(), 0L);
-        this.x.put(Statistic.TALKED_TO_VILLAGER.toString(), 0L);
-        this.x.put(Statistic.CHEST_OPENED.toString(), 0L);
-        this.x.put(Statistic.FISH_CAUGHT.toString(), 0L);
-        this.x.put(Statistic.ITEM_ENCHANTED.toString(), 0L);
-        this.x.put(Statistic.SLEEP_IN_BED.toString(), 0L);
-        this.x.put("z:crafted", 0L);
-        this.x.put("z:mined", 0L);
-        this.x.put("z:pickaxe", 0L);
-        this.x.put("z:axe", 0L);
-        this.x.put("z:shovel", 0L);
-        this.x.put("z:hoe", 0L);
-        this.x.put("z:sword", 0L);
-        this.x.put("z:bow", 0L);
-        this.x.put("z:trident", 0L);
-        this.x.put("z:placed", 0L);
-        this.x.put("z:craft_kind", 0L);
-        this.x.put("z:mine_kind", 0L);
-        this.x.put("z:place_kind", 0L);
-        this.x.put("z:mob_kind", 0L);
-        this.x.put("z:slain_kind", 0L);
-        this.x.put("z:last_played", 0L);
+
     }
 
     public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
@@ -141,7 +124,9 @@ public class ZPlayer {
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
             if(!k.contains("z:")){
-                this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
+                if(Zstats.version < 5 && p.isOnline()) this.x.put(k, (long) p.getPlayer().getStatistic(Statistic.valueOf(k)));
+                else if(Zstats.version >= 5) this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
+                else return;
             }else if(k.equals("z:last_played")){
                 this.x.put(k, last_played);
             }

@@ -17,24 +17,35 @@ public class Substats{ //Manage substats
     final private HashMap<Material, Long> place;
     final private HashMap<EntityType, Long> kill;
     final private HashMap<EntityType, Long> kill_by;
-    final private OfflinePlayer p;
     final private ZPlayer zp;
+    final private OfflinePlayer p;
 
     protected Substats(ZPlayer zp){ //Preparation
         this.craft = new HashMap<>();
         this.mine = new HashMap<>();
         this.place = new HashMap<>();
         this.kill = new HashMap<>();
+        this.zp = zp;
         this.kill_by = new HashMap<>();
         this.p = Bukkit.getOfflinePlayer(zp.uuid);
-        this.zp = zp;
     }
 
     protected void substats_Material(){ //Substats for crafting, mining and placing blocks or items
         for(Material m: Material.values()) {
-            long a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
-            long b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
-            long c = this.p.getStatistic(Statistic.USE_ITEM, m);
+            long a, b, c;
+
+            if(Zstats.version < 5 && p.isOnline()){
+                a = this.p.getPlayer().getStatistic(Statistic.CRAFT_ITEM, m);
+                b = this.p.getPlayer().getStatistic(Statistic.MINE_BLOCK, m);
+                c = this.p.getPlayer().getStatistic(Statistic.USE_ITEM, m);
+            }else if(Zstats.version >= 5){
+                a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
+                b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
+                c = this.p.getStatistic(Statistic.USE_ITEM, m);
+            }else{
+                return;
+            }
+
             if (a != 0) {
                 zp.x.put("z:craft_kind", zp.x.get("z:craft_kind")+1);
                 zp.x.put("z:crafted", zp.x.get("z:crafted")+a);
@@ -62,7 +73,7 @@ public class Substats{ //Manage substats
                     zp.x.put("z:sword", zp.x.get("z:sword")+c);
                 }else if(m.equals(Material.BOW)){
                     zp.x.put("z:bow", zp.x.get("z:bow")+c);
-                }else if(m.equals(Material.TRIDENT)){
+                }else if(Zstats.version>=3 && m.equals(Material.TRIDENT)){
                     zp.x.put("z:trident", zp.x.get("z:trident")+c);
                 }
             }
@@ -74,8 +85,18 @@ public class Substats{ //Manage substats
         for(EntityType t: EntityType.values()){
             try {
                 if(t.isAlive()) {
-                    long a = p.getStatistic(Statistic.KILL_ENTITY, t);
-                    long b = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                    long a, b;
+
+                    if(Zstats.version < 5 && p.isOnline()){
+                        a = p.getPlayer().getStatistic(Statistic.KILL_ENTITY, t);
+                        b = p.getPlayer().getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                    }else if(Zstats.version >= 5){
+                        a = p.getStatistic(Statistic.KILL_ENTITY, t);
+                        b = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                    }else{
+                        return;
+                    }
+
                     if (a != 0) {
                         zp.x.put("z:mob_kind", zp.x.get("z:mob_kind") + 1);
                         this.kill.put(t, a);

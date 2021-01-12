@@ -4,9 +4,11 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import java.util.UUID;
 
 public class Zstats extends JavaPlugin{
     static FileConfiguration fc;
+    static int version;
     private Connection connection;
     static Boolean debug, notify_discord;
     static String notify_discord_message;
@@ -25,18 +28,40 @@ public class Zstats extends JavaPlugin{
     static long end_size = 0L;
     static long total_size = 0L;
     static boolean has_discordSrv, hasEssentials;
+    static HashMap<String, Boolean> zstats, vanilla_stats;
 
     @Override
     public void onEnable() {
-        System.out.println(ChatColor.YELLOW+"[Zstats] v0.8 by zerrium");
+        System.out.println(ChatColor.YELLOW+"[Zstats] v1.0 by zerrium");
         getServer().getPluginManager().registerEvents(new SpigotListener(), this);
         Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZUpdater());
-        System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
-        this.saveDefaultConfig(); //get config file
+        version = getVersion();
+
+        boolean generate_stat_config = false;
+        File file = new File(getDataFolder(), "config.yml");
+        if (!file.exists()) generate_stat_config = true;
+
+        this.saveDefaultConfig(); //get or create config file
+        if(generate_stat_config){
+            System.out.println(ChatColor.YELLOW+"[Zstats] Writing config file...");
+            try(FileWriter fw = new FileWriter("config.yml", true);
+                BufferedWriter bw = new BufferedWriter(fw);
+                PrintWriter out = new PrintWriter(bw)) {
+                ArrayList<Statistic> stat = getDefaultStat();
+                for(Statistic s:Statistic.values()){
+                    out.println("  " + s.toString() + (stat.contains(s) ? ": true" : ": false"));
+                }
+            } catch (IOException e) {
+                System.out.println(ChatColor.YELLOW+"[Zstats] An error occurred during config file write:\n" + e);
+            }
+        }
         fc = this.getConfig();
         debug = fc.getBoolean("use_debug");
         notify_discord = fc.getBoolean("notify_stats_update_to_discord");
         notify_discord_message = fc.getString("notify_message");
+
+        System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
+
         //MySQL connect
         try{
             connection = SqlCon.openConnection();
@@ -103,7 +128,7 @@ public class Zstats extends JavaPlugin{
                     System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
             }
         } catch (SQLException throwables) {
-            System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:");
+            System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:\n");
             throwables.printStackTrace();
         } finally {
             try {
@@ -136,10 +161,21 @@ public class Zstats extends JavaPlugin{
             System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
             hasEssentials = true;
         }else{
-            System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK detection for sleep notification");
+            System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK time stats");
             hasEssentials = false;
         }
         ZFilter.begin();
+
+        System.out.println(ChatColor.YELLOW+"[Zstats] Reading config file...");
+        zstats = new HashMap<>();
+        vanilla_stats = new HashMap<>();
+        for (String s: fc.getConfigurationSection("zstats").getKeys(false)){
+            zstats.put(s, fc.getBoolean("zstats."+s));
+        }
+        for (String s: fc.getConfigurationSection("vanilla_stats").getKeys(false)){
+            vanilla_stats.put(s, fc.getBoolean("vanilla_stats."+s));
+        }
+        System.out.println(ChatColor.YELLOW+"[Zstats] Done.");
     }
 
     @Override
@@ -175,5 +211,72 @@ public class Zstats extends JavaPlugin{
             if(debug) System.out.println("Got world size of "+i.getName());
         });
         if(debug) System.out.println("Total size "+total_size);
+    }
+
+    protected static int getVersion(){
+        String v = Bukkit.getServer().getVersion();
+        if (v.contains("1.8")){
+            if (v.contains("1.8.1")) return 0;
+            else if (v.contains("1.8.2")) return 0;
+
+            //CHEST_OPENED and ITEM_ENCHANTED stat
+            else if (v.contains("1.8.3")) return 1;
+            else if (v.contains("1.8.4")) return 1;
+            else if (v.contains("1.8.5")) return 1;
+            else if (v.contains("1.8.6")) return 1;
+            else if (v.contains("1.8.7")) return 1;
+            else if (v.contains("1.8.8")) return 1;
+            else if (v.contains("1.8.9")) return 1;
+
+            else return 0;
+        }
+        //AVIATE_ONE_CM (elytra distance) stat, SLEEP_IN_BED stat
+        else if (v.contains("1.9")) return 2;
+        else if (v.contains("1.10")) return 2;
+        else if (v.contains("1.11")) return 2;
+        else if (v.contains("1.12")) return 2;
+
+        //Trident stat, PLAY_ONE_MINUTE on 1.13+ instead of PLAY_ONE_TICK on <1.13 only the name changes, it still records the tick actually
+        else if (v.contains("1.13")) return 3;
+
+        //Crossbow stat
+        else if (v.contains("1.14")) return 4;
+
+        //Supports OfflinePlayer#getStatistic
+        else if (v.contains("1.15")) return 5;
+        else if (v.contains("1.16")) return 5;
+
+        else{
+            if(Zstats.debug) System.out.println(ChatColor.YELLOW+"[Zstats] Unsupported version: " + v +" Set to ZVersion 5");
+            return 5;
+        }
+    }
+
+    private ArrayList<Statistic> getDefaultStat(){
+        ArrayList<Statistic> x= new ArrayList<>();
+
+        if(version > 2) x.add(Statistic.PLAY_ONE_MINUTE); //<1.12 PLAY_ONE_TICK
+        else x.add(Statistic.PLAY_ONE_TICK);
+
+        if(version > 1){
+            x.add(Statistic.AVIATE_ONE_CM); //1.9+
+            x.add(Statistic.SLEEP_IN_BED); //1.9+
+        }
+
+        x.add(Statistic.DAMAGE_DEALT);
+        x.add(Statistic.DAMAGE_TAKEN);
+        x.add(Statistic.MOB_KILLS);
+        x.add(Statistic.DEATHS);
+        x.add(Statistic.SPRINT_ONE_CM); //1.8+
+        x.add(Statistic.WALK_ONE_CM);
+        x.add(Statistic.CROUCH_ONE_CM); //1.8+
+        x.add(Statistic.BOAT_ONE_CM);
+        x.add(Statistic.TRADED_WITH_VILLAGER); //1.8+
+        x.add(Statistic.TALKED_TO_VILLAGER); //1.8+
+        x.add(Statistic.CHEST_OPENED); //1.8.3+
+        x.add(Statistic.FISH_CAUGHT);
+        x.add(Statistic.ITEM_ENCHANTED); //1.8.3+
+
+        return x;
     }
 }
