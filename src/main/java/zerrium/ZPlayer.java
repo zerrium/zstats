@@ -171,8 +171,11 @@ public class ZPlayer {
         for(Map.Entry<String, Long> me:this.x.entrySet()){
             String k = me.getKey();
             long v = me.getValue();
-            if(k.equals("z:world_size") || k.equals("z:nether_size") || k.equals("z:end_size") || k.equals("z:total_size")) continue;
-            this.SQL_query(connection, v, uuid.toString(), k);
+            if(k.equals("z:world_size") || k.equals("z:nether_size") || k.equals("z:end_size") || k.equals("z:total_size")){
+                this.SQL_query(connection, v, "000", k);
+            }else{
+                this.SQL_query(connection, v, uuid.toString(), k);
+            }
         }
 
         //Crafting stats
