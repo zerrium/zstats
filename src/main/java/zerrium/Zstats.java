@@ -44,6 +44,7 @@ public class Zstats extends JavaPlugin{
         notify_discord_message = fc.getString("notify_message");
 
         write_config();
+        read_config();
 
         System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
 
@@ -89,11 +90,7 @@ public class Zstats extends JavaPlugin{
                         UUID uuid = i.getUniqueId();
                         String name = i.getName();
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
-                        if(uuid == null){
-                            System.out.println(ChatColor.YELLOW+"[Zstats] Warning! Found a null player, skipped this player");
-                            continue;
-                        }
-                        zplayer.add(new ZPlayer(uuid, (name == null ? "null" : name)));
+                        zplayer.add(new ZPlayer(uuid, name));
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();
@@ -154,7 +151,6 @@ public class Zstats extends JavaPlugin{
             hasEssentials = false;
         }
         ZFilter.begin();
-        read_config();
     }
 
     @Override
