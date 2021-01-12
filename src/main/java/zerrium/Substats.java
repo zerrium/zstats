@@ -6,10 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Substats{ //Manage substats
     final private HashMap<Material, Long> craft;
@@ -35,9 +32,9 @@ public class Substats{ //Manage substats
             long a, b, c;
 
             if(Zstats.version < 5 && p.isOnline()){
-                a = this.p.getPlayer().getStatistic(Statistic.CRAFT_ITEM, m);
-                b = this.p.getPlayer().getStatistic(Statistic.MINE_BLOCK, m);
-                c = this.p.getPlayer().getStatistic(Statistic.USE_ITEM, m);
+                a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.CRAFT_ITEM, m);
+                b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.MINE_BLOCK, m);
+                c = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.USE_ITEM, m);
             }else if(Zstats.version >= 5){
                 a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
                 b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
@@ -102,11 +99,11 @@ public class Substats{ //Manage substats
                     long a, b;
 
                     if(Zstats.version < 5 && p.isOnline()){
-                        a = p.getPlayer().getStatistic(Statistic.KILL_ENTITY, t);
-                        b = p.getPlayer().getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                        a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.KILL_ENTITY, t);
+                        b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.ENTITY_KILLED_BY, t);
                     }else if(Zstats.version >= 5){
-                        a = p.getStatistic(Statistic.KILL_ENTITY, t);
-                        b = p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                        a = this.p.getStatistic(Statistic.KILL_ENTITY, t);
+                        b = this.p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
                     }else{
                         return;
                     }

@@ -124,7 +124,7 @@ public class ZPlayer {
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
             if(!k.contains("z:")){
-                if(Zstats.version < 5 && p.isOnline()) this.x.put(k, (long) p.getPlayer().getStatistic(Statistic.valueOf(k)));
+                if(Zstats.version < 5 && p.isOnline()) this.x.put(k, (long) Objects.requireNonNull(p.getPlayer()).getStatistic(Statistic.valueOf(k)));
                 else if(Zstats.version >= 5) this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
                 else return;
             }else if(k.equals("z:last_played")){

@@ -175,10 +175,10 @@ public class Zstats extends JavaPlugin{
         System.out.println(ChatColor.YELLOW+"[Zstats] Reading config file...");
         zstats = new HashMap<>();
         vanilla_stats = new HashMap<>();
-        for (String s: fc.getConfigurationSection("zstats").getKeys(false)){
+        for (String s: Objects.requireNonNull(fc.getConfigurationSection("zstats")).getKeys(false)){
             zstats.put(s, fc.getBoolean("zstats."+s));
         }
-        for (String s: fc.getConfigurationSection("vanilla_stats").getKeys(false)){
+        for (String s: Objects.requireNonNull(fc.getConfigurationSection("vanilla_stats")).getKeys(false)){
             vanilla_stats.put(s, fc.getBoolean("vanilla_stats."+s));
         }
         System.out.println(ChatColor.YELLOW+"[Zstats] Done.");
