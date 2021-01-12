@@ -119,6 +119,9 @@ public class ZPlayer {
         //Clear existing Stats
         this.clearStat();
 
+        //server world save size
+        Zstats.updateWorldSize();
+
         //Rewrite with the latest stats
         OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
         for(Map.Entry<String, Long> me:x.entrySet()){
@@ -127,13 +130,34 @@ public class ZPlayer {
                 if(Zstats.version < 5 && p.isOnline()) this.x.put(k, (long) Objects.requireNonNull(p.getPlayer()).getStatistic(Statistic.valueOf(k)));
                 else if(Zstats.version >= 5) this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
                 else return;
-            }else if(k.equals("z:last_played")){
-                this.x.put(k, last_played);
+            }else{
+                switch (k){
+                    case "z:last_played":
+                        this.x.put(k, last_played);
+                        break;
+
+                    case "z:afk_time":
+                        this.x.put(k, afk_time);
+                        break;
+
+                    case "z:world_size":
+                        this.x.put(k, Zstats.world_size);
+                        break;
+
+                    case "z:nether_size":
+                        this.x.put(k, Zstats.nether_size);
+                        break;
+
+                    case "z:end_size":
+                        this.x.put(k, Zstats.end_size);
+                        break;
+
+                    case "z:total_size":
+                        this.x.put(k, Zstats.total_size);
+                        break;
+                }
             }
         }
-
-        //server world save size
-        Zstats.updateWorldSize();
 
         //substats
         Substats s = new Substats(this);
@@ -142,25 +166,12 @@ public class ZPlayer {
         s.sort_substats();
 
         //Update to SQL
-        //World Size
-        if(Zstats.zstats.get("z:world_size")) this.SQL_query(connection, Zstats.world_size, "000", "z:world_size");
-
-        //Nether Size
-        if(Zstats.zstats.get("z:nether_size")) this.SQL_query(connection, Zstats.nether_size, "000", "z:nether_size");
-
-        //The End Size
-        if(Zstats.zstats.get("z:end_size")) this.SQL_query(connection, Zstats.end_size, "000", "z:end_size");
-
-        //Total Size
-        if(Zstats.zstats.get("z:total_size")) this.SQL_query(connection, Zstats.total_size, "000", "z:total_size");
-
-        //AFK time
-        if(Zstats.zstats.get("z:afk_time")) this.SQL_query(connection, afk_time, uuid.toString(), "z:afk_time");
 
         //General stats
         for(Map.Entry<String, Long> me:this.x.entrySet()){
             String k = me.getKey();
             long v = me.getValue();
+            if(k.equals("z:world_size") || k.equals("z:nether_size") || k.equals("z:end_size") || k.equals("z:total_size")) continue;
             this.SQL_query(connection, v, uuid.toString(), k);
         }
 
