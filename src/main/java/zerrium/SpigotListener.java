@@ -37,6 +37,7 @@ public class SpigotListener implements Listener {
                         ps.executeUpdate();
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
+
                     } finally {
                         try {
                             assert ps != null;
@@ -79,6 +80,7 @@ public class SpigotListener implements Listener {
                     }
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
+                    zp.is_updating = false;
                 } finally {
                     try {
                         assert connection != null;
