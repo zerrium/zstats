@@ -9,4 +9,5 @@
 [![HikariCP](https://img.shields.io/badge/HikariCP-3.4.5-yellow?style=for-the-badge)](https://github.com/brettwooldridge/HikariCP) <br>
 
 ## Details:
-Check out on SpigotMC [website](https://www.spigotmc.org/resources/zstats.87724/).
+Check out on SpigotMC [website](https://www.spigotmc.org/resources/zstats.87724/)
+or CurseForge [website](https://www.curseforge.com/minecraft/bukkit-plugins/zstats).
