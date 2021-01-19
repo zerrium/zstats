@@ -141,57 +141,39 @@ public class ZstatsSubstats { //Manage substats
 
     protected void sort_substats(){ //Sort all substats
         if(Zstats.debug) System.out.println("Sorting substats...");
-        int i;
-        if(zp.x.get("z:craft_kind") != null && zp.x.get("z:craft_kind") != 0){
-            LinkedHashMap temp = ZstatsFilter.sortByValues(this.craft);
-            Iterator x = temp.entrySet().iterator();
-            i = 0;
-            while(x.hasNext() && i<Zstats.substat_top){
-                Map.Entry e = (Map.Entry) x.next();
-                zp.craft.put((Material) e.getKey(), (Long) e.getValue());
-                i++;
-            }
-        }
-        if(zp.x.get("z:place_kind") != null && zp.x.get("z:place_kind") != 0){
-            LinkedHashMap temp = ZstatsFilter.sortByValues(this.place);
-            Iterator x = temp.entrySet().iterator();
-            i = 0;
-            while(x.hasNext() && i<Zstats.substat_top){
-                Map.Entry e = (Map.Entry) x.next();
-                zp.place.put((Material) e.getKey(), (Long) e.getValue());
-                i++;
-            }
-        }
-        if(zp.x.get("z:mine_kind") != null && zp.x.get("z:mine_kind") != 0){
-            LinkedHashMap temp = ZstatsFilter.sortByValues(this.mine);
-            Iterator x = temp.entrySet().iterator();
-            i = 0;
-            while(x.hasNext() && i<Zstats.substat_top){
-                Map.Entry e = (Map.Entry) x.next();
-                zp.mine.put((Material) e.getKey(), (Long) e.getValue());
-                i++;
-            }
-        }
-        if(zp.x.get("z:mob_kind") != null && zp.x.get("z:mob_kind") != 0){
-            LinkedHashMap temp = ZstatsFilter.sortByValues(this.kill);
-            Iterator x = temp.entrySet().iterator();
-            i = 0;
-            while(x.hasNext() && i<Zstats.substat_top){
-                Map.Entry e = (Map.Entry) x.next();
-                zp.mob.put((EntityType) e.getKey(), (Long) e.getValue());
-                i++;
-            }
-        }
-        if(zp.x.get("z:slain_kind") != null && zp.x.get("z:slain_kind") != 0){
-            LinkedHashMap temp = ZstatsFilter.sortByValues(this.kill_by);
-            Iterator x = temp.entrySet().iterator();
-            i = 0;
-            while(x.hasNext() && i<Zstats.substat_top){
-                Map.Entry e = (Map.Entry) x.next();
-                zp.slain.put((EntityType) e.getKey(), (Long) e.getValue());
-                i++;
-            }
-        }
+        sort_material("z:craft_kind", this.craft, zp.craft);
+        sort_material("z:place_kind", this.place, zp.place);
+        sort_material("z:mine_kind", this.mine, zp.mine);
+        sort_entity("z:mob_kind", this.kill, zp.mob);
+        sort_entity("z:slain_kind", this.kill_by, zp.slain);
         if(Zstats.debug) System.out.println("Sorting substats done");
+    }
+
+    private void sort_material(String stat, HashMap<Material, Long> thiss, LinkedHashMap<Material, Long> zpp){
+        int i;
+        if(zp.x.get(stat) != null && zp.x.get(stat) != 0){
+            LinkedHashMap temp = ZstatsFilter.sortByValues(thiss);
+            Iterator x = temp.entrySet().iterator();
+            i = 0;
+            while(x.hasNext() && i<Zstats.substat_top){
+                Map.Entry e = (Map.Entry) x.next();
+                zpp.put((Material) e.getKey(), (Long) e.getValue());
+                i++;
+            }
+        }
+    }
+
+    private void sort_entity(String stat, HashMap<EntityType, Long> thiss, LinkedHashMap<EntityType, Long> zpp){
+        int i;
+        if(zp.x.get(stat) != null && zp.x.get(stat) != 0){
+            LinkedHashMap temp = ZstatsFilter.sortByValues(thiss);
+            Iterator x = temp.entrySet().iterator();
+            i = 0;
+            while(x.hasNext() && i<Zstats.substat_top){
+                Map.Entry e = (Map.Entry) x.next();
+                zpp.put((EntityType) e.getKey(), (Long) e.getValue());
+                i++;
+            }
+        }
     }
 }
