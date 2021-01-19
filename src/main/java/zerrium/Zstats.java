@@ -34,7 +34,7 @@ public class Zstats extends JavaPlugin{
         System.out.println(ChatColor.YELLOW+"[Zstats] v1.0 by zerrium");
         getServer().getPluginManager().registerEvents(new ZstatsListener(), this);
         Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZstatsUpdater());
-        version = getVersion();
+        version = ZstatsMinecaftVersion.getVersion();
 
         this.saveDefaultConfig(); //get or create config file
         fc = this.getConfig();
@@ -241,45 +241,6 @@ public class Zstats extends JavaPlugin{
             if(debug) System.out.println("Got world size of "+i.getName());
         });
         if(debug) System.out.println("Total size "+total_size);
-    }
-
-    protected static int getVersion(){
-        String v = Bukkit.getServer().getVersion();
-        if (v.contains("1.8")){
-            if (v.contains("1.8.1")) return 0;
-            else if (v.contains("1.8.2")) return 0;
-
-            //CHEST_OPENED and ITEM_ENCHANTED stat
-            else if (v.contains("1.8.3")) return 1;
-            else if (v.contains("1.8.4")) return 1;
-            else if (v.contains("1.8.5")) return 1;
-            else if (v.contains("1.8.6")) return 1;
-            else if (v.contains("1.8.7")) return 1;
-            else if (v.contains("1.8.8")) return 1;
-            else if (v.contains("1.8.9")) return 1;
-
-            else return 0;
-        }
-        //AVIATE_ONE_CM (elytra distance) stat, SLEEP_IN_BED stat, SHIELD stat
-        else if (v.contains("1.9")) return 2;
-        else if (v.contains("1.10")) return 2;
-        else if (v.contains("1.11")) return 2;
-        else if (v.contains("1.12")) return 2;
-
-        //Trident stat, PLAY_ONE_MINUTE on 1.13+ instead of PLAY_ONE_TICK on <1.13 only the name changes, it still records the tick actually
-        else if (v.contains("1.13")) return 3;
-
-        //Crossbow stat
-        else if (v.contains("1.14")) return 4;
-
-        //Supports OfflinePlayer#getStatistic
-        else if (v.contains("1.15")) return 5;
-        else if (v.contains("1.16")) return 5;
-
-        else{
-            if(Zstats.debug) System.out.println(ChatColor.YELLOW+"[Zstats] Unsupported version: " + v +" Set to ZVersion 5");
-            return 5;
-        }
     }
 
     private ArrayList<Statistic> getDefaultStat(){
