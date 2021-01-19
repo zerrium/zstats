@@ -53,13 +53,8 @@ public class ZstatsSubstats { //Manage substats
                 }
             }
 
-            if(ZstatsFilter.is_tool(m)){
-                try{
-                    substats_Tools(m, val[2]);
-                }catch (NullPointerException e){
-                    if(Zstats.debug) System.out.println(m.toString() + " - " + e);
-                }
-            }else if(val[2] != 0){
+            if(ZstatsFilter.is_tool(m)) substats_Tools(m, val[2]);
+            else if(val[2] != 0){
                 if(Zstats.zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
                 if(Zstats.zstats.get("z:placed")){
                     zp.x.put("z:placed", zp.x.get("z:placed")+val[2]);
@@ -70,16 +65,21 @@ public class ZstatsSubstats { //Manage substats
         if(Zstats.debug) System.out.println("Materials substat done");
     }
 
-    private void substats_Tools(Material m, long val) throws NullPointerException{
-        for(String s : ZstatsFilter.tool_with_material){
-            String zstats = ZstatsFilter.tools.get(s);
-            if(m.toString().contains(s) && Zstats.zstats.get(zstats)){
-                zp.x.put(zstats, zp.x.get(zstats)+val);
-                return;
+    private void substats_Tools(Material m, long val){
+        try{
+            for(String s : ZstatsFilter.tool_with_material){
+                String zstats = ZstatsFilter.tools.get(s);
+                if(m.toString().contains(s) && Zstats.zstats.get(zstats)){
+                    zp.x.put(zstats, zp.x.get(zstats)+val);
+                    return;
+                }
             }
+            String zstat = ZstatsFilter.tools.get(m.toString());
+            if(Zstats.zstats.get(zstat)) zp.x.put(zstat, zp.x.get(zstat)+val);
         }
-        String zstat = ZstatsFilter.tools.get(m.toString());
-        if(Zstats.zstats.get(zstat)) zp.x.put(zstat, zp.x.get(zstat)+val);
+        catch (NullPointerException e){
+            if(Zstats.debug) System.out.println(m.toString() + " - " + e);
+        }
     }
 
     protected void substats_Entity(){ //Substats for killing or killed by entities
