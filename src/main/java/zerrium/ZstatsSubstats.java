@@ -73,32 +73,22 @@ public class ZstatsSubstats { //Manage substats
                     this.place.put(m, c);
                 }
             }else{
-                if(m.toString().contains("_PICKAXE") && Zstats.zstats.get("z:pickaxe")){
-                    zp.x.put("z:pickaxe", zp.x.get("z:pickaxe")+c);
-                }else if(m.toString().contains("_AXE") && Zstats.zstats.get("z:axe")){
-                    zp.x.put("z:axe", zp.x.get("z:axe")+c);
-                }else if(m.toString().contains("_SHOVEL") && Zstats.zstats.get("z:shovel")){
-                    zp.x.put("z:shovel", zp.x.get("z:shovel")+c);
-                }else if(m.toString().contains("_HOE") && Zstats.zstats.get("z:hoe")){
-                    zp.x.put("z:hoe", zp.x.get("z:hoe")+c);
-                }else if(m.toString().contains("_SWORD") && Zstats.zstats.get("z:sword")){
-                    zp.x.put("z:sword", zp.x.get("z:sword")+c);
-                }else if(m.equals(Material.BOW) && Zstats.zstats.get("z:bow")){
-                    zp.x.put("z:bow", zp.x.get("z:bow")+c);
-                }else if(m.equals(Material.SHEARS) && Zstats.zstats.get("z:shears")){
-                    zp.x.put("z:shears", zp.x.get("z:shears")+c);
-                }else if(m.equals(Material.FLINT_AND_STEEL) && Zstats.zstats.get("z:flint_and_steel")){
-                    zp.x.put("z:flint_and_steel", zp.x.get("z:flint_and_steel")+c);
-                }else if(Zstats.version>=3 && m.equals(Material.TRIDENT) && Zstats.zstats.get("z:trident")){
-                    zp.x.put("z:trident", zp.x.get("z:trident")+c);
-                }else if(Zstats.version>=4 && m.equals(Material.CROSSBOW) && Zstats.zstats.get("z:crossbow")){
-                    zp.x.put("z:crossbow", zp.x.get("z:crossbow")+c);
-                }else if(Zstats.version>=2 && m.equals(Material.SHIELD) && Zstats.zstats.get("z:shield")){
-                    zp.x.put("z:shield", zp.x.get("z:shield")+c);
-                }
+                substats_Tools(m, c);
             }
         }
         if(Zstats.debug) System.out.println("Materials substat done");
+    }
+
+    private void substats_Tools(Material m, long val){
+        for(String s : ZstatsFilter.tool_with_material){
+            String zstats = ZstatsFilter.tools.get(s);
+            if(m.toString().contains(s) && Zstats.zstats.get(zstats)){
+                zp.x.put(zstats, zp.x.get(zstats)+val);
+                return;
+            }
+        }
+        String zstat = ZstatsFilter.tools.get(m.toString());
+        if(Zstats.zstats.get(zstat)) zp.x.put(zstat, zp.x.get(zstat)+val);
     }
 
     protected void substats_Entity(){ //Substats for killing or killed by entities

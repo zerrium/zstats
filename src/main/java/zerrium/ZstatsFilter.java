@@ -1,33 +1,47 @@
 package zerrium;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 import java.util.*;
 
 public class ZstatsFilter {
-    private static final ArrayList<Material> f = new ArrayList<>();
-    private static final ArrayList<String> g = new ArrayList<>();
+    private static final ArrayList<Material> tool = new ArrayList<>();
+    protected static final ArrayList<String> tool_with_material = new ArrayList<>();
+    protected static final LinkedHashMap<String, String> tools = new LinkedHashMap<>();
 
     protected static void begin(){
-        f.add(Material.BOW);
-        if(Zstats.version >=4) f.add(Material.CROSSBOW); //1.14+
-        if(Zstats.version >=3) f.add(Material.TRIDENT); //1.13+
-        f.add(Material.SHEARS);
-        f.add(Material.FLINT_AND_STEEL);
-        if(Zstats.version >=2) f.add(Material.SHIELD); //1.9+
-        f.add(Material.COMPASS);
+        tool.add(Material.BOW);
+        if(Zstats.version >=4) tool.add(Material.CROSSBOW); //1.14+
+        if(Zstats.version >=3) tool.add(Material.TRIDENT); //1.13+
+        tool.add(Material.SHEARS);
+        tool.add(Material.FLINT_AND_STEEL);
+        if(Zstats.version >=2) tool.add(Material.SHIELD); //1.9+
+        tool.add(Material.COMPASS);
 
-        g.add("_PICKAXE");
-        g.add("_AXE");
-        g.add("_SHOVEL");
-        g.add("_SWORD");
-        g.add("_HOE");
+        tool_with_material.add("_PICKAXE");
+        tool_with_material.add("_AXE");
+        tool_with_material.add("_SHOVEL");
+        tool_with_material.add("_SWORD");
+        tool_with_material.add("_HOE");
+
+        tools.put("_PICKAXE", "z:pickaxe");
+        tools.put("_AXE", "z:axe");
+        tools.put("_SHOVEL", "z:shovel");
+        tools.put("_HOE", "z:hoe");
+        tools.put("_SWORD", "z:sword");
+        tools.put(Material.BOW.toString(), "z:bow");
+        tools.put(Material.SHEARS.toString(), "z:shears");
+        tools.put(Material.FLINT_AND_STEEL.toString(), "z:flint_and_steel");
+        if(Zstats.version >= 3) tools.put(Material.TRIDENT.toString(), "z:trident"); //1.13+
+        if(Zstats.version >= 4) tools.put(Material.CROSSBOW.toString(), "z:crossbow"); //1.14+
+        if(Zstats.version >= 2) tools.put(Material.SHIELD.toString(), "z:shield"); //1.9+
     }
 
     protected static boolean is_tool(Material m){
-        if (f.contains(m)) return true;
+        if (tool.contains(m)) return true;
         else{
-            for(String s: g){
+            for(String s: tool_with_material){
                 if(m.toString().contains(s)) return true;
             }
         }

@@ -158,6 +158,8 @@ public class ZstatsPlayer {
                     case "z:total_size":
                         this.x.put(k, Zstats.total_size);
                         break;
+                    default:
+                        if(Zstats.debug) System.out.println(k);
                 }
             }
         }
