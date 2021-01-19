@@ -14,23 +14,23 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class SpigotListener implements Listener {
+public class ZstatsListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){
         Player p = event.getPlayer();
         UUID uuid = p.getUniqueId();
         String name = p.getName();
         Zstats.online_player.put(uuid, name);
-        if(!Zstats.zplayer.contains(new ZPlayer(uuid))){
+        if(!Zstats.zplayer.contains(new ZstatsPlayer(uuid))){
             BukkitRunnable r = new BukkitRunnable() {
                 @Override
                 public void run() {
                     Connection connection = null;
                     PreparedStatement ps = null;
                     try {
-                        Zstats.zplayer.add(new ZPlayer(uuid, name));
+                        Zstats.zplayer.add(new ZstatsPlayer(uuid, name));
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found a new player with uuid of " + uuid.toString() + " associates with " + name);
-                        connection = SqlCon.openConnection();
+                        connection = ZstatsSqlCon.openConnection();
                         ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
@@ -57,13 +57,13 @@ public class SpigotListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
         Player p = event.getPlayer();
-        if (Zstats.version < 5) ZPlayer.players.add(new OldPlayer(p));
+        if (Zstats.version < 5) ZstatsPlayer.players.add(new ZstatsOldPlayer(p));
         UUID uuid = p.getUniqueId();
         String name = p.getName();
         Zstats.online_player.remove(uuid);
         if(Zstats.debug) System.out.println(Zstats.online_player);
         System.out.println(ChatColor.YELLOW + "[Zstats] " + ChatColor.RESET + name + " left the game. Updating stats...");
-        ZPlayer zp = Zstats.zplayer.get(Zstats.zplayer.indexOf(new ZPlayer(uuid)));
+        ZstatsPlayer zp = Zstats.zplayer.get(Zstats.zplayer.indexOf(new ZstatsPlayer(uuid)));
         if(zp.is_updating) return;
         zp.last_played = System.currentTimeMillis()/1000;
         BukkitRunnable r = new BukkitRunnable() {
@@ -71,7 +71,7 @@ public class SpigotListener implements Listener {
             public void run() {
                 Connection connection = null;
                 try {
-                    connection = SqlCon.openConnection();
+                    connection = ZstatsSqlCon.openConnection();
                     zp.updateStat(connection);
                     if(Zstats.notify_discord && Zstats.has_discordSrv){
                         DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")

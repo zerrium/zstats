@@ -8,16 +8,16 @@ import org.bukkit.entity.EntityType;
 
 import java.util.*;
 
-public class Substats{ //Manage substats
+public class ZstatsSubstats { //Manage substats
     final private HashMap<Material, Long> craft;
     final private HashMap<Material, Long> mine;
     final private HashMap<Material, Long> place;
     final private HashMap<EntityType, Long> kill;
     final private HashMap<EntityType, Long> kill_by;
-    final private ZPlayer zp;
+    final private ZstatsPlayer zp;
     final private OfflinePlayer p;
 
-    protected Substats(ZPlayer zp){ //Preparation
+    protected ZstatsSubstats(ZstatsPlayer zp){ //Preparation
         this.craft = new HashMap<>();
         this.mine = new HashMap<>();
         this.place = new HashMap<>();
@@ -38,9 +38,9 @@ public class Substats{ //Manage substats
                         b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.MINE_BLOCK, m);
                         c = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.USE_ITEM, m);
                     }else{
-                        a = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.CRAFT_ITEM, m);
-                        b = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.MINE_BLOCK, m);
-                        c = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.USE_ITEM, m);
+                        a = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.CRAFT_ITEM, m);
+                        b = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.MINE_BLOCK, m);
+                        c = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.USE_ITEM, m);
                     }
                 }else{
                     a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
@@ -66,7 +66,7 @@ public class Substats{ //Manage substats
                     this.mine.put(m, b);
                 }
             }
-            if (c != 0 && !ZFilter.is_tool(m)) {
+            if (c != 0 && !ZstatsFilter.is_tool(m)) {
                 if(Zstats.zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
                 if(Zstats.zstats.get("z:placed")){
                     zp.x.put("z:placed", zp.x.get("z:placed")+c);
@@ -112,8 +112,8 @@ public class Substats{ //Manage substats
                             a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.KILL_ENTITY, t);
                             b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.ENTITY_KILLED_BY, t);
                         }else{
-                            a = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.KILL_ENTITY, t);
-                            b = ZPlayer.players.get(ZPlayer.players.indexOf(new OldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.ENTITY_KILLED_BY, t);
+                            a = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.KILL_ENTITY, t);
+                            b = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.ENTITY_KILLED_BY, t);
                         }
                     }else{
                         a = this.p.getStatistic(Statistic.KILL_ENTITY, t);
@@ -141,7 +141,7 @@ public class Substats{ //Manage substats
         if(Zstats.debug) System.out.println("Sorting substats...");
         int i;
         if(zp.x.get("z:craft_kind") != null && zp.x.get("z:craft_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(this.craft);
+            LinkedHashMap temp = ZstatsFilter.sortByValues(this.craft);
             Iterator x = temp.entrySet().iterator();
             i = 0;
             while(x.hasNext() && i<Zstats.substat_top){
@@ -151,7 +151,7 @@ public class Substats{ //Manage substats
             }
         }
         if(zp.x.get("z:place_kind") != null && zp.x.get("z:place_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(this.place);
+            LinkedHashMap temp = ZstatsFilter.sortByValues(this.place);
             Iterator x = temp.entrySet().iterator();
             i = 0;
             while(x.hasNext() && i<Zstats.substat_top){
@@ -161,7 +161,7 @@ public class Substats{ //Manage substats
             }
         }
         if(zp.x.get("z:mine_kind") != null && zp.x.get("z:mine_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(this.mine);
+            LinkedHashMap temp = ZstatsFilter.sortByValues(this.mine);
             Iterator x = temp.entrySet().iterator();
             i = 0;
             while(x.hasNext() && i<Zstats.substat_top){
@@ -171,7 +171,7 @@ public class Substats{ //Manage substats
             }
         }
         if(zp.x.get("z:mob_kind") != null && zp.x.get("z:mob_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(this.kill);
+            LinkedHashMap temp = ZstatsFilter.sortByValues(this.kill);
             Iterator x = temp.entrySet().iterator();
             i = 0;
             while(x.hasNext() && i<Zstats.substat_top){
@@ -181,7 +181,7 @@ public class Substats{ //Manage substats
             }
         }
         if(zp.x.get("z:slain_kind") != null && zp.x.get("z:slain_kind") != 0){
-            LinkedHashMap temp = ZFilter.sortByValues(this.kill_by);
+            LinkedHashMap temp = ZstatsFilter.sortByValues(this.kill_by);
             Iterator x = temp.entrySet().iterator();
             i = 0;
             while(x.hasNext() && i<Zstats.substat_top){

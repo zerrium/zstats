@@ -5,16 +5,16 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 
 //This class is for <1.15 Player instance where we save that Online Player instance to this class as we can't update the stats when the player is offline
-public class OldPlayer {
+public class ZstatsOldPlayer {
     private final Player p;
     private final UUID uuid;
 
-    public OldPlayer(Player p){
+    public ZstatsOldPlayer(Player p){
         this.p = p;
         this.uuid = p.getUniqueId();
     }
 
-    public OldPlayer(UUID uuid){
+    public ZstatsOldPlayer(UUID uuid){
         this.p = null;
         this.uuid = uuid;
     }
@@ -33,14 +33,14 @@ public class OldPlayer {
 
         /* Check if o is an instance of ZPlayer or not
           "null instanceof [type]" also returns false */
-        if (!(o instanceof OldPlayer)) {
+        if (!(o instanceof ZstatsOldPlayer)) {
             //if(Zstats.debug) System.out.println("Not a OldPlayer instance");
             return false;
         }
 
         // Compare the data members and return accordingly
         //if(Zstats.debug) System.out.println("OldPlayer instance, equal? "+result);
-        return ((OldPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((OldPlayer) o).uuid.toString());
+        return ((ZstatsOldPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZstatsOldPlayer) o).uuid.toString());
     }
 
     @Override

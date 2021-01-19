@@ -4,7 +4,7 @@ import org.bukkit.Material;
 
 import java.util.*;
 
-public class ZFilter {
+public class ZstatsFilter {
     private static final ArrayList<Material> f = new ArrayList<>();
     private static final ArrayList<String> g = new ArrayList<>();
 

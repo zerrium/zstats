@@ -20,7 +20,7 @@ public class Zstats extends JavaPlugin{
     static int version, substat_top;
     static boolean debug, notify_discord;
     static String notify_discord_message;
-    static ArrayList<ZPlayer> zplayer;
+    static ArrayList<ZstatsPlayer> zplayer;
     static HashMap<UUID, String> online_player;
     static long world_size, nether_size, end_size, total_size;
     static boolean has_discordSrv, hasEssentials;
@@ -32,8 +32,8 @@ public class Zstats extends JavaPlugin{
     @Override
     public void onEnable() {
         System.out.println(ChatColor.YELLOW+"[Zstats] v1.0 by zerrium");
-        getServer().getPluginManager().registerEvents(new SpigotListener(), this);
-        Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZUpdater());
+        getServer().getPluginManager().registerEvents(new ZstatsListener(), this);
+        Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZstatsUpdater());
         version = getVersion();
 
         this.saveDefaultConfig(); //get or create config file
@@ -50,7 +50,7 @@ public class Zstats extends JavaPlugin{
 
         //MySQL connect
         try{
-            connection = SqlCon.openConnection();
+            connection = ZstatsSqlCon.openConnection();
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" Unable to connect to database:");
             throwables.printStackTrace();
@@ -95,7 +95,7 @@ public class Zstats extends JavaPlugin{
                             continue;
                         }
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
-                        zplayer.add(new ZPlayer(uuid, name));
+                        zplayer.add(new ZstatsPlayer(uuid, name));
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();
@@ -109,7 +109,7 @@ public class Zstats extends JavaPlugin{
                     int c = 0;
                     do{
                         if(rss.getString("uuid").equals("000")) continue;
-                        zplayer.add(new ZPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
+                        zplayer.add(new ZstatsPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
                         if(debug){
                             System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
                         }
@@ -149,19 +149,19 @@ public class Zstats extends JavaPlugin{
             has_discordSrv = false;
         }
         if(Bukkit.getPluginManager().getPlugin("Essentials") != null || Bukkit.getPluginManager().getPlugin("EssentialsX") != null){
-            getServer().getPluginManager().registerEvents(new EssentialsListener(), this);
+            getServer().getPluginManager().registerEvents(new ZstatsEssentialsListener(), this);
             System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
             hasEssentials = true;
         }else{
             System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK time stats");
             hasEssentials = false;
         }
-        ZFilter.begin();
+        ZstatsFilter.begin();
     }
 
     @Override
     public void onDisable() {
-        SqlCon.closeConnection();
+        ZstatsSqlCon.closeConnection();
         System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
     }
 
