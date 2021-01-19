@@ -5,15 +5,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class Zstats extends JavaPlugin{
     static FileConfiguration fc;
@@ -78,6 +79,29 @@ public class Zstats extends JavaPlugin{
             hasEssentials = false;
         }
         ZstatsFilter.begin();
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if(command.getName().equals("zstats")){
+            switch(args.length){
+                case 1:
+                    return Arrays.asList("update", "delete");
+                case 2:
+                    switch(args[0]){
+                        case "update":
+                        case "delete":
+                            return null; //auto complete online players
+                        default:
+                            return Collections.emptyList();
+                    }
+                default:
+                    return Collections.emptyList();
+            }
+        }else{
+            return Collections.emptyList();
+        }
     }
 
     @Override

@@ -100,6 +100,7 @@ public class ZstatsUpdater implements CommandExecutor {
                         rr.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
                         return true;
 
+                    case "remove":
                     case "delete":
                         BukkitRunnable s = new BukkitRunnable() {
                             @Override
