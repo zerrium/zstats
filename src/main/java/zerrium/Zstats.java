@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.sql.*;
@@ -35,6 +34,7 @@ public class Zstats extends JavaPlugin{
         System.out.println(ChatColor.YELLOW+"[Zstats] v2.0 by zerrium");
         getServer().getPluginManager().registerEvents(new ZstatsListener(), this);
         Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZstatsUpdater());
+        Objects.requireNonNull(getCommand("zstats")).setTabCompleter(this);
         version = ZstatsMinecaftVersion.getVersion();
 
         this.saveDefaultConfig(); //get or create config file
@@ -81,9 +81,8 @@ public class Zstats extends JavaPlugin{
         ZstatsFilter.begin();
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
         if(command.getName().equals("zstats")){
             switch(args.length){
                 case 1:
@@ -92,6 +91,7 @@ public class Zstats extends JavaPlugin{
                     switch(args[0]){
                         case "update":
                         case "delete":
+                        case "remove":
                             return null; //auto complete online players
                         default:
                             return Collections.emptyList();
