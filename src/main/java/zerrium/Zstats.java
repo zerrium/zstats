@@ -31,7 +31,7 @@ public class Zstats extends JavaPlugin{
 
     @Override
     public void onEnable() {
-        System.out.println(ChatColor.YELLOW+"[Zstats] v1.0 by zerrium");
+        System.out.println(ChatColor.YELLOW+"[Zstats] v2.0 by zerrium");
         getServer().getPluginManager().registerEvents(new ZstatsListener(), this);
         Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZstatsUpdater());
         version = ZstatsMinecaftVersion.getVersion();
@@ -170,7 +170,7 @@ public class Zstats extends JavaPlugin{
     }
 
     private synchronized void write_config(){
-        if(fc.getString("vanilla_stats.MOB_KILLS") == null){
+        if(Objects.requireNonNull(fc.getConfigurationSection("vanilla_stats")).getKeys(false).size() <= 1){
             System.out.println(ChatColor.YELLOW+"[Zstats] Writing config file...");
             is_writing_config = true;
             try (FileWriter fw = new FileWriter(new File(getDataFolder(), "config.yml"), true);
