@@ -60,6 +60,33 @@ public class Zstats extends JavaPlugin{
         online_player = new HashMap<>();
 
         //database query
+        initializeSQL();
+
+        if(Bukkit.getPluginManager().getPlugin("DiscordSRV") != null || Bukkit.getPluginManager().getPlugin("discordsrv") != null){
+            System.out.println(ChatColor.YELLOW+"[Zstats] DiscordSRV plugin detected. Messaging system to DiscordSRV is hooked.");
+            has_discordSrv = true;
+        }else{
+            System.out.println(ChatColor.YELLOW+"[Zstats] No DiscordSRV plugin detected. Disabled messaging system to DiscordSRV. ");
+            has_discordSrv = false;
+        }
+        if(Bukkit.getPluginManager().getPlugin("Essentials") != null || Bukkit.getPluginManager().getPlugin("EssentialsX") != null){
+            getServer().getPluginManager().registerEvents(new ZstatsEssentialsListener(), this);
+            System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
+            hasEssentials = true;
+        }else{
+            System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK time stats");
+            hasEssentials = false;
+        }
+        ZstatsFilter.begin();
+    }
+
+    @Override
+    public void onDisable() {
+        ZstatsSqlCon.closeConnection();
+        System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
+    }
+
+    private void initializeSQL(){
         Statement st = null;
         ResultSet rs = null;
         ResultSet rss = null;
@@ -106,17 +133,17 @@ public class Zstats extends JavaPlugin{
                 ps.executeUpdate();
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ counter +" players.");
             }else{
-                    int c = 0;
-                    do{
-                        if(rss.getString("uuid").equals("000")) continue;
-                        zplayer.add(new ZstatsPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
-                        if(debug){
-                            System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
-                        }
-                        c++;
+                int c = 0;
+                do{
+                    if(rss.getString("uuid").equals("000")) continue;
+                    zplayer.add(new ZstatsPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
+                    if(debug){
+                        System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
                     }
-                    while(rss.next());
-                    System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
+                    c++;
+                }
+                while(rss.next());
+                System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
             }
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:\n");
@@ -140,29 +167,6 @@ public class Zstats extends JavaPlugin{
                 if(debug) System.out.println("[Zstats] "+ e );
             }
         }
-
-        if(Bukkit.getPluginManager().getPlugin("DiscordSRV") != null || Bukkit.getPluginManager().getPlugin("discordsrv") != null){
-            System.out.println(ChatColor.YELLOW+"[Zstats] DiscordSRV plugin detected. Messaging system to DiscordSRV is hooked.");
-            has_discordSrv = true;
-        }else{
-            System.out.println(ChatColor.YELLOW+"[Zstats] No DiscordSRV plugin detected. Disabled messaging system to DiscordSRV. ");
-            has_discordSrv = false;
-        }
-        if(Bukkit.getPluginManager().getPlugin("Essentials") != null || Bukkit.getPluginManager().getPlugin("EssentialsX") != null){
-            getServer().getPluginManager().registerEvents(new ZstatsEssentialsListener(), this);
-            System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
-            hasEssentials = true;
-        }else{
-            System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK time stats");
-            hasEssentials = false;
-        }
-        ZstatsFilter.begin();
-    }
-
-    @Override
-    public void onDisable() {
-        ZstatsSqlCon.closeConnection();
-        System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
     }
 
     private synchronized void write_config(){
