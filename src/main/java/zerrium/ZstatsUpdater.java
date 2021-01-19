@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ZUpdater implements CommandExecutor {
+public class ZstatsUpdater implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         final String message = ChatColor.GOLD + "[Zstats]" + ChatColor.RESET + " usage:\n" +
@@ -32,8 +32,8 @@ public class ZUpdater implements CommandExecutor {
                             sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
                             Connection connection = null;
                             try {
-                                connection = SqlCon.openConnection();
-                                for(ZPlayer p : Zstats.zplayer){
+                                connection = ZstatsSqlCon.openConnection();
+                                for(ZstatsPlayer p : Zstats.zplayer){
                                     if(p.is_updating) continue;
                                     if(Zstats.version < 5 && !Bukkit.getOfflinePlayer(p.uuid).isOnline()) continue; //update only when the player is online on version <1.15
                                     p.updateStat(connection);
@@ -65,7 +65,7 @@ public class ZUpdater implements CommandExecutor {
                         BukkitRunnable rr = new BukkitRunnable() {
                             @Override
                             public void run() {
-                                for(ZPlayer z : Zstats.zplayer){
+                                for(ZstatsPlayer z : Zstats.zplayer){
                                     if(args[1].equalsIgnoreCase(z.name)){
                                         if(z.is_updating) return;
                                         if(Zstats.version < 5 && !Bukkit.getOfflinePlayer(z.uuid).isOnline()){ //update only when the player is online on version <1.15
@@ -74,7 +74,7 @@ public class ZUpdater implements CommandExecutor {
                                         }
                                         Connection connection = null;
                                         try {
-                                            connection = SqlCon.openConnection();
+                                            connection = ZstatsSqlCon.openConnection();
                                             z.updateStat(connection);
                                             if(Zstats.notify_discord && Zstats.has_discordSrv){
                                                 DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
@@ -100,15 +100,16 @@ public class ZUpdater implements CommandExecutor {
                         rr.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
                         return true;
 
+                    case "remove":
                     case "delete":
                         BukkitRunnable s = new BukkitRunnable() {
                             @Override
                             public void run() {
-                                for(ZPlayer z : Zstats.zplayer){
+                                for(ZstatsPlayer z : Zstats.zplayer){
                                     if(args[1].equalsIgnoreCase(z.name)){
                                         Connection connection = null;
                                         try {
-                                            connection = SqlCon.openConnection();
+                                            connection = ZstatsSqlCon.openConnection();
                                             z.deleteStat(connection);
                                         } catch (SQLException throwables) {
                                             throwables.printStackTrace();

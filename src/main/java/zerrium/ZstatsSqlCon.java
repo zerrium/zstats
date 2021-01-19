@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class SqlCon {
+public class ZstatsSqlCon {
     private final static String hostname = Zstats.fc.getString("hostname");
     private final static int port = Zstats.fc.getInt("port");
     private final static String db_name = Zstats.fc.getString("database");
@@ -29,7 +29,7 @@ public class SqlCon {
         ds = new HikariDataSource( config );
     }
 
-    private SqlCon() {}
+    private ZstatsSqlCon() {}
 
     protected static Connection openConnection() throws SQLException {
         return ds.getConnection();

@@ -5,22 +5,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class Zstats extends JavaPlugin{
     static FileConfiguration fc;
     static int version, substat_top;
     static boolean debug, notify_discord;
     static String notify_discord_message;
-    static ArrayList<ZPlayer> zplayer;
+    static ArrayList<ZstatsPlayer> zplayer;
     static HashMap<UUID, String> online_player;
     static long world_size, nether_size, end_size, total_size;
     static boolean has_discordSrv, hasEssentials;
@@ -31,10 +31,11 @@ public class Zstats extends JavaPlugin{
 
     @Override
     public void onEnable() {
-        System.out.println(ChatColor.YELLOW+"[Zstats] v1.0 by zerrium");
-        getServer().getPluginManager().registerEvents(new SpigotListener(), this);
-        Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZUpdater());
-        version = getVersion();
+        System.out.println(ChatColor.YELLOW+"[Zstats] v2.0 by zerrium");
+        getServer().getPluginManager().registerEvents(new ZstatsListener(), this);
+        Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZstatsUpdater());
+        Objects.requireNonNull(getCommand("zstats")).setTabCompleter(this);
+        version = ZstatsMinecaftVersion.getVersion();
 
         this.saveDefaultConfig(); //get or create config file
         fc = this.getConfig();
@@ -50,7 +51,7 @@ public class Zstats extends JavaPlugin{
 
         //MySQL connect
         try{
-            connection = SqlCon.openConnection();
+            connection = ZstatsSqlCon.openConnection();
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" Unable to connect to database:");
             throwables.printStackTrace();
@@ -60,6 +61,56 @@ public class Zstats extends JavaPlugin{
         online_player = new HashMap<>();
 
         //database query
+        initializeSQL();
+
+        if(Bukkit.getPluginManager().getPlugin("DiscordSRV") != null || Bukkit.getPluginManager().getPlugin("discordsrv") != null){
+            System.out.println(ChatColor.YELLOW+"[Zstats] DiscordSRV plugin detected. Messaging system to DiscordSRV is hooked.");
+            has_discordSrv = true;
+        }else{
+            System.out.println(ChatColor.YELLOW+"[Zstats] No DiscordSRV plugin detected. Disabled messaging system to DiscordSRV. ");
+            has_discordSrv = false;
+        }
+        if(Bukkit.getPluginManager().getPlugin("Essentials") != null || Bukkit.getPluginManager().getPlugin("EssentialsX") != null){
+            getServer().getPluginManager().registerEvents(new ZstatsEssentialsListener(), this);
+            System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
+            hasEssentials = true;
+        }else{
+            System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK time stats");
+            hasEssentials = false;
+        }
+        ZstatsFilter.begin();
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
+        if(command.getName().equals("zstats")){
+            switch(args.length){
+                case 1:
+                    return Arrays.asList("update", "delete");
+                case 2:
+                    switch(args[0]){
+                        case "update":
+                        case "delete":
+                        case "remove":
+                            return null; //auto complete online players
+                        default:
+                            return Collections.emptyList();
+                    }
+                default:
+                    return Collections.emptyList();
+            }
+        }else{
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        ZstatsSqlCon.closeConnection();
+        System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
+    }
+
+    private void initializeSQL(){
         Statement st = null;
         ResultSet rs = null;
         ResultSet rss = null;
@@ -95,7 +146,7 @@ public class Zstats extends JavaPlugin{
                             continue;
                         }
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
-                        zplayer.add(new ZPlayer(uuid, name));
+                        zplayer.add(new ZstatsPlayer(uuid, name));
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();
@@ -106,17 +157,17 @@ public class Zstats extends JavaPlugin{
                 ps.executeUpdate();
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ counter +" players.");
             }else{
-                    int c = 0;
-                    do{
-                        if(rss.getString("uuid").equals("000")) continue;
-                        zplayer.add(new ZPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
-                        if(debug){
-                            System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
-                        }
-                        c++;
+                int c = 0;
+                do{
+                    if(rss.getString("uuid").equals("000")) continue;
+                    zplayer.add(new ZstatsPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
+                    if(debug){
+                        System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
                     }
-                    while(rss.next());
-                    System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
+                    c++;
+                }
+                while(rss.next());
+                System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
             }
         } catch (SQLException throwables) {
             System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:\n");
@@ -140,33 +191,10 @@ public class Zstats extends JavaPlugin{
                 if(debug) System.out.println("[Zstats] "+ e );
             }
         }
-
-        if(Bukkit.getPluginManager().getPlugin("DiscordSRV") != null || Bukkit.getPluginManager().getPlugin("discordsrv") != null){
-            System.out.println(ChatColor.YELLOW+"[Zstats] DiscordSRV plugin detected. Messaging system to DiscordSRV is hooked.");
-            has_discordSrv = true;
-        }else{
-            System.out.println(ChatColor.YELLOW+"[Zstats] No DiscordSRV plugin detected. Disabled messaging system to DiscordSRV. ");
-            has_discordSrv = false;
-        }
-        if(Bukkit.getPluginManager().getPlugin("Essentials") != null || Bukkit.getPluginManager().getPlugin("EssentialsX") != null){
-            getServer().getPluginManager().registerEvents(new EssentialsListener(), this);
-            System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
-            hasEssentials = true;
-        }else{
-            System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK time stats");
-            hasEssentials = false;
-        }
-        ZFilter.begin();
-    }
-
-    @Override
-    public void onDisable() {
-        SqlCon.closeConnection();
-        System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
     }
 
     private synchronized void write_config(){
-        if(fc.getString("vanilla_stats.MOB_KILLS") == null){
+        if(Objects.requireNonNull(fc.getConfigurationSection("vanilla_stats")).getKeys(false).size() <= 1){
             System.out.println(ChatColor.YELLOW+"[Zstats] Writing config file...");
             is_writing_config = true;
             try (FileWriter fw = new FileWriter(new File(getDataFolder(), "config.yml"), true);
@@ -241,45 +269,6 @@ public class Zstats extends JavaPlugin{
             if(debug) System.out.println("Got world size of "+i.getName());
         });
         if(debug) System.out.println("Total size "+total_size);
-    }
-
-    protected static int getVersion(){
-        String v = Bukkit.getServer().getVersion();
-        if (v.contains("1.8")){
-            if (v.contains("1.8.1")) return 0;
-            else if (v.contains("1.8.2")) return 0;
-
-            //CHEST_OPENED and ITEM_ENCHANTED stat
-            else if (v.contains("1.8.3")) return 1;
-            else if (v.contains("1.8.4")) return 1;
-            else if (v.contains("1.8.5")) return 1;
-            else if (v.contains("1.8.6")) return 1;
-            else if (v.contains("1.8.7")) return 1;
-            else if (v.contains("1.8.8")) return 1;
-            else if (v.contains("1.8.9")) return 1;
-
-            else return 0;
-        }
-        //AVIATE_ONE_CM (elytra distance) stat, SLEEP_IN_BED stat, SHIELD stat
-        else if (v.contains("1.9")) return 2;
-        else if (v.contains("1.10")) return 2;
-        else if (v.contains("1.11")) return 2;
-        else if (v.contains("1.12")) return 2;
-
-        //Trident stat, PLAY_ONE_MINUTE on 1.13+ instead of PLAY_ONE_TICK on <1.13 only the name changes, it still records the tick actually
-        else if (v.contains("1.13")) return 3;
-
-        //Crossbow stat
-        else if (v.contains("1.14")) return 4;
-
-        //Supports OfflinePlayer#getStatistic
-        else if (v.contains("1.15")) return 5;
-        else if (v.contains("1.16")) return 5;
-
-        else{
-            if(Zstats.debug) System.out.println(ChatColor.YELLOW+"[Zstats] Unsupported version: " + v +" Set to ZVersion 5");
-            return 5;
-        }
     }
 
     private ArrayList<Statistic> getDefaultStat(){

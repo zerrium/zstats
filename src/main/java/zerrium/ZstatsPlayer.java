@@ -10,8 +10,8 @@ import java.sql.SQLException;
 import java.util.*;
 
 
-public class ZPlayer {
-    static ArrayList<OldPlayer> players = new ArrayList<>(); //This class is for <1.15 Player instance where we save that Online Player instance to this class as we can't update the stats when the player is offline
+public class ZstatsPlayer {
+    static ArrayList<ZstatsOldPlayer> players = new ArrayList<>(); //This class is for <1.15 Player instance where we save that Online Player instance to this class as we can't update the stats when the player is offline
 
     String name;
     UUID uuid;
@@ -24,11 +24,11 @@ public class ZPlayer {
     LinkedHashMap<EntityType, Long> slain;
     LinkedHashMap<EntityType, Long> mob;
 
-    public ZPlayer(UUID uuid, String name) throws SQLException {
+    public ZstatsPlayer(UUID uuid, String name) throws SQLException {
         this.uuid = uuid;
         this.name = name;
 
-        Connection connection = SqlCon.openConnection();
+        Connection connection = ZstatsSqlCon.openConnection();
         PreparedStatement pss = null;
         ResultSet rs = null;
 
@@ -70,7 +70,7 @@ public class ZPlayer {
         this.is_updating = false;
     }
 
-    public ZPlayer(UUID uuid){
+    public ZstatsPlayer(UUID uuid){
         this.uuid = uuid;
     }
 
@@ -84,13 +84,13 @@ public class ZPlayer {
 
         /* Check if o is an instance of ZPlayer or not
           "null instanceof [type]" also returns false */
-        if (!(o instanceof ZPlayer)) {
+        if (!(o instanceof ZstatsPlayer)) {
             if(Zstats.debug) System.out.println("Not a ZPlayer instance");
             return false;
         }
 
         // Compare the data members and return accordingly
-        boolean result = ((ZPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZPlayer) o).uuid.toString());
+        boolean result = ((ZstatsPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZstatsPlayer) o).uuid.toString());
         if(Zstats.debug) System.out.println("ZPlayer instance, equal? "+result);
         return result;
     }
@@ -115,6 +115,52 @@ public class ZPlayer {
         this.mob = new LinkedHashMap<>();
     }
 
+    private void rewriteStat(){
+        OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
+        for(Map.Entry<String, Long> me:x.entrySet()){
+            String k = me.getKey();
+            if(!k.contains("z:")){
+                if(Zstats.version < 5){
+                    if(p.isOnline()) this.x.put(k, (long) Objects.requireNonNull(p.getPlayer()).getStatistic(Statistic.valueOf(k)));
+                    else this.x.put(k, (long) players.get(players.indexOf(new ZstatsOldPlayer(this.uuid))).getPlayer().getStatistic(Statistic.valueOf(k)));
+                }
+                else this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
+            }else{
+                uncommonStat(k);
+            }
+        }
+    }
+
+    private void uncommonStat(String key){ //For world stats or zerrium's custom stat
+        switch (key){
+            case "z:last_played":
+                this.x.put(key, last_played);
+                break;
+
+            case "z:afk_time":
+                this.x.put(key, afk_time);
+                break;
+
+            case "z:world_size":
+                this.x.put(key, Zstats.world_size);
+                break;
+
+            case "z:nether_size":
+                this.x.put(key, Zstats.nether_size);
+                break;
+
+            case "z:end_size":
+                this.x.put(key, Zstats.end_size);
+                break;
+
+            case "z:total_size":
+                this.x.put(key, Zstats.total_size);
+                break;
+            default:
+                if(Zstats.debug) System.out.println(key);
+        }
+    }
+
     public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
         this.is_updating = true;
         //Clear existing Stats
@@ -124,46 +170,10 @@ public class ZPlayer {
         Zstats.updateWorldSize();
 
         //Rewrite with the latest stats
-        OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
-        for(Map.Entry<String, Long> me:x.entrySet()){
-            String k = me.getKey();
-            if(!k.contains("z:")){
-                if(Zstats.version < 5){
-                    if(p.isOnline()) this.x.put(k, (long) Objects.requireNonNull(p.getPlayer()).getStatistic(Statistic.valueOf(k)));
-                    else this.x.put(k, (long) players.get(players.indexOf(new OldPlayer(this.uuid))).getPlayer().getStatistic(Statistic.valueOf(k)));
-                }
-                else this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
-            }else{
-                switch (k){
-                    case "z:last_played":
-                        this.x.put(k, last_played);
-                        break;
-
-                    case "z:afk_time":
-                        this.x.put(k, afk_time);
-                        break;
-
-                    case "z:world_size":
-                        this.x.put(k, Zstats.world_size);
-                        break;
-
-                    case "z:nether_size":
-                        this.x.put(k, Zstats.nether_size);
-                        break;
-
-                    case "z:end_size":
-                        this.x.put(k, Zstats.end_size);
-                        break;
-
-                    case "z:total_size":
-                        this.x.put(k, Zstats.total_size);
-                        break;
-                }
-            }
-        }
+        rewriteStat();
 
         //substats
-        Substats s = new Substats(this);
+        ZstatsSubstats s = new ZstatsSubstats(this);
         s.substats_Material();
         s.substats_Entity();
         s.sort_substats();
@@ -182,53 +192,43 @@ public class ZPlayer {
         }
 
         //Crafting stats
-        int j = 1;
-        for(Map.Entry<Material, Long> me:this.craft.entrySet()){
-            Material k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:craft_", k.toString(), j);
-            j++;
-        }
+        material_looping(connection, this.craft, "z:craft_");
 
         //Placed items/blocks stats
-        j = 1;
-        for(Map.Entry<Material, Long> me:this.place.entrySet()){
-            Material k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:place_", k.toString(), j);
-            j++;
-        }
+        material_looping(connection, this.place, "z:place_");
 
         //Mined blocks stats
-        j = 1;
-        for(Map.Entry<Material, Long> me:this.mine.entrySet()){
-            Material k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:mine_", k.toString(), j);
-            j++;
-        }
+        material_looping(connection, this.mine, "z:mine_");
 
         //Killing stats
-        j = 1;
-        for(Map.Entry<EntityType, Long> me:this.mob.entrySet()){
-            EntityType k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:mob_", k.toString(), j);
-            j++;
-        }
+        entity_looping(connection, this.mob, "z:mob_");
 
         //Slain stats
-        j = 1;
-        for(Map.Entry<EntityType, Long> me:this.slain.entrySet()){
-            EntityType k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:slain_", k.toString(), j);
-            j++;
-        }
+        entity_looping(connection, this.slain, "z:slain_");
 
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
         this.is_updating = false;
-        players.remove(new OldPlayer(this.uuid));
+        players.remove(new ZstatsOldPlayer(this.uuid));
+    }
+
+    private void material_looping(Connection connection, LinkedHashMap<Material, Long> stats, String stat) throws SQLException{
+        int j = 1;
+        for(Map.Entry<Material, Long> me:stats.entrySet()){
+            Material k = me.getKey();
+            long v = me.getValue();
+            this.SQL_query(connection, v, uuid.toString(), stat, k.toString(), j);
+            j++;
+        }
+    }
+
+    private void entity_looping(Connection connection, LinkedHashMap<EntityType, Long> stats, String stat) throws SQLException{
+        int j = 1;
+        for(Map.Entry<EntityType, Long> me:stats.entrySet()){
+            EntityType k = me.getKey();
+            long v = me.getValue();
+            this.SQL_query(connection, v, uuid.toString(), stat, k.toString(), j);
+            j++;
+        }
     }
 
     public void deleteStat(Connection connection) throws SQLException { //Should be called Asynchronously
