@@ -29,51 +29,37 @@ public class ZstatsSubstats { //Manage substats
 
     protected void substats_Material(){ //Substats for crafting, mining and placing blocks or items
         for(Material m: Material.values()) {
-            long a, b, c;
+            long[] val;
 
             try{
-                if(Zstats.version < 5){
-                    if(p.isOnline()){
-                        a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.CRAFT_ITEM, m);
-                        b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.MINE_BLOCK, m);
-                        c = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.USE_ITEM, m);
-                    }else{
-                        a = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.CRAFT_ITEM, m);
-                        b = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.MINE_BLOCK, m);
-                        c = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.USE_ITEM, m);
-                    }
-                }else{
-                    a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
-                    b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
-                    c = this.p.getStatistic(Statistic.USE_ITEM, m);
-                }
+                val = version_check(m);
             }catch(IllegalArgumentException | NullPointerException | IndexOutOfBoundsException e){
                 if(Zstats.debug) System.out.println(m.toString() + ": " + e);
                 continue;
             }
 
-            if (a != 0) {
+            if (val[0] != 0) {
                 if(Zstats.zstats.get("z:craft_kind")) zp.x.put("z:craft_kind", zp.x.get("z:craft_kind")+1);
                 if(Zstats.zstats.get("z:crafted")){
-                    zp.x.put("z:crafted", zp.x.get("z:crafted")+a);
-                    this.craft.put(m, a);
+                    zp.x.put("z:crafted", zp.x.get("z:crafted")+val[0]);
+                    this.craft.put(m, val[0]);
                 }
             }
-            if (b != 0) {
+            if (val[1] != 0) {
                 if(Zstats.zstats.get("z:mine_kind")) zp.x.put("z:mine_kind", zp.x.get("z:mine_kind")+1);
                 if(Zstats.zstats.get("z:mined")){
-                    zp.x.put("z:mined", zp.x.get("z:mined")+b);
-                    this.mine.put(m, b);
+                    zp.x.put("z:mined", zp.x.get("z:mined")+val[1]);
+                    this.mine.put(m, val[1]);
                 }
             }
-            if (c != 0 && !ZstatsFilter.is_tool(m)) {
+            if (val[2] != 0 && !ZstatsFilter.is_tool(m)) {
                 if(Zstats.zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
                 if(Zstats.zstats.get("z:placed")){
-                    zp.x.put("z:placed", zp.x.get("z:placed")+c);
-                    this.place.put(m, c);
+                    zp.x.put("z:placed", zp.x.get("z:placed")+val[2]);
+                    this.place.put(m, val[2]);
                 }
             }else{
-                substats_Tools(m, c);
+                substats_Tools(m, val[2]);
             }
         }
         if(Zstats.debug) System.out.println("Materials substat done");
@@ -94,37 +80,63 @@ public class ZstatsSubstats { //Manage substats
     protected void substats_Entity(){ //Substats for killing or killed by entities
         for(EntityType t: EntityType.values()){
             if(t.isAlive()) {
-                long a, b;
+                long[] val;
 
                 try{
-                    if(Zstats.version < 5){
-                        if(p.isOnline()){
-                            a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.KILL_ENTITY, t);
-                            b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.ENTITY_KILLED_BY, t);
-                        }else{
-                            a = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.KILL_ENTITY, t);
-                            b = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.ENTITY_KILLED_BY, t);
-                        }
-                    }else{
-                        a = this.p.getStatistic(Statistic.KILL_ENTITY, t);
-                        b = this.p.getStatistic(Statistic.ENTITY_KILLED_BY, t);
-                    }
+                    val = version_check(t);
                 }catch(IllegalArgumentException | NullPointerException | IndexOutOfBoundsException e){
                     if(Zstats.debug) System.out.println(t.toString() + ": " + e);
                     continue;
                 }
 
-                if (a != 0 && Zstats.zstats.get("z:mob_kind")) {
+                if (val[0] != 0 && Zstats.zstats.get("z:mob_kind")) {
                     zp.x.put("z:mob_kind", zp.x.get("z:mob_kind") + 1);
-                    this.kill.put(t, a);
+                    this.kill.put(t, val[0]);
                 }
-                if (b != 0 && Zstats.zstats.get("z:slain_kind")) {
+                if (val[1] != 0 && Zstats.zstats.get("z:slain_kind")) {
                     zp.x.put("z:slain_kind", zp.x.get("z:slain_kind") + 1);
-                    this.kill_by.put(t, b);
+                    this.kill_by.put(t, val[1]);
                 }
             }
         }
         if(Zstats.debug) System.out.println("EntityType substat done");
+    }
+
+    private long[] version_check(Material m) throws IllegalArgumentException, NullPointerException, IndexOutOfBoundsException{
+        long a, b, c;
+        if(Zstats.version < 5){
+            if(this.p.isOnline()){
+                a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.CRAFT_ITEM, m);
+                b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.MINE_BLOCK, m);
+                c = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.USE_ITEM, m);
+            }else{
+                a = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.CRAFT_ITEM, m);
+                b = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.MINE_BLOCK, m);
+                c = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.USE_ITEM, m);
+            }
+        }else{
+            a = this.p.getStatistic(Statistic.CRAFT_ITEM, m);
+            b = this.p.getStatistic(Statistic.MINE_BLOCK, m);
+            c = this.p.getStatistic(Statistic.USE_ITEM, m);
+        }
+        return new long[]{a, b, c};
+    }
+
+    private long[] version_check(EntityType e) throws IllegalArgumentException, NullPointerException, IndexOutOfBoundsException{
+        long a, b;
+        if(Zstats.version < 5){
+            if(p.isOnline()){
+                a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.KILL_ENTITY, e);
+                b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.ENTITY_KILLED_BY, e);
+            }else{
+                a = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.KILL_ENTITY, e);
+                b = ZstatsPlayer.players.get(ZstatsPlayer.players.indexOf(new ZstatsOldPlayer(zp.uuid))).getPlayer().getStatistic(Statistic.ENTITY_KILLED_BY, e);
+            }
+        }else{
+            a = this.p.getStatistic(Statistic.KILL_ENTITY, e);
+            b = this.p.getStatistic(Statistic.ENTITY_KILLED_BY, e);
+        }
+        return new long[]{a, b};
     }
 
     protected void sort_substats(){ //Sort all substats
