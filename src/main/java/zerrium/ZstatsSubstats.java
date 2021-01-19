@@ -52,22 +52,25 @@ public class ZstatsSubstats { //Manage substats
                     this.mine.put(m, val[1]);
                 }
             }
-            if (val[2] != 0) {
-                if(!ZstatsFilter.is_tool(m)){
-                    if(Zstats.zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
-                    if(Zstats.zstats.get("z:placed")){
-                        zp.x.put("z:placed", zp.x.get("z:placed")+val[2]);
-                        this.place.put(m, val[2]);
-                    }
-                }else{
+
+            if(ZstatsFilter.is_tool(m)){
+                try{
                     substats_Tools(m, val[2]);
+                }catch (NullPointerException e){
+                    if(Zstats.debug) System.out.println(m.toString() + " - " + e);
+                }
+            }else if(val[2] != 0){
+                if(Zstats.zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
+                if(Zstats.zstats.get("z:placed")){
+                    zp.x.put("z:placed", zp.x.get("z:placed")+val[2]);
+                    this.place.put(m, val[2]);
                 }
             }
         }
         if(Zstats.debug) System.out.println("Materials substat done");
     }
 
-    private void substats_Tools(Material m, long val){
+    private void substats_Tools(Material m, long val) throws NullPointerException{
         for(String s : ZstatsFilter.tool_with_material){
             String zstats = ZstatsFilter.tools.get(s);
             if(m.toString().contains(s) && Zstats.zstats.get(zstats)){
