@@ -52,14 +52,16 @@ public class ZstatsSubstats { //Manage substats
                     this.mine.put(m, val[1]);
                 }
             }
-            if (val[2] != 0 && !ZstatsFilter.is_tool(m)) {
-                if(Zstats.zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
-                if(Zstats.zstats.get("z:placed")){
-                    zp.x.put("z:placed", zp.x.get("z:placed")+val[2]);
-                    this.place.put(m, val[2]);
+            if (val[2] != 0) {
+                if(!ZstatsFilter.is_tool(m)){
+                    if(Zstats.zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
+                    if(Zstats.zstats.get("z:placed")){
+                        zp.x.put("z:placed", zp.x.get("z:placed")+val[2]);
+                        this.place.put(m, val[2]);
+                    }
+                }else{
+                    substats_Tools(m, val[2]);
                 }
-            }else{
-                substats_Tools(m, val[2]);
             }
         }
         if(Zstats.debug) System.out.println("Materials substat done");
