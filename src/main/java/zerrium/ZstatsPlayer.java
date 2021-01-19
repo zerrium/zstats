@@ -115,15 +115,7 @@ public class ZstatsPlayer {
         this.mob = new LinkedHashMap<>();
     }
 
-    public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
-        this.is_updating = true;
-        //Clear existing Stats
-        this.clearStat();
-
-        //server world save size
-        Zstats.updateWorldSize();
-
-        //Rewrite with the latest stats
+    private void rewriteStat(){
         OfflinePlayer p = Bukkit.getOfflinePlayer(this.uuid);
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
@@ -134,35 +126,51 @@ public class ZstatsPlayer {
                 }
                 else this.x.put(k, (long) p.getStatistic(Statistic.valueOf(k)));
             }else{
-                switch (k){
-                    case "z:last_played":
-                        this.x.put(k, last_played);
-                        break;
-
-                    case "z:afk_time":
-                        this.x.put(k, afk_time);
-                        break;
-
-                    case "z:world_size":
-                        this.x.put(k, Zstats.world_size);
-                        break;
-
-                    case "z:nether_size":
-                        this.x.put(k, Zstats.nether_size);
-                        break;
-
-                    case "z:end_size":
-                        this.x.put(k, Zstats.end_size);
-                        break;
-
-                    case "z:total_size":
-                        this.x.put(k, Zstats.total_size);
-                        break;
-                    default:
-                        if(Zstats.debug) System.out.println(k);
-                }
+                uncommonStat(k);
             }
         }
+    }
+
+    private void uncommonStat(String key){ //For world stats or zerrium's custom stat
+        switch (key){
+            case "z:last_played":
+                this.x.put(key, last_played);
+                break;
+
+            case "z:afk_time":
+                this.x.put(key, afk_time);
+                break;
+
+            case "z:world_size":
+                this.x.put(key, Zstats.world_size);
+                break;
+
+            case "z:nether_size":
+                this.x.put(key, Zstats.nether_size);
+                break;
+
+            case "z:end_size":
+                this.x.put(key, Zstats.end_size);
+                break;
+
+            case "z:total_size":
+                this.x.put(key, Zstats.total_size);
+                break;
+            default:
+                if(Zstats.debug) System.out.println(key);
+        }
+    }
+
+    public void updateStat(Connection connection) throws SQLException { //Should be called Asynchronously
+        this.is_updating = true;
+        //Clear existing Stats
+        this.clearStat();
+
+        //server world save size
+        Zstats.updateWorldSize();
+
+        //Rewrite with the latest stats
+        rewriteStat();
 
         //substats
         ZstatsSubstats s = new ZstatsSubstats(this);
@@ -184,53 +192,43 @@ public class ZstatsPlayer {
         }
 
         //Crafting stats
-        int j = 1;
-        for(Map.Entry<Material, Long> me:this.craft.entrySet()){
-            Material k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:craft_", k.toString(), j);
-            j++;
-        }
+        material_looping(connection, this.craft, "z:craft_");
 
         //Placed items/blocks stats
-        j = 1;
-        for(Map.Entry<Material, Long> me:this.place.entrySet()){
-            Material k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:place_", k.toString(), j);
-            j++;
-        }
+        material_looping(connection, this.place, "z:place_");
 
         //Mined blocks stats
-        j = 1;
-        for(Map.Entry<Material, Long> me:this.mine.entrySet()){
-            Material k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:mine_", k.toString(), j);
-            j++;
-        }
+        material_looping(connection, this.mine, "z:mine_");
 
         //Killing stats
-        j = 1;
-        for(Map.Entry<EntityType, Long> me:this.mob.entrySet()){
-            EntityType k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:mob_", k.toString(), j);
-            j++;
-        }
+        entity_looping(connection, this.mob, "z:mob_");
 
         //Slain stats
-        j = 1;
-        for(Map.Entry<EntityType, Long> me:this.slain.entrySet()){
-            EntityType k = me.getKey();
-            long v = me.getValue();
-            this.SQL_query(connection, v, uuid.toString(), "z:slain_", k.toString(), j);
-            j++;
-        }
+        entity_looping(connection, this.slain, "z:slain_");
 
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
         this.is_updating = false;
         players.remove(new ZstatsOldPlayer(this.uuid));
+    }
+
+    private void material_looping(Connection connection, LinkedHashMap<Material, Long> stats, String stat) throws SQLException{
+        int j = 1;
+        for(Map.Entry<Material, Long> me:stats.entrySet()){
+            Material k = me.getKey();
+            long v = me.getValue();
+            this.SQL_query(connection, v, uuid.toString(), stat, k.toString(), j);
+            j++;
+        }
+    }
+
+    private void entity_looping(Connection connection, LinkedHashMap<EntityType, Long> stats, String stat) throws SQLException{
+        int j = 1;
+        for(Map.Entry<EntityType, Long> me:stats.entrySet()){
+            EntityType k = me.getKey();
+            long v = me.getValue();
+            this.SQL_query(connection, v, uuid.toString(), stat, k.toString(), j);
+            j++;
+        }
     }
 
     public void deleteStat(Connection connection) throws SQLException { //Should be called Asynchronously
