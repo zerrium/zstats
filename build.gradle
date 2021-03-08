@@ -25,9 +25,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.discordsrv:discordsrv:1.21.2'
+    compileOnly 'com.discordsrv:discordsrv:1.21.3'
     implementation 'org.jetbrains:annotations:19.0.0'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '4.0.3'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'net.ess3:EssentialsX:2.18.2'
     compile group: 'commons-io', name: 'commons-io', version: '2.7'

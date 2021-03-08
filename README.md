@@ -4,9 +4,9 @@
 
 ## Compiled with:
 [![SpigotAPI](https://img.shields.io/badge/SpigotAPI-1.16.5-yellow?style=for-the-badge)](https://hub.spigotmc.org/javadocs/bukkit) <br>
-[![DiscordSRV](https://img.shields.io/badge/DiscordSRV-1.21.2-yellow?style=for-the-badge)](https://github.com/DiscordSRV/DiscordSRV) <br>
+[![DiscordSRV](https://img.shields.io/badge/DiscordSRV-1.21.3-yellow?style=for-the-badge)](https://github.com/DiscordSRV/DiscordSRV) <br>
 [![EssentialsX](https://img.shields.io/badge/EssentialsX-2.18.2-yellow?style=for-the-badge)](https://github.com/EssentialsX/Essentials) <br>
-[![HikariCP](https://img.shields.io/badge/HikariCP-3.4.5-yellow?style=for-the-badge)](https://github.com/brettwooldridge/HikariCP) <br>
+[![HikariCP](https://img.shields.io/badge/HikariCP-4.0.3-yellow?style=for-the-badge)](https://github.com/brettwooldridge/HikariCP) <br>
 
 ## Details:
 Check out on SpigotMC [website](https://www.spigotmc.org/resources/zstats.87724/)
