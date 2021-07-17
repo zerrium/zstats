@@ -1,6 +1,6 @@
 # Zstats
 [![CodeFactor](https://img.shields.io/codefactor/grade/github/zerrium/zstats?style=for-the-badge)](https://www.codefactor.io/repository/github/zerrium/zstats) [![Total_Downloads](https://img.shields.io/spiget/downloads/87724?label=Total%20Downloads&style=for-the-badge)](https://www.spigotmc.org/resources/zstats.87724/) [![Java_Version](https://img.shields.io/badge/JDK%20Version-8--16-orange?style=for-the-badge)]() <br>
-[![Tested_Versions](https://img.shields.io/badge/Tested%20Versions-1.8.8--1.16.5-blue?style=for-the-badge)]() [![Compatible_Versions](https://img.shields.io/badge/Compatible%20Versions-1.8--1.17.1-black?style=for-the-badge)]()
+[![Tested_Versions](https://img.shields.io/badge/Tested%20Versions-1.8.8--1.17.1-blue?style=for-the-badge)]() [![Compatible_Versions](https://img.shields.io/badge/Compatible%20Versions-1.8--1.17.1-black?style=for-the-badge)]()
 
 ## Compiled with:
 [![SpigotAPI](https://img.shields.io/badge/SpigotAPI-1.16.5-yellow?style=for-the-badge)](https://hub.spigotmc.org/javadocs/bukkit) <br>
