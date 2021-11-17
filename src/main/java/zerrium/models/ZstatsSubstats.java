@@ -171,12 +171,12 @@ public class ZstatsSubstats { //Manage substats
     private void sort_material(String stat, HashMap<Material, Long> thiss, LinkedHashMap<Material, Long> zpp){
         int i;
         if(zp.x.get(stat) != null && zp.x.get(stat) != 0){
-            LinkedHashMap temp = ZstatsFilter.sortByValues(thiss);
-            Iterator x = temp.entrySet().iterator();
+            LinkedHashMap<Material, Long> temp = ZstatsFilter.sortMaterialValues(thiss);
+            Iterator<Map.Entry<Material, Long>> x = temp.entrySet().iterator();
             i = 0;
             while(x.hasNext() && i<ZstatsConfigs.getIntConfig(ZstatsConfig.SUBSTAT_TOP)){
-                Map.Entry e = (Map.Entry) x.next();
-                zpp.put((Material) e.getKey(), (Long) e.getValue());
+                Map.Entry<Material, Long> e = x.next();
+                zpp.put(e.getKey(), e.getValue());
                 i++;
             }
         }
@@ -185,12 +185,12 @@ public class ZstatsSubstats { //Manage substats
     private void sort_entity(String stat, HashMap<EntityType, Long> thiss, LinkedHashMap<EntityType, Long> zpp){
         int i;
         if(zp.x.get(stat) != null && zp.x.get(stat) != 0){
-            LinkedHashMap temp = ZstatsFilter.sortByValues(thiss);
-            Iterator x = temp.entrySet().iterator();
+            LinkedHashMap<EntityType, Long> temp = ZstatsFilter.sortEntityTypeValues(thiss);
+            Iterator<Map.Entry<EntityType, Long>> x = temp.entrySet().iterator();
             i = 0;
             while(x.hasNext() && i<ZstatsConfigs.getIntConfig(ZstatsConfig.SUBSTAT_TOP)){
-                Map.Entry e = (Map.Entry) x.next();
-                zpp.put((EntityType) e.getKey(), (Long) e.getValue());
+                Map.Entry<EntityType, Long> e = x.next();
+                zpp.put(e.getKey(), e.getValue());
                 i++;
             }
         }

@@ -1,6 +1,7 @@
 package zerrium.utils;
 
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import zerrium.Zstats;
 
 import java.util.*;
@@ -56,6 +57,37 @@ public class ZstatsFilter {
         return false;
     }
 
+    public static LinkedHashMap<Material, Long> sortMaterialValues(HashMap<Material, Long> map) {
+        List<Map.Entry<Material, Long>> list = new LinkedList<>(map.entrySet());
+        // Defined Custom Comparator here
+        list.sort(Collections.reverseOrder((o1, o2) -> ((Comparable<Long>) (o1).getValue())
+                .compareTo((o2).getValue())));
+
+        // Here I am copying the sorted list in HashMap
+        // using LinkedHashMap to preserve the insertion order
+        LinkedHashMap<Material, Long> sortedHashMap = new LinkedHashMap<>();
+        for (Map.Entry<Material, Long> o : list) {
+            sortedHashMap.put(o.getKey(), o.getValue());
+        }
+        return sortedHashMap;
+    }
+
+    public static LinkedHashMap<EntityType, Long> sortEntityTypeValues(HashMap<EntityType, Long> map) {
+        List<Map.Entry<EntityType, Long>> list = new LinkedList<>(map.entrySet());
+        // Defined Custom Comparator here
+        list.sort(Collections.reverseOrder((o1, o2) -> ((Comparable<Long>) (o1).getValue())
+                .compareTo((o2).getValue())));
+
+        // Here I am copying the sorted list in HashMap
+        // using LinkedHashMap to preserve the insertion order
+        LinkedHashMap<EntityType, Long> sortedHashMap = new LinkedHashMap<>();
+        for (Map.Entry<EntityType, Long> o : list) {
+            sortedHashMap.put(o.getKey(), o.getValue());
+        }
+        return sortedHashMap;
+    }
+
+    /*
     public static LinkedHashMap sortByValues(HashMap map) {
         List<Object> list = new LinkedList<Object>(map.entrySet());
         // Defined Custom Comparator here
@@ -71,4 +103,5 @@ public class ZstatsFilter {
         }
         return sortedHashMap;
     }
+    */
 }
