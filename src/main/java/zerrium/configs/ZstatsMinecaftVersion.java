@@ -1,4 +1,4 @@
-package zerrium;
+package zerrium.configs;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,6 +37,7 @@ public class ZstatsMinecaftVersion {
         //Supports OfflinePlayer#getStatistic
         versions.put("1.15", 5);
         versions.put("1.16", 5);
+        versions.put("1.17", 5);
     }
 
     public static int getVersion(){
