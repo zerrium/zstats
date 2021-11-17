@@ -65,7 +65,7 @@ public class ZstatsUpdater implements CommandExecutor {
 
             case 2: //update or delete specific player
                 switch (args[0].toLowerCase()) {
-                    case "update" -> {
+                    case "update":
                         BukkitRunnable rr = new BukkitRunnable() {
                             @Override
                             public void run() {
@@ -103,8 +103,8 @@ public class ZstatsUpdater implements CommandExecutor {
                         };
                         rr.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
                         return true;
-                    }
-                    case "remove", "delete" -> {
+                    case "remove":
+                    case "delete":
                         BukkitRunnable s = new BukkitRunnable() {
                             @Override
                             public void run() {
@@ -132,11 +132,9 @@ public class ZstatsUpdater implements CommandExecutor {
                         };
                         s.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
                         return true;
-                    }
-                    default -> {
+                    default:
                         sender.sendMessage(message);
                         return false;
-                    }
                 }
 
             default:

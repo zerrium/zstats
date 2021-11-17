@@ -71,14 +71,22 @@ public class Zstats extends JavaPlugin{
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
         if(command.getName().equals("zstats")){
-            return switch (args.length) {
-                case 1 -> Arrays.asList("update", "delete");
-                case 2 -> switch (args[0]) {
-                    case "update", "delete", "remove" -> null; //auto complete online players
-                    default -> Collections.emptyList();
-                };
-                default -> Collections.emptyList();
-            };
+            switch (args.length) {
+                case 1:
+                    return Arrays.asList("update", "delete");
+                case 2:
+                    //auto complete online players
+                    switch (args[0]) {
+                        case "update":
+                        case "delete":
+                        case "remove":
+                            return null;
+                        default:
+                            return Collections.emptyList();
+                    }
+                default:
+                    return Collections.emptyList();
+            }
         }else{
             return Collections.emptyList();
         }

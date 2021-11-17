@@ -75,19 +75,24 @@ public class ZstatsGeneralUtils {
 
         Bukkit.getWorlds().forEach(i ->{
             switch (i.getEnvironment()) {
-                case NORMAL -> {
+                case NORMAL:
                     world_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
                     total_size += world_size;
-                }
-                case NETHER -> {
+                    break;
+
+                case NETHER:
                     nether_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
                     total_size += nether_size;
-                }
-                case THE_END -> {
+                    break;
+
+                case THE_END:
                     end_size = FileUtils.sizeOfDirectory(i.getWorldFolder());
                     total_size += end_size;
-                }
-                default -> total_size += total_size;
+                    break;
+
+                default:
+                    total_size += total_size;
+                    break;
             }
             if(debug) System.out.println("Got world size of "+i.getName());
         });
@@ -105,19 +110,15 @@ public class ZstatsGeneralUtils {
             st = connection.createStatement();
             rs = st.executeQuery("show tables");
             if(!rs.next()){
-                st.executeUpdate("""
-                            create table player(
-                            uuid varchar(50) not null,
-                            name text not null,
-                            primary key(uuid));
-                        """);
-                st.executeUpdate("""
-                            create table stats(
-                            uuid varchar(50) not null,
-                            stat text not null,
-                            val bigint(19) not null,
-                            foreign key(uuid) references player(uuid));
-                        """);
+                st.executeUpdate("    create table player(" +
+                                 "    uuid varchar(50) not null," +
+                                 "    name text not null," +
+                                 "    primary key(uuid));");
+                st.executeUpdate("    create table stats(" +
+                                 "    uuid varchar(50) not null," +
+                                 "    stat text not null," +
+                                 "    val bigint(19) not null," +
+                                 "    foreign key(uuid) references player(uuid));");
             }
             rss = st.executeQuery("select * from player where uuid != \"000\";");
             System.out.println(ChatColor.YELLOW+"[Zstats] Getting player list from database...");
