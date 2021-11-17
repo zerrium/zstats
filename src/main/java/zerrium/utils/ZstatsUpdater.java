@@ -1,4 +1,4 @@
-package zerrium;
+package zerrium.utils;
 
 import github.scarsz.discordsrv.DiscordSRV;
 import org.bukkit.Bukkit;
@@ -8,6 +8,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import zerrium.Zstats;
+import zerrium.configs.ZstatsConfigs;
+import zerrium.models.ZstatsConfig;
+import zerrium.models.ZstatsPlayer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,10 +36,10 @@ public class ZstatsUpdater implements CommandExecutor {
                             sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " updating stats for all player...");
                             Connection connection = null;
                             try {
-                                connection = ZstatsSqlCon.openConnection();
-                                for(ZstatsPlayer p : Zstats.zplayer){
+                                connection = ZstatsSqlUtil.openConnection();
+                                for(ZstatsPlayer p : ZstatsGeneralUtils.getZplayer()){
                                     if(p.is_updating) continue;
-                                    if(Zstats.version < 5 && !Bukkit.getOfflinePlayer(p.uuid).isOnline()) continue; //update only when the player is online on version <1.15
+                                    if(Zstats.getVersion() < 5 && !Bukkit.getOfflinePlayer(p.uuid).isOnline()) continue; //update only when the player is online on version <1.15
                                     p.updateStat(connection);
                                 }
                             } catch (SQLException throwables) {
@@ -45,12 +49,12 @@ public class ZstatsUpdater implements CommandExecutor {
                                     assert connection != null;
                                     connection.close();
                                 } catch (Exception e) {
-                                    if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                                    if(ZstatsConfigs.getDebug()) System.out.println("[Zstats] "+ e );
                                 }
                             }
-                            if(Zstats.notify_discord && Zstats.has_discordSrv){
+                            if(ZstatsConfigs.getBooleanConfig(ZstatsConfig.NOTIFY_DISCORD) && Zstats.getHasDiscordSrv()){
                                 DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
-                                        .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), "all players"))
+                                        .sendMessage(ZstatsConfigs.getStringConfig(ZstatsConfig.DISCORD_MESSAGE).replaceAll("<player>".toLowerCase(), "all players"))
                                         .queue();
                             }
                         }
@@ -60,25 +64,25 @@ public class ZstatsUpdater implements CommandExecutor {
                 return true;
 
             case 2: //update or delete specific player
-                switch(args[0].toLowerCase()){
-                    case "update":
+                switch (args[0].toLowerCase()) {
+                    case "update" -> {
                         BukkitRunnable rr = new BukkitRunnable() {
                             @Override
                             public void run() {
-                                for(ZstatsPlayer z : Zstats.zplayer){
-                                    if(args[1].equalsIgnoreCase(z.name)){
-                                        if(z.is_updating) return;
-                                        if(Zstats.version < 5 && !Bukkit.getOfflinePlayer(z.uuid).isOnline()){ //update only when the player is online on version <1.15
-                                            sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Can't update stats of player " + args[1] + " as he is offline.");
+                                for (ZstatsPlayer z : ZstatsGeneralUtils.getZplayer()) {
+                                    if (args[1].equalsIgnoreCase(z.name)) {
+                                        if (z.is_updating) return;
+                                        if (Zstats.getVersion() < 5 && !Bukkit.getOfflinePlayer(z.uuid).isOnline()) { //update only when the player is online on version <1.15
+                                            sender.sendMessage(ChatColor.GOLD + "[Zstats]" + ChatColor.RESET + " Can't update stats of player " + args[1] + " as he is offline.");
                                             return;
                                         }
                                         Connection connection = null;
                                         try {
-                                            connection = ZstatsSqlCon.openConnection();
+                                            connection = ZstatsSqlUtil.openConnection();
                                             z.updateStat(connection);
-                                            if(Zstats.notify_discord && Zstats.has_discordSrv){
+                                            if (ZstatsConfigs.getBooleanConfig(ZstatsConfig.NOTIFY_DISCORD) && Zstats.getHasDiscordSrv()) {
                                                 DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("global")
-                                                        .sendMessage(Zstats.notify_discord_message.replaceAll("<player>".toLowerCase(), z.name))
+                                                        .sendMessage(ZstatsConfigs.getStringConfig(ZstatsConfig.DISCORD_MESSAGE).replaceAll("<player>".toLowerCase(), z.name))
                                                         .queue();
                                             }
                                         } catch (SQLException throwables) {
@@ -88,28 +92,27 @@ public class ZstatsUpdater implements CommandExecutor {
                                                 assert connection != null;
                                                 connection.close();
                                             } catch (Exception e) {
-                                                if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                                                if (ZstatsConfigs.getDebug()) System.out.println("[Zstats] " + e);
                                             }
                                         }
                                         return;
                                     }
                                 }
-                                sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
+                                sender.sendMessage(ChatColor.GOLD + "[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
                             }
                         };
                         rr.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
                         return true;
-
-                    case "remove":
-                    case "delete":
+                    }
+                    case "remove", "delete" -> {
                         BukkitRunnable s = new BukkitRunnable() {
                             @Override
                             public void run() {
-                                for(ZstatsPlayer z : Zstats.zplayer){
-                                    if(args[1].equalsIgnoreCase(z.name)){
+                                for (ZstatsPlayer z : ZstatsGeneralUtils.getZplayer()) {
+                                    if (args[1].equalsIgnoreCase(z.name)) {
                                         Connection connection = null;
                                         try {
-                                            connection = ZstatsSqlCon.openConnection();
+                                            connection = ZstatsSqlUtil.openConnection();
                                             z.deleteStat(connection);
                                         } catch (SQLException throwables) {
                                             throwables.printStackTrace();
@@ -118,21 +121,22 @@ public class ZstatsUpdater implements CommandExecutor {
                                                 assert connection != null;
                                                 connection.close();
                                             } catch (Exception e) {
-                                                if(Zstats.debug) System.out.println("[Zstats] "+ e );
+                                                if (ZstatsConfigs.getDebug()) System.out.println("[Zstats] " + e);
                                             }
                                         }
                                         return;
                                     }
                                 }
-                                sender.sendMessage(ChatColor.GOLD+"[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
+                                sender.sendMessage(ChatColor.GOLD + "[Zstats]" + ChatColor.RESET + " Player " + args[1] + " was not found.");
                             }
                         };
                         s.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
                         return true;
-
-                    default:
+                    }
+                    default -> {
                         sender.sendMessage(message);
                         return false;
+                    }
                 }
 
             default:

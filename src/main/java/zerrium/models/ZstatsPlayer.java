@@ -1,7 +1,11 @@
-package zerrium;
+package zerrium.models;
 
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
+import zerrium.Zstats;
+import zerrium.configs.ZstatsConfigs;
+import zerrium.utils.ZstatsGeneralUtils;
+import zerrium.utils.ZstatsSqlUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,55 +15,58 @@ import java.util.*;
 
 
 public class ZstatsPlayer {
-    static ArrayList<ZstatsOldPlayer> players = new ArrayList<>(); //This class is for <1.15 Player instance where we save that Online Player instance to this class as we can't update the stats when the player is offline
+    public static final ArrayList<ZstatsOldPlayer> players = new ArrayList<>(); //This class is for <1.15 Player instance where we save that Online Player instance to this class as we can't update the stats when the player is offline
 
-    String name;
-    UUID uuid;
-    long afk_time, last_played;
-    boolean is_updating; //flag to prevent double update to the same Object simultaneously
-    HashMap<String, Long> x; //convert those stupid many attributes into a hashmap
-    LinkedHashMap<Material, Long> craft;
-    LinkedHashMap<Material, Long> place;
-    LinkedHashMap<Material, Long> mine;
-    LinkedHashMap<EntityType, Long> slain;
-    LinkedHashMap<EntityType, Long> mob;
+    public String name;
+    public final UUID uuid;
+    public long afk_time, last_played;
+    public boolean is_updating; //flag to prevent double update to the same Object simultaneously
+    public HashMap<String, Long> x; //convert those stupid many attributes into a hashmap
+    public LinkedHashMap<Material, Long> craft;
+    public LinkedHashMap<Material, Long> place;
+    public LinkedHashMap<Material, Long> mine;
+    public LinkedHashMap<EntityType, Long> slain;
+    public LinkedHashMap<EntityType, Long> mob;
 
     public ZstatsPlayer(UUID uuid, String name) throws SQLException {
+        final boolean debug = ZstatsConfigs.getDebug();
+        final HashMap<String, Boolean> zstats = ZstatsConfigs.getZstats();
+
         this.uuid = uuid;
         this.name = name;
 
-        Connection connection = ZstatsSqlCon.openConnection();
+        Connection connection = ZstatsSqlUtil.openConnection();
         PreparedStatement pss = null;
         ResultSet rs = null;
 
-        if(Zstats.zstats.get("z:afk_time")){
-            if(Zstats.debug) System.out.println("Get player AFK time from db");
+        if(zstats.get("z:afk_time")){
+            if(debug) System.out.println("Get player AFK time from db");
             pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
             pss.setString(1, uuid.toString());
             pss.setString(2, "z:afk_time");
             rs = pss.executeQuery();
             if (!rs.next()) {
-                if(Zstats.debug) System.out.println("AFK stat Not found. set it to 0");
+                if(debug) System.out.println("AFK stat Not found. set it to 0");
                 afk_time = 0L;
             }else{
                 afk_time = rs.getLong(1);
-                if(Zstats.debug) System.out.println("AFK value: " + afk_time);
+                if(debug) System.out.println("AFK value: " + afk_time);
             }
         }
 
-        if(Zstats.zstats.get("z:last_played")){
-            if(Zstats.debug) System.out.println("Get player last played time from db");
+        if(zstats.get("z:last_played")){
+            if(debug) System.out.println("Get player last played time from db");
             pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
             pss.setString(1, uuid.toString());
             pss.setString(2, "z:last_played");
             rs = pss.executeQuery();
             if (!rs.next()) {
                 OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
-                if(Zstats.debug) System.out.println("Last played stat Not found. set it to OfflinePlayer#getLastPlayed");
+                if(debug) System.out.println("Last played stat Not found. set it to OfflinePlayer#getLastPlayed");
                 last_played = p.getLastPlayed()/1000;
             }else{
                 last_played = rs.getLong(1);
-                if(Zstats.debug) System.out.println("Last played value: " + last_played);
+                if(debug) System.out.println("Last played value: " + last_played);
             }
         }
 
@@ -76,22 +83,24 @@ public class ZstatsPlayer {
 
     @Override
     public boolean equals (Object o) {
+        final boolean debug = ZstatsConfigs.getDebug();
+
         // If the object is compared with itself then return true
         if (o == this) {
-            if(Zstats.debug) System.out.println("Comparing instance of itself");
+            if(debug) System.out.println("Comparing instance of itself");
             return true;
         }
 
         /* Check if o is an instance of ZPlayer or not
           "null instanceof [type]" also returns false */
         if (!(o instanceof ZstatsPlayer)) {
-            if(Zstats.debug) System.out.println("Not a ZPlayer instance");
+            if(debug) System.out.println("Not a ZPlayer instance");
             return false;
         }
 
         // Compare the data members and return accordingly
         boolean result = ((ZstatsPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZstatsPlayer) o).uuid.toString());
-        if(Zstats.debug) System.out.println("ZPlayer instance, equal? "+result);
+        if(debug) System.out.println("ZPlayer instance, equal? "+result);
         return result;
     }
 
@@ -102,10 +111,10 @@ public class ZstatsPlayer {
 
     private void clearStat(){
         this.x = new HashMap<>();
-        for(Map.Entry<String, Boolean> st:Zstats.vanilla_stats.entrySet()){
+        for(Map.Entry<String, Boolean> st: ZstatsConfigs.getVanillaStats().entrySet()){
             if(st.getValue()) x.put(st.getKey(), 0L);
         }
-        for(Map.Entry<String, Boolean> st:Zstats.zstats.entrySet()){
+        for(Map.Entry<String, Boolean> st: ZstatsConfigs.getZstats().entrySet()){
             if(st.getValue()) x.put(st.getKey(), 0L);
         }
         this.craft = new LinkedHashMap<>();
@@ -120,7 +129,7 @@ public class ZstatsPlayer {
         for(Map.Entry<String, Long> me:x.entrySet()){
             String k = me.getKey();
             if(!k.contains("z:")){
-                if(Zstats.version < 5){
+                if(Zstats.getVersion() < 5){
                     if(p.isOnline()) this.x.put(k, (long) Objects.requireNonNull(p.getPlayer()).getStatistic(Statistic.valueOf(k)));
                     else this.x.put(k, (long) players.get(players.indexOf(new ZstatsOldPlayer(this.uuid))).getPlayer().getStatistic(Statistic.valueOf(k)));
                 }
@@ -142,22 +151,22 @@ public class ZstatsPlayer {
                 break;
 
             case "z:world_size":
-                this.x.put(key, Zstats.world_size);
+                this.x.put(key, ZstatsGeneralUtils.world_size);
                 break;
 
             case "z:nether_size":
-                this.x.put(key, Zstats.nether_size);
+                this.x.put(key, ZstatsGeneralUtils.nether_size);
                 break;
 
             case "z:end_size":
-                this.x.put(key, Zstats.end_size);
+                this.x.put(key, ZstatsGeneralUtils.end_size);
                 break;
 
             case "z:total_size":
-                this.x.put(key, Zstats.total_size);
+                this.x.put(key, ZstatsGeneralUtils.total_size);
                 break;
             default:
-                if(Zstats.debug) System.out.println(key);
+                if(ZstatsConfigs.getDebug()) System.out.println(key);
         }
     }
 
@@ -167,7 +176,7 @@ public class ZstatsPlayer {
         this.clearStat();
 
         //server world save size
-        Zstats.updateWorldSize();
+        ZstatsGeneralUtils.updateWorldSize();
 
         //Rewrite with the latest stats
         rewriteStat();
@@ -252,7 +261,7 @@ public class ZstatsPlayer {
         ps.setLong(1, val);
         ps.setString(2, uuid);
         ps.setString(3, stat);
-        if (Zstats.debug) System.out.println(uuid + " - " + stat + " - " + val);
+        if (ZstatsConfigs.getDebug()) System.out.println(uuid + " - " + stat + " - " + val);
         ps.executeUpdate();
         pss.close();
         rs.close();
@@ -269,7 +278,7 @@ public class ZstatsPlayer {
         ps.setString(2, uuid);
         ps.setString(3, stat + String.format("%04d", j) + "_" + substat);
         ps.execute();
-        if (Zstats.debug) System.out.println(uuid + " - " + stat + String.format("%04d", j) + "_" + substat + " - " + val);
+        if (ZstatsConfigs.getDebug()) System.out.println(uuid + " - " + stat + String.format("%04d", j) + "_" + substat + " - " + val);
         pss.close();
         ps.close();
     }

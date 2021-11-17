@@ -1,18 +1,20 @@
-package zerrium;
+package zerrium.utils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import zerrium.configs.ZstatsConfigs;
+import zerrium.models.ZstatsConfig;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ZstatsSqlCon {
-    private final static String hostname = Zstats.fc.getString("hostname");
-    private final static int port = Zstats.fc.getInt("port");
-    private final static String db_name = Zstats.fc.getString("database");
-    private final static String username = Zstats.fc.getString("username");
-    private final static String password = Zstats.fc.getString("password");
-    private final static boolean useSSL = Zstats.fc.getBoolean("use_SSL");
+public class ZstatsSqlUtil {
+    private final static String hostname = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_HOST);
+    private final static int port = ZstatsConfigs.getIntConfig(ZstatsConfig.DB_PORT);
+    private final static String db_name = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_NAME);
+    private final static String username = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_USER);
+    private final static String password = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_PASSWORD);
+    private final static boolean useSSL = ZstatsConfigs.getBooleanConfig(ZstatsConfig.DB_SSL);
     private final static HikariConfig config = new HikariConfig();
     private final static HikariDataSource ds;
 
@@ -29,13 +31,11 @@ public class ZstatsSqlCon {
         ds = new HikariDataSource( config );
     }
 
-    private ZstatsSqlCon() {}
-
-    protected static Connection openConnection() throws SQLException {
+    public static Connection openConnection() throws SQLException {
         return ds.getConnection();
     }
 
-    protected static void closeConnection(){
+    public static void closeConnection(){
         ds.close();
     }
 }

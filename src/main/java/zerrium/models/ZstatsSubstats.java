@@ -1,10 +1,13 @@
-package zerrium;
+package zerrium.models;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
+import zerrium.Zstats;
+import zerrium.configs.ZstatsConfigs;
+import zerrium.utils.ZstatsFilter;
 
 import java.util.*;
 
@@ -28,26 +31,29 @@ public class ZstatsSubstats { //Manage substats
     }
 
     protected void substats_Material(){ //Substats for crafting, mining and placing blocks or items
+        final boolean debug = ZstatsConfigs.getDebug();
+        final HashMap<String, Boolean> zstats = ZstatsConfigs.getZstats();
+
         for(Material m: Material.values()) {
             long[] val;
 
             try{
                 val = version_check(m);
             }catch(IllegalArgumentException | NullPointerException | IndexOutOfBoundsException e){
-                if(Zstats.debug) System.out.println(m.toString() + ": " + e);
+                if(debug) System.out.println(m.toString() + ": " + e);
                 continue;
             }
 
             if (val[0] != 0) {
-                if(Zstats.zstats.get("z:craft_kind")) zp.x.put("z:craft_kind", zp.x.get("z:craft_kind")+1);
-                if(Zstats.zstats.get("z:crafted")){
+                if(zstats.get("z:craft_kind")) zp.x.put("z:craft_kind", zp.x.get("z:craft_kind")+1);
+                if(zstats.get("z:crafted")){
                     zp.x.put("z:crafted", zp.x.get("z:crafted")+val[0]);
                     this.craft.put(m, val[0]);
                 }
             }
             if (val[1] != 0) {
-                if(Zstats.zstats.get("z:mine_kind")) zp.x.put("z:mine_kind", zp.x.get("z:mine_kind")+1);
-                if(Zstats.zstats.get("z:mined")){
+                if(zstats.get("z:mine_kind")) zp.x.put("z:mine_kind", zp.x.get("z:mine_kind")+1);
+                if(zstats.get("z:mined")){
                     zp.x.put("z:mined", zp.x.get("z:mined")+val[1]);
                     this.mine.put(m, val[1]);
                 }
@@ -55,34 +61,40 @@ public class ZstatsSubstats { //Manage substats
 
             if(ZstatsFilter.is_tool(m)) substats_Tools(m, val[2]);
             else if(val[2] != 0){
-                if(Zstats.zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
-                if(Zstats.zstats.get("z:placed")){
+                if(zstats.get("z:place_kind")) zp.x.put("z:place_kind", zp.x.get("z:place_kind")+1);
+                if(zstats.get("z:placed")){
                     zp.x.put("z:placed", zp.x.get("z:placed")+val[2]);
                     this.place.put(m, val[2]);
                 }
             }
         }
-        if(Zstats.debug) System.out.println("Materials substat done");
+        if(debug) System.out.println("Materials substat done");
     }
 
     private void substats_Tools(Material m, long val){
+        final boolean debug = ZstatsConfigs.getDebug();
+        final HashMap<String, Boolean> zstats = ZstatsConfigs.getZstats();
+
         try{
             for(String s : ZstatsFilter.tool_with_material){
-                String zstats = ZstatsFilter.tools.get(s);
-                if(m.toString().contains(s) && Zstats.zstats.get(zstats)){
-                    zp.x.put(zstats, zp.x.get(zstats)+val);
+                String zst = ZstatsFilter.tools.get(s);
+                if(m.toString().contains(s) && zstats.get(zst)){
+                    zp.x.put(zst, zp.x.get(zst)+val);
                     return;
                 }
             }
             String zstat = ZstatsFilter.tools.get(m.toString());
-            if(Zstats.zstats.get(zstat)) zp.x.put(zstat, zp.x.get(zstat)+val);
+            if(zstats.get(zstat)) zp.x.put(zstat, zp.x.get(zstat)+val);
         }
         catch (NullPointerException e){
-            if(Zstats.debug) System.out.println(m.toString() + " - " + e);
+            if(debug) System.out.println(m.toString() + " - " + e);
         }
     }
 
     protected void substats_Entity(){ //Substats for killing or killed by entities
+        final boolean debug = ZstatsConfigs.getDebug();
+        final HashMap<String, Boolean> zstats = ZstatsConfigs.getZstats();
+
         for(EntityType t: EntityType.values()){
             if(t.isAlive()) {
                 long[] val;
@@ -90,26 +102,26 @@ public class ZstatsSubstats { //Manage substats
                 try{
                     val = version_check(t);
                 }catch(IllegalArgumentException | NullPointerException | IndexOutOfBoundsException e){
-                    if(Zstats.debug) System.out.println(t.toString() + ": " + e);
+                    if(debug) System.out.println(t.toString() + ": " + e);
                     continue;
                 }
 
-                if (val[0] != 0 && Zstats.zstats.get("z:mob_kind")) {
+                if (val[0] != 0 && zstats.get("z:mob_kind")) {
                     zp.x.put("z:mob_kind", zp.x.get("z:mob_kind") + 1);
                     this.kill.put(t, val[0]);
                 }
-                if (val[1] != 0 && Zstats.zstats.get("z:slain_kind")) {
+                if (val[1] != 0 && zstats.get("z:slain_kind")) {
                     zp.x.put("z:slain_kind", zp.x.get("z:slain_kind") + 1);
                     this.kill_by.put(t, val[1]);
                 }
             }
         }
-        if(Zstats.debug) System.out.println("EntityType substat done");
+        if(debug) System.out.println("EntityType substat done");
     }
 
     private long[] version_check(Material m) throws IllegalArgumentException, NullPointerException, IndexOutOfBoundsException{
         long a, b, c;
-        if(Zstats.version < 5){
+        if(Zstats.getVersion() < 5){
             if(this.p.isOnline()){
                 a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.CRAFT_ITEM, m);
                 b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.MINE_BLOCK, m);
@@ -129,7 +141,7 @@ public class ZstatsSubstats { //Manage substats
 
     private long[] version_check(EntityType e) throws IllegalArgumentException, NullPointerException, IndexOutOfBoundsException{
         long a, b;
-        if(Zstats.version < 5){
+        if(Zstats.getVersion() < 5){
             if(p.isOnline()){
                 a = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.KILL_ENTITY, e);
                 b = Objects.requireNonNull(this.p.getPlayer()).getStatistic(Statistic.ENTITY_KILLED_BY, e);
@@ -145,13 +157,15 @@ public class ZstatsSubstats { //Manage substats
     }
 
     protected void sort_substats(){ //Sort all substats
-        if(Zstats.debug) System.out.println("Sorting substats...");
+        final boolean debug = ZstatsConfigs.getDebug();
+
+        if(debug) System.out.println("Sorting substats...");
         sort_material("z:craft_kind", this.craft, zp.craft);
         sort_material("z:place_kind", this.place, zp.place);
         sort_material("z:mine_kind", this.mine, zp.mine);
         sort_entity("z:mob_kind", this.kill, zp.mob);
         sort_entity("z:slain_kind", this.kill_by, zp.slain);
-        if(Zstats.debug) System.out.println("Sorting substats done");
+        if(debug) System.out.println("Sorting substats done");
     }
 
     private void sort_material(String stat, HashMap<Material, Long> thiss, LinkedHashMap<Material, Long> zpp){
@@ -160,7 +174,7 @@ public class ZstatsSubstats { //Manage substats
             LinkedHashMap temp = ZstatsFilter.sortByValues(thiss);
             Iterator x = temp.entrySet().iterator();
             i = 0;
-            while(x.hasNext() && i<Zstats.substat_top){
+            while(x.hasNext() && i<ZstatsConfigs.getIntConfig(ZstatsConfig.SUBSTAT_TOP)){
                 Map.Entry e = (Map.Entry) x.next();
                 zpp.put((Material) e.getKey(), (Long) e.getValue());
                 i++;
@@ -174,7 +188,7 @@ public class ZstatsSubstats { //Manage substats
             LinkedHashMap temp = ZstatsFilter.sortByValues(thiss);
             Iterator x = temp.entrySet().iterator();
             i = 0;
-            while(x.hasNext() && i<Zstats.substat_top){
+            while(x.hasNext() && i<ZstatsConfigs.getIntConfig(ZstatsConfig.SUBSTAT_TOP)){
                 Map.Entry e = (Map.Entry) x.next();
                 zpp.put((EntityType) e.getKey(), (Long) e.getValue());
                 i++;

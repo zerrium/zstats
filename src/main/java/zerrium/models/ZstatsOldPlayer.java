@@ -1,4 +1,4 @@
-package zerrium;
+package zerrium.models;
 
 import org.bukkit.entity.Player;
 

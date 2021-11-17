@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ZstatsMinecaftVersion {
-    public static LinkedHashMap<String, Integer> versions = new LinkedHashMap<>(Map.ofEntries(
+    public final static LinkedHashMap<String, Integer> versions = new LinkedHashMap<>(Map.ofEntries(
                 Map.entry("1.8-", 0),
                 Map.entry("1.8.1", 0),
                 Map.entry("1.8.2", 0),
