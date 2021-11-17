@@ -7,38 +7,36 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ZstatsMinecaftVersion {
-    public static LinkedHashMap<String, Integer> versions = new LinkedHashMap<>();
+    public static LinkedHashMap<String, Integer> versions = new LinkedHashMap<>(Map.ofEntries(
+                Map.entry("1.8-", 0),
+                Map.entry("1.8.1", 0),
+                Map.entry("1.8.2", 0),
 
-    static{
-        versions.put("1.8-", 0);
-        versions.put("1.8.1", 0);
-        versions.put("1.8.2", 0);
+                //CHEST_OPENED and ITEM_ENCHANTED stat
+                Map.entry("1.8.3", 1),
+                Map.entry("1.8.4", 1),
+                Map.entry("1.8.5", 1),
+                Map.entry("1.8.6", 1),
+                Map.entry("1.8.7", 1),
+                Map.entry("1.8.8", 1),
 
-        //CHEST_OPENED and ITEM_ENCHANTED stat
-        versions.put("1.8.3", 1);
-        versions.put("1.8.4", 1);
-        versions.put("1.8.5", 1);
-        versions.put("1.8.6", 1);
-        versions.put("1.8.7", 1);
-        versions.put("1.8.8", 1);
+                //AVIATE_ONE_CM (elytra distance) stat, SLEEP_IN_BED stat, SHIELD stat
+                Map.entry("1.9", 2),
+                Map.entry("1.10", 2),
+                Map.entry("1.11", 2),
+                Map.entry("1.12", 2),
 
-        //AVIATE_ONE_CM (elytra distance) stat, SLEEP_IN_BED stat, SHIELD stat
-        versions.put("1.9", 2);
-        versions.put("1.10", 2);
-        versions.put("1.11", 2);
-        versions.put("1.12", 2);
+                //Trident stat, PLAY_ONE_MINUTE on 1.13+ instead of PLAY_ONE_TICK on <1.13 only the name changes, it still records the tick actually
+                Map.entry("1.13", 3),
 
-        //Trident stat, PLAY_ONE_MINUTE on 1.13+ instead of PLAY_ONE_TICK on <1.13 only the name changes, it still records the tick actually
-        versions.put("1.13", 3);
+                //Crossbow stat
+                Map.entry("1.14", 4),
 
-        //Crossbow stat
-        versions.put("1.14", 4);
-
-        //Supports OfflinePlayer#getStatistic
-        versions.put("1.15", 5);
-        versions.put("1.16", 5);
-        versions.put("1.17", 5);
-    }
+                //Supports OfflinePlayer#getStatistic
+                Map.entry("1.15", 5),
+                Map.entry("1.16", 5),
+                Map.entry("1.17", 5)
+        ));
 
     public static int getVersion(){
         String ver = Bukkit.getServer().getVersion();
