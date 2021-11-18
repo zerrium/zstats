@@ -35,7 +35,9 @@ public class ZstatsMinecaftVersion {
                 //Supports OfflinePlayer#getStatistic
                 Map.entry("1.15", 5),
                 Map.entry("1.16", 5),
-                Map.entry("1.17", 5)
+
+                //SPYGLASS tool filter
+                Map.entry("1.17", 6)
         ));
 
     public static int getVersion(){
@@ -44,6 +46,6 @@ public class ZstatsMinecaftVersion {
             if(ver.contains(me.getKey())) return me.getValue();
         }
         System.out.println(ChatColor.YELLOW+"[Zstats] Warning! Your server version: " + ver + " might not be supported yet. Continue with your own precaution");
-        return 5;
+        return 6;
     }
 }

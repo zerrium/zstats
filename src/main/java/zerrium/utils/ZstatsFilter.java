@@ -20,6 +20,7 @@ public class ZstatsFilter {
                 Material.FLINT_AND_STEEL,
                 Material.COMPASS
         ));
+        if(Zstats.getVersion() >=6) tool.add(Material.SPYGLASS); //1.17+
         if(Zstats.getVersion() >=4) tool.add(Material.CROSSBOW); //1.14+
         if(Zstats.getVersion() >=3) tool.add(Material.TRIDENT); //1.13+
         if(Zstats.getVersion() >=2) tool.add(Material.SHIELD); //1.9+
