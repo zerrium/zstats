@@ -2,6 +2,7 @@ package zerrium.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Statistic;
 import zerrium.Zstats;
 import zerrium.models.ZstatsPlayer;
@@ -22,6 +23,11 @@ public class ZstatsGeneralUtils {
     public static void init(Connection connection) {
         zplayer = new ArrayList<>();
         onlinePlayer = new HashMap<>();
+
+        if(!ZstatsSqlUtil.validateTableNameConfig()) {
+            System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+ " Wrong MySQL table name config. Please check 'table_name_prefix' and 'table_name_suffix' in config.yml");
+            Bukkit.getPluginManager().disablePlugin(Zstats.getPlugin(Zstats.class));
+        }
         //database query
         ZstatsSqlUtil.initializeSQL(connection, zplayer);
     }

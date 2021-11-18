@@ -40,12 +40,36 @@ public class ZstatsSqlUtil {
         return ds.getConnection();
     }
 
-    public static void closeConnection(){
+    public static void closeConnection() {
         ds.close();
     }
 
-    public static String getPlayerTableName(String query) {
-        return query.replace("<player>", "");
+    public static String getTableName(String query) {
+        String tablePlayer = "player";
+        String tableStats = "stats";
+        String prefix = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_TABLE_PREFIX);
+        String suffix = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_TABLE_SUFFIX);
+
+        if(!prefix.isBlank()) {
+            tablePlayer = prefix.concat("_").concat(tablePlayer);
+            tableStats = prefix.concat("_").concat(tableStats);
+        }
+
+        if(!suffix.isBlank()) {
+            tablePlayer = tablePlayer.concat("_").concat(suffix);
+            tableStats = tableStats.concat("_").concat(suffix);
+        }
+
+        return query.replace("<$zplayer>", tablePlayer)
+                .replace("<$zstats>", tableStats);
+    }
+
+    static boolean validateTableNameConfig() {
+        final String regex = "^(?i)[a-z_][a-z0-9_]*?$";
+        final String prefix = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_TABLE_PREFIX);
+        final String suffix = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_TABLE_SUFFIX);
+
+        return (prefix.isEmpty() || prefix.matches(regex)) && (suffix.isEmpty() || suffix.matches(regex));
     }
 
     static void initializeSQL(Connection connection, ArrayList<ZstatsPlayer> zplayer){
@@ -55,26 +79,34 @@ public class ZstatsSqlUtil {
         ResultSet rs = null;
         ResultSet rss = null;
         PreparedStatement ps = null;
+        PreparedStatement pss = null;
         try {
+            pss = connection.prepareStatement("select table_name from information_schema.tables" +
+                    "    where table_schema=?" +
+                    "    and table_name=?" +
+                    "    or table_name=?;");
+            pss.setString(1, ZstatsConfigs.getStringConfig(ZstatsConfig.DB_NAME));
+            pss.setString(2, getTableName("<$zplayer>"));
+            pss.setString(3, getTableName("<$zstats>"));
             st = connection.createStatement();
-            rs = st.executeQuery("show tables");
+            rs = pss.executeQuery();
             if(!rs.next()){
-                st.executeUpdate("    create table player(" +
+                st.executeUpdate(getTableName("create table <$zplayer>(" +
                         "    uuid varchar(50) not null," +
                         "    name text not null," +
-                        "    primary key(uuid));");
-                st.executeUpdate("    create table stats(" +
+                        "    primary key(uuid));"));
+                st.executeUpdate(getTableName("create table <$zstats>(" +
                         "    uuid varchar(50) not null," +
                         "    stat text not null," +
                         "    val bigint(19) not null," +
-                        "    foreign key(uuid) references player(uuid));");
+                        "    foreign key(uuid) references <$zplayer>(uuid));"));
             }
-            rss = st.executeQuery("select * from player where uuid != \"000\";");
+            rss = st.executeQuery(getTableName("select * from <$zplayer> where uuid != \"000\";"));
             System.out.println(ChatColor.YELLOW+"[Zstats] Getting player list from database...");
             int counter = 0;
             if(!rss.next()){
                 System.out.println(ChatColor.YELLOW+"[Zstats] Found nothing in database. Grabbing player lists from world save...");
-                ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
+                ps = connection.prepareStatement(getTableName("insert into <$zplayer>(uuid,name) values (?,?)"));
                 for(OfflinePlayer i: Bukkit.getOfflinePlayers()){
                     if(i.hasPlayedBefore()) {
                         counter++;
@@ -125,6 +157,9 @@ public class ZstatsSqlUtil {
 
                 assert ps != null;
                 ps.close();
+
+                assert pss != null;
+                pss.close();
 
                 connection.close();
             } catch (Exception e) {

@@ -42,7 +42,7 @@ public class ZstatsListener implements Listener {
                         zplayer.add(new ZstatsPlayer(uuid, name));
                         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found a new player with uuid of " + uuid.toString() + " associates with " + name);
                         connection = ZstatsSqlUtil.openConnection();
-                        ps = connection.prepareStatement("insert into player(uuid,name) values (?,?)");
+                        ps = connection.prepareStatement(ZstatsSqlUtil.getTableName("insert into <$zplayer>(uuid,name) values (?,?)"));
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
                         ps.executeUpdate();

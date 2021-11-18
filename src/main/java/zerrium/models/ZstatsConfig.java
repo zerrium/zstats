@@ -9,7 +9,8 @@ public enum ZstatsConfig {
     DB_NAME         ("database"),
     DB_USER         ("username"),
     DB_PASSWORD     ("password"),
-    DB_TABLE        ("table_name_prefix"),
+    DB_TABLE_PREFIX ("table_name_prefix"),
+    DB_TABLE_SUFFIX ("table_name_suffix"),
     DB_SSL          ("use_SSL"),
     NOTIFY_DISCORD  ("notify_stats_update_to_discord"),
     DISCORD_MESSAGE ("notify_message"),
@@ -49,7 +50,8 @@ public enum ZstatsConfig {
                 DB_NAME,
                 DB_USER,
                 DB_PASSWORD,
-                DB_TABLE,
+                DB_TABLE_PREFIX,
+                DB_TABLE_SUFFIX,
                 DISCORD_MESSAGE
         ));
     }

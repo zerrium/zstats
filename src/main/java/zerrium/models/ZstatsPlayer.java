@@ -41,7 +41,7 @@ public class ZstatsPlayer {
 
         if(zstats.get("z:afk_time")){
             if(debug) System.out.println("Get player AFK time from db");
-            pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
+            pss = connection.prepareStatement(ZstatsSqlUtil.getTableName("select val from <$zstats> where uuid=? and stat=?"));
             pss.setString(1, uuid.toString());
             pss.setString(2, "z:afk_time");
             rs = pss.executeQuery();
@@ -56,7 +56,7 @@ public class ZstatsPlayer {
 
         if(zstats.get("z:last_played")){
             if(debug) System.out.println("Get player last played time from db");
-            pss = connection.prepareStatement("select val from stats where uuid=? and stat=?");
+            pss = connection.prepareStatement(ZstatsSqlUtil.getTableName("select val from <$zstats> where uuid=? and stat=?"));
             pss.setString(1, uuid.toString());
             pss.setString(2, "z:last_played");
             rs = pss.executeQuery();
@@ -244,7 +244,7 @@ public class ZstatsPlayer {
         //delete from SQL
         if(this.is_updating) return;
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Deleting stats of " + uuid.toString() + " associates with " + name + " from database...");
-        PreparedStatement pss = connection.prepareStatement("delete from stats where uuid=?");
+        PreparedStatement pss = connection.prepareStatement(ZstatsSqlUtil.getTableName("delete from <$zstats> where uuid=?"));
         pss.setString(1, uuid.toString());
         int row = pss.executeUpdate();
         System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET +
@@ -253,11 +253,11 @@ public class ZstatsPlayer {
     }
 
     private void SQL_query(Connection connection, long val, String uuid, String stat) throws SQLException{ //For general stats
-        PreparedStatement pss = connection.prepareStatement("select * from stats where uuid=? and stat=?");
+        PreparedStatement pss = connection.prepareStatement(ZstatsSqlUtil.getTableName("select * from <$zstats> where uuid=? and stat=?"));
         pss.setString(1, uuid);
         pss.setString(2, stat);
         ResultSet rs = pss.executeQuery();
-        PreparedStatement ps = connection.prepareStatement(rs.next() ? "update stats set val=? where uuid=? and stat=?" : "insert into stats(val, uuid, stat) values (?, ?, ?)");
+        PreparedStatement ps = connection.prepareStatement(ZstatsSqlUtil.getTableName(rs.next() ? "update <$zstats> set val=? where uuid=? and stat=?" : "insert into <$zstats>(val, uuid, stat) values (?, ?, ?)"));
         ps.setLong(1, val);
         ps.setString(2, uuid);
         ps.setString(3, stat);
@@ -269,11 +269,11 @@ public class ZstatsPlayer {
     }
 
     private void SQL_query(Connection connection, long val, String uuid, String stat, String substat, int j) throws SQLException{ //For substats
-        PreparedStatement pss = connection.prepareStatement("delete from stats where uuid=? and stat like ?");
+        PreparedStatement pss = connection.prepareStatement(ZstatsSqlUtil.getTableName("delete from <$zstats> where uuid=? and stat like ?"));
         pss.setString(1, uuid);
         pss.setString(2, stat + String.format("%04d", j) + "_%");
         pss.executeUpdate();
-        PreparedStatement ps = connection.prepareStatement("insert into stats(val, uuid, stat) values (?, ?, ?)");
+        PreparedStatement ps = connection.prepareStatement(ZstatsSqlUtil.getTableName("insert into <$zstats>(val, uuid, stat) values (?, ?, ?)"));
         ps.setLong(1, val);
         ps.setString(2, uuid);
         ps.setString(3, stat + String.format("%04d", j) + "_" + substat);

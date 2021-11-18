@@ -13,7 +13,9 @@ username: 'root'
 password: ''
 # Leave it blank if you want to use the default database table name.
 # This is useful if you have more than one server instances and you still want to use the same database
+# Do not use space or starting with number (follow table naming rule in SQL)
 table_name_prefix: ''
+table_name_suffix: ''
 # It is recommended to enable this if you are using remote database and make sure you have installed SSL to the database server to enable this
 use_SSL: false
 
