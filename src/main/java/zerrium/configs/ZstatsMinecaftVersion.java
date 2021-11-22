@@ -49,7 +49,7 @@ public class ZstatsMinecaftVersion {
             if(ver.contains(me.getKey())) return me.getValue();
         }
         final Logger log = Zstats.getPlugin(Zstats.class).getLogger();
-        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Warning! Your server version: " + ver + " might not be supported yet. Continue with your own precaution");
+        log.warning(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Warning! Your server version: " + ver + " might not be supported yet. Continue with your own precaution");
         return 6;
     }
 }
