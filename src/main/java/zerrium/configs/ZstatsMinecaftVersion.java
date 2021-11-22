@@ -2,9 +2,11 @@ package zerrium.configs;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import zerrium.Zstats;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class ZstatsMinecaftVersion {
     public final static LinkedHashMap<String, Integer> versions = new LinkedHashMap<>(Map.ofEntries(
@@ -37,7 +39,8 @@ public class ZstatsMinecaftVersion {
                 Map.entry("1.16", 5),
 
                 //SPYGLASS tool filter
-                Map.entry("1.17", 6)
+                Map.entry("1.17", 6),
+                Map.entry("1.18", 6)
         ));
 
     public static int getVersion(){
@@ -45,7 +48,8 @@ public class ZstatsMinecaftVersion {
         for(Map.Entry<String, Integer> me:versions.entrySet()){
             if(ver.contains(me.getKey())) return me.getValue();
         }
-        System.out.println(ChatColor.YELLOW+"[Zstats] Warning! Your server version: " + ver + " might not be supported yet. Continue with your own precaution");
+        final Logger log = Zstats.getPlugin(Zstats.class).getLogger();
+        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Warning! Your server version: " + ver + " might not be supported yet. Continue with your own precaution");
         return 6;
     }
 }

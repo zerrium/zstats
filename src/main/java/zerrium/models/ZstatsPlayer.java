@@ -12,10 +12,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
 
 
 public class ZstatsPlayer {
     public static final ArrayList<ZstatsOldPlayer> players = new ArrayList<>(); //This class is for <1.15 Player instance where we save that Online Player instance to this class as we can't update the stats when the player is offline
+    private static final Logger log = Zstats.getPlugin(Zstats.class).getLogger();
 
     public String name;
     public final UUID uuid;
@@ -29,7 +31,6 @@ public class ZstatsPlayer {
     public LinkedHashMap<EntityType, Long> mob;
 
     public ZstatsPlayer(UUID uuid, String name) throws SQLException {
-        final boolean debug = ZstatsConfigs.getDebug();
         final HashMap<String, Boolean> zstats = ZstatsConfigs.getZstats();
 
         this.uuid = uuid;
@@ -40,33 +41,33 @@ public class ZstatsPlayer {
         ResultSet rs = null;
 
         if(zstats.get("z:afk_time")){
-            if(debug) System.out.println("Get player AFK time from db");
+            log.fine("[Zstats: "+this.getClass().toString()+"] "+"Get player AFK time from db");
             pss = connection.prepareStatement(ZstatsSqlUtil.getTableName("select val from <$zstats> where uuid=? and stat=?"));
             pss.setString(1, uuid.toString());
             pss.setString(2, "z:afk_time");
             rs = pss.executeQuery();
             if (!rs.next()) {
-                if(debug) System.out.println("AFK stat Not found. set it to 0");
+                log.fine("[Zstats: "+this.getClass().toString()+"] "+"AFK stat Not found. set it to 0");
                 afk_time = 0L;
             }else{
                 afk_time = rs.getLong(1);
-                if(debug) System.out.println("AFK value: " + afk_time);
+                log.fine("[Zstats: "+this.getClass().toString()+"] "+"AFK value: " + afk_time);
             }
         }
 
         if(zstats.get("z:last_played")){
-            if(debug) System.out.println("Get player last played time from db");
+            log.fine("[Zstats: "+this.getClass().toString()+"] "+"Get player last played time from db");
             pss = connection.prepareStatement(ZstatsSqlUtil.getTableName("select val from <$zstats> where uuid=? and stat=?"));
             pss.setString(1, uuid.toString());
             pss.setString(2, "z:last_played");
             rs = pss.executeQuery();
             if (!rs.next()) {
                 OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
-                if(debug) System.out.println("Last played stat Not found. set it to OfflinePlayer#getLastPlayed");
+                log.fine("[Zstats: "+this.getClass().toString()+"] "+"Last played stat Not found. set it to OfflinePlayer#getLastPlayed");
                 last_played = p.getLastPlayed()/1000;
             }else{
                 last_played = rs.getLong(1);
-                if(debug) System.out.println("Last played value: " + last_played);
+                log.fine("[Zstats: "+this.getClass().toString()+"] "+"Last played value: " + last_played);
             }
         }
 
@@ -83,24 +84,22 @@ public class ZstatsPlayer {
 
     @Override
     public boolean equals (Object o) {
-        final boolean debug = ZstatsConfigs.getDebug();
-
         // If the object is compared with itself then return true
         if (o == this) {
-            if(debug) System.out.println("Comparing instance of itself");
+            log.fine("[Zstats: "+this.getClass().toString()+"] "+"Comparing instance of itself");
             return true;
         }
 
         /* Check if o is an instance of ZPlayer or not
           "null instanceof [type]" also returns false */
         if (!(o instanceof ZstatsPlayer)) {
-            if(debug) System.out.println("Not a ZPlayer instance");
+            log.fine("[Zstats: "+this.getClass().toString()+"] "+"Not a ZPlayer instance");
             return false;
         }
 
         // Compare the data members and return accordingly
         boolean result = ((ZstatsPlayer) o).uuid.toString().equals(uuid.toString()) || uuid.toString().equals(((ZstatsPlayer) o).uuid.toString());
-        if(debug) System.out.println("ZPlayer instance, equal? "+result);
+        log.fine("[Zstats: "+this.getClass().toString()+"] "+"ZPlayer instance, equal? "+result);
         return result;
     }
 
@@ -166,7 +165,7 @@ public class ZstatsPlayer {
                 this.x.put(key, ZstatsGeneralUtils.total_size);
                 break;
             default:
-                if(ZstatsConfigs.getDebug()) System.out.println(key);
+                log.fine("[Zstats: "+this.getClass().toString()+"] "+key);
         }
     }
 
@@ -215,7 +214,7 @@ public class ZstatsPlayer {
         //Slain stats
         entity_looping(connection, this.slain, "z:slain_");
 
-        System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
+        log.info(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Update stats of " + uuid.toString() + " associates with " + name + " done.");
         this.is_updating = false;
         players.remove(new ZstatsOldPlayer(this.uuid));
     }
@@ -243,11 +242,11 @@ public class ZstatsPlayer {
     public void deleteStat(Connection connection) throws SQLException { //Should be called Asynchronously
         //delete from SQL
         if(this.is_updating) return;
-        System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Deleting stats of " + uuid.toString() + " associates with " + name + " from database...");
+        log.info(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Deleting stats of " + uuid.toString() + " associates with " + name + " from database...");
         PreparedStatement pss = connection.prepareStatement(ZstatsSqlUtil.getTableName("delete from <$zstats> where uuid=?"));
         pss.setString(1, uuid.toString());
         int row = pss.executeUpdate();
-        System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET +
+        log.info(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET +
                 (row > 0 ? " Deleted stats of " + uuid.toString() + " associates with " + name + " from database." : " No stats of "  + uuid.toString() + " associates with " + name + " found on the database. No rows affected."));
         pss.close();
     }
@@ -261,7 +260,7 @@ public class ZstatsPlayer {
         ps.setLong(1, val);
         ps.setString(2, uuid);
         ps.setString(3, stat);
-        if (ZstatsConfigs.getDebug()) System.out.println(uuid + " - " + stat + " - " + val);
+        log.fine("[Zstats: "+this.getClass().toString()+"] "+ uuid + " - " + stat + " - " + val);
         ps.executeUpdate();
         pss.close();
         rs.close();
@@ -278,7 +277,7 @@ public class ZstatsPlayer {
         ps.setString(2, uuid);
         ps.setString(3, stat + String.format("%04d", j) + "_" + substat);
         ps.execute();
-        if (ZstatsConfigs.getDebug()) System.out.println(uuid + " - " + stat + String.format("%04d", j) + "_" + substat + " - " + val);
+        log.fine("[Zstats: "+this.getClass().toString()+"] "+ uuid + " - " + stat + String.format("%04d", j) + "_" + substat + " - " + val);
         pss.close();
         ps.close();
     }

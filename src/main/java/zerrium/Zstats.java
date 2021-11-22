@@ -17,19 +17,21 @@ import zerrium.utils.ZstatsUpdater;
 
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Zstats extends JavaPlugin{
     private static int version;
     private static boolean hasDiscordSrv, hasEssentials;
+    private Logger log;
 
     private Connection connection;
 
     @Override
     public void onEnable() {
-        System.out.println(ChatColor.YELLOW+"[Zstats] v3.0 by zerrium");
-        getServer().getPluginManager().registerEvents(new ZstatsListener(), this);
-        Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZstatsUpdater());
-        Objects.requireNonNull(getCommand("zstats")).setTabCompleter(this);
+        log = getLogger();
+        log.setLevel(Level.INFO);
+        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" v3.0 by zerrium");
         version = ZstatsMinecaftVersion.getVersion();
 
         this.saveDefaultConfig(); //get or create config file
@@ -37,13 +39,17 @@ public class Zstats extends JavaPlugin{
         //Loads zstats configs
         new ZstatsConfigs();
 
-        System.out.println(ChatColor.YELLOW+"[Zstats] Connecting to MySQL database...");
+        getServer().getPluginManager().registerEvents(new ZstatsListener(), this);
+        Objects.requireNonNull(this.getCommand("zstats")).setExecutor(new ZstatsUpdater());
+        Objects.requireNonNull(getCommand("zstats")).setTabCompleter(this);
+
+        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Connecting to MySQL database...");
 
         //MySQL connect
         try{
             connection = ZstatsSqlUtil.openConnection();
         } catch (SQLException throwables) {
-            System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" Unable to connect to database:");
+            log.severe(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" Unable to connect to database:");
             throwables.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
         }
@@ -51,18 +57,18 @@ public class Zstats extends JavaPlugin{
 
         //Check optional plugin dependencies
         if(Bukkit.getPluginManager().getPlugin("DiscordSRV") != null || Bukkit.getPluginManager().getPlugin("discordsrv") != null){
-            System.out.println(ChatColor.YELLOW+"[Zstats] DiscordSRV plugin detected. Messaging system to DiscordSRV is hooked.");
+            log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" DiscordSRV plugin detected. Messaging system to DiscordSRV is hooked.");
             hasDiscordSrv = true;
         }else{
-            System.out.println(ChatColor.YELLOW+"[Zstats] No DiscordSRV plugin detected. Disabled messaging system to DiscordSRV. ");
+            log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" No DiscordSRV plugin detected. Disabled messaging system to DiscordSRV. ");
             hasDiscordSrv = false;
         }
         if(Bukkit.getPluginManager().getPlugin("Essentials") != null || Bukkit.getPluginManager().getPlugin("EssentialsX") != null){
             getServer().getPluginManager().registerEvents(new ZstatsEssentialsListener(), this);
-            System.out.println(ChatColor.YELLOW+"[Zstats] Essentials plugin detected. AFK detection for AFK time stats enabled.");
+            log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Essentials plugin detected. AFK detection for AFK time stats enabled.");
             hasEssentials = true;
         }else{
-            System.out.println(ChatColor.YELLOW+"[Zstats] No Essentials plugin detected. Disabled AFK time stats");
+            log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" No Essentials plugin detected. Disabled AFK time stats");
             hasEssentials = false;
         }
         ZstatsFilter.begin();
@@ -95,7 +101,7 @@ public class Zstats extends JavaPlugin{
     @Override
     public void onDisable() {
         ZstatsSqlUtil.closeConnection();
-        System.out.println(ChatColor.YELLOW+"[Zstats] Disabling plugin...");
+        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Disabling plugin...");
     }
 
     public static boolean getHasDiscordSrv() {

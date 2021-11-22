@@ -6,10 +6,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import zerrium.Zstats;
 import zerrium.models.ZstatsPlayer;
-import zerrium.configs.ZstatsConfigs;
 import zerrium.utils.ZstatsGeneralUtils;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class ZstatsEssentialsListener implements Listener {
     @EventHandler
@@ -21,7 +21,8 @@ public class ZstatsEssentialsListener implements Listener {
                 long x = (System.currentTimeMillis() - p.getAfkSince())/1000; //AFK time in seconds
                 ZstatsPlayer zp = zplayer.get(zplayer.indexOf(new ZstatsPlayer(p.getBase().getUniqueId())));
                 zp.afk_time += x;
-                if(ZstatsConfigs.getDebug()) System.out.println("[Zstats] " + p.getName() + " has been AFK for " + x +" seconds.");
+                final Logger log = Zstats.getPlugin(Zstats.class).getLogger();
+                log.fine("[Zstats: " + this.getClass().toString() + "] " + p.getName() + " has been AFK for " + x +" seconds.");
             }
         }
     }

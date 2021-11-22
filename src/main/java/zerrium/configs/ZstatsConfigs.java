@@ -11,6 +11,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ZstatsConfigs {
     private static FileConfiguration fc;
@@ -21,6 +23,7 @@ public class ZstatsConfigs {
 
     private static boolean debug;
     private boolean is_writing_config = false;
+    private final Logger log = Zstats.getPlugin(Zstats.class).getLogger();
 
     public static boolean getBooleanConfig(ZstatsConfig config) {
         return booleanConfigs.get(config);
@@ -49,13 +52,14 @@ public class ZstatsConfigs {
     public ZstatsConfigs() {
         fc = Zstats.getPlugin(Zstats.class).getConfig();
         debug = fc.getBoolean(ZstatsConfig.DEBUG.getConfig());
+        if(debug) log.setLevel(Level.FINE);
         this.writeConfig();
         this.readConfig();
     }
 
     private synchronized void writeConfig(){
         if(Objects.requireNonNull(fc.getConfigurationSection(ZstatsConfig.VANILLA_STATS.getConfig())).getKeys(false).size() <= 1){
-            System.out.println(ChatColor.YELLOW+"[Zstats] Writing config file...");
+            log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Writing config file...");
             is_writing_config = true;
             try (FileWriter fw = new FileWriter(new File(Zstats.getPlugin(Zstats.class).getDataFolder(), "config.yml"), true);
                  BufferedWriter bw = new BufferedWriter(fw);
@@ -64,25 +68,25 @@ public class ZstatsConfigs {
                 ArrayList<Statistic> stat = ZstatsGeneralUtils.getDefaultStat();
                 for (Statistic s : Statistic.values()) {
                     if (s.isSubstatistic()) continue;
-                    if (debug) System.out.println(s.toString());
+                    log.fine("[Zstats: "+this.getClass().toString()+"] "+s.toString());
                     if (s.toString().contains("PLAY_ONE_")) {
                         out.println("  " + s.toString() + ": true");
                     } else {
                         out.println("  " + s.toString() + (stat.contains(s) ? ": true" : ": false"));
                     }
                 }
-                if (debug) System.out.println("Write file done");
+                log.fine("[Zstats: "+this.getClass().toString()+"] "+"Write file done");
                 fc = Zstats.getPlugin(Zstats.class).getConfig();
                 notifyAll();
                 is_writing_config = false;
             } catch (IOException e) {
-                System.out.println(ChatColor.YELLOW+"[Zstats] An error occurred during config file write:\n" + e);
+                log.severe(ChatColor.YELLOW+"[Zstats] An error occurred during config file write:\n" + e);
             }
         }
     }
 
     private synchronized void readConfig(){
-        System.out.println(ChatColor.YELLOW+"[Zstats] Waiting for write config file...");
+        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Waiting for write config file...");
         while(is_writing_config){
             try {
                 wait();
@@ -90,7 +94,7 @@ public class ZstatsConfigs {
                 if(debug) e.printStackTrace();
             }
         }
-        System.out.println(ChatColor.YELLOW+"[Zstats] Reading config file...");
+        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Reading config file...");
         zstats = new HashMap<>();
         vanillaStats = new HashMap<>();
         booleanConfigs = new HashMap<>();
@@ -118,6 +122,6 @@ public class ZstatsConfigs {
         }
 
         debug = getBooleanConfig(ZstatsConfig.DEBUG);
-        System.out.println(ChatColor.YELLOW+"[Zstats] Done.");
+        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Done.");
     }
 }

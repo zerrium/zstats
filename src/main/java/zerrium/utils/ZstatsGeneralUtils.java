@@ -6,17 +6,18 @@ import org.bukkit.ChatColor;
 import org.bukkit.Statistic;
 import zerrium.Zstats;
 import zerrium.models.ZstatsPlayer;
-import zerrium.configs.ZstatsConfigs;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class ZstatsGeneralUtils {
     private static ArrayList<ZstatsPlayer> zplayer;
     private static HashMap<UUID, String> onlinePlayer;
+    private final static Logger log = Zstats.getPlugin(Zstats.class).getLogger();
 
     public static long world_size, nether_size, end_size, total_size;
 
@@ -25,7 +26,7 @@ public class ZstatsGeneralUtils {
         onlinePlayer = new HashMap<>();
 
         if(!ZstatsSqlUtil.validateTableNameConfig()) {
-            System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+ " Wrong MySQL table name config. Please check 'table_name_prefix' and 'table_name_suffix' in config.yml");
+            log.severe(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+ " Wrong MySQL table name config. Please check 'table_name_prefix' and 'table_name_suffix' in config.yml");
             Bukkit.getPluginManager().disablePlugin(Zstats.getPlugin(Zstats.class));
         }
         //database query
@@ -70,8 +71,6 @@ public class ZstatsGeneralUtils {
     }
 
     public static void updateWorldSize(){
-        final boolean debug = ZstatsConfigs.getDebug();
-
         end_size = 0L;
         nether_size = 0L;
         world_size = 0L;
@@ -98,8 +97,8 @@ public class ZstatsGeneralUtils {
                     total_size += total_size;
                     break;
             }
-            if(debug) System.out.println("Got world size of "+i.getName());
+            log.fine("[Zstats: "+ZstatsGeneralUtils.class.toString()+"] "+"Got world size of "+i.getName());
         });
-        if(debug) System.out.println("Total size "+total_size);
+        log.fine("[Zstats: "+ZstatsGeneralUtils.class.toString()+"] "+"Total size "+total_size);
     }
 }

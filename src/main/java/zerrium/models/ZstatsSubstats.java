@@ -10,6 +10,7 @@ import zerrium.configs.ZstatsConfigs;
 import zerrium.utils.ZstatsFilter;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class ZstatsSubstats { //Manage substats
     final private HashMap<Material, Long> craft;
@@ -19,6 +20,8 @@ public class ZstatsSubstats { //Manage substats
     final private HashMap<EntityType, Long> kill_by;
     final private ZstatsPlayer zp;
     final private OfflinePlayer p;
+
+    final private static Logger log = Zstats.getPlugin(Zstats.class).getLogger();
 
     protected ZstatsSubstats(ZstatsPlayer zp){ //Preparation
         this.craft = new HashMap<>();
@@ -31,7 +34,6 @@ public class ZstatsSubstats { //Manage substats
     }
 
     protected void substats_Material(){ //Substats for crafting, mining and placing blocks or items
-        final boolean debug = ZstatsConfigs.getDebug();
         final HashMap<String, Boolean> zstats = ZstatsConfigs.getZstats();
 
         for(Material m: Material.values()) {
@@ -40,7 +42,7 @@ public class ZstatsSubstats { //Manage substats
             try{
                 val = version_check(m);
             }catch(IllegalArgumentException | NullPointerException | IndexOutOfBoundsException e){
-                if(debug) System.out.println(m.toString() + ": " + e);
+                log.fine("[Zstats: "+this.getClass().toString()+"] "+ m.toString() + ": " + e);
                 continue;
             }
 
@@ -68,11 +70,10 @@ public class ZstatsSubstats { //Manage substats
                 }
             }
         }
-        if(debug) System.out.println("Materials substat done");
+        log.fine("[Zstats: "+this.getClass().toString()+"] "+"Materials substat done");
     }
 
     private void substats_Tools(Material m, long val){
-        final boolean debug = ZstatsConfigs.getDebug();
         final HashMap<String, Boolean> zstats = ZstatsConfigs.getZstats();
 
         try{
@@ -87,12 +88,11 @@ public class ZstatsSubstats { //Manage substats
             if(zstats.get(zstat)) zp.x.put(zstat, zp.x.get(zstat)+val);
         }
         catch (NullPointerException e){
-            if(debug) System.out.println(m.toString() + " - " + e);
+            log.fine("[Zstats: "+this.getClass().toString()+"] "+m.toString() + " - " + e);
         }
     }
 
     protected void substats_Entity(){ //Substats for killing or killed by entities
-        final boolean debug = ZstatsConfigs.getDebug();
         final HashMap<String, Boolean> zstats = ZstatsConfigs.getZstats();
 
         for(EntityType t: EntityType.values()){
@@ -102,7 +102,7 @@ public class ZstatsSubstats { //Manage substats
                 try{
                     val = version_check(t);
                 }catch(IllegalArgumentException | NullPointerException | IndexOutOfBoundsException e){
-                    if(debug) System.out.println(t.toString() + ": " + e);
+                    log.fine("[Zstats: "+this.getClass().toString()+"] "+t.toString() + ": " + e);
                     continue;
                 }
 
@@ -116,7 +116,7 @@ public class ZstatsSubstats { //Manage substats
                 }
             }
         }
-        if(debug) System.out.println("EntityType substat done");
+        log.fine("[Zstats: "+this.getClass().toString()+"] "+"EntityType substat done");
     }
 
     private long[] version_check(Material m) throws IllegalArgumentException, NullPointerException, IndexOutOfBoundsException{
@@ -157,15 +157,13 @@ public class ZstatsSubstats { //Manage substats
     }
 
     protected void sort_substats(){ //Sort all substats
-        final boolean debug = ZstatsConfigs.getDebug();
-
-        if(debug) System.out.println("Sorting substats...");
+        log.fine("[Zstats: "+this.getClass().toString()+"] "+"Sorting substats...");
         sort_material("z:craft_kind", this.craft, zp.craft);
         sort_material("z:place_kind", this.place, zp.place);
         sort_material("z:mine_kind", this.mine, zp.mine);
         sort_entity("z:mob_kind", this.kill, zp.mob);
         sort_entity("z:slain_kind", this.kill_by, zp.slain);
-        if(debug) System.out.println("Sorting substats done");
+        log.fine("[Zstats: "+this.getClass().toString()+"] "+"Sorting substats done");
     }
 
     private void sort_material(String stat, HashMap<Material, Long> thiss, LinkedHashMap<Material, Long> zpp){

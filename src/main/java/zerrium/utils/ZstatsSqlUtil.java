@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import zerrium.Zstats;
 import zerrium.configs.ZstatsConfigs;
 import zerrium.models.ZstatsConfig;
 import zerrium.models.ZstatsPlayer;
@@ -12,6 +13,7 @@ import zerrium.models.ZstatsPlayer;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class ZstatsSqlUtil {
     private final static String hostname = ZstatsConfigs.getStringConfig(ZstatsConfig.DB_HOST);
@@ -22,6 +24,8 @@ public class ZstatsSqlUtil {
     private final static boolean useSSL = ZstatsConfigs.getBooleanConfig(ZstatsConfig.DB_SSL);
     private final static HikariConfig config = new HikariConfig();
     private final static HikariDataSource ds;
+
+    private final static Logger log = Zstats.getPlugin(Zstats.class).getLogger();
 
     static {
         config.setDriverClassName("com.mysql.jdbc.Driver");
@@ -73,8 +77,6 @@ public class ZstatsSqlUtil {
     }
 
     static void initializeSQL(Connection connection, ArrayList<ZstatsPlayer> zplayer){
-        final boolean debug = ZstatsConfigs.getDebug();
-
         Statement st = null;
         ResultSet rs = null;
         ResultSet rss = null;
@@ -102,10 +104,10 @@ public class ZstatsSqlUtil {
                         "    foreign key(uuid) references <$zplayer>(uuid));"));
             }
             rss = st.executeQuery(getTableName("select * from <$zplayer> where uuid != \"000\";"));
-            System.out.println(ChatColor.YELLOW+"[Zstats] Getting player list from database...");
+            log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Getting player list from database...");
             int counter = 0;
             if(!rss.next()){
-                System.out.println(ChatColor.YELLOW+"[Zstats] Found nothing in database. Grabbing player lists from world save...");
+                log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Found nothing in database. Grabbing player lists from world save...");
                 ps = connection.prepareStatement(getTableName("insert into <$zplayer>(uuid,name) values (?,?)"));
                 for(OfflinePlayer i: Bukkit.getOfflinePlayers()){
                     if(i.hasPlayedBefore()) {
@@ -113,11 +115,11 @@ public class ZstatsSqlUtil {
                         UUID uuid = i.getUniqueId();
                         String name = i.getName();
                         if(name == null){
-                            System.out.println(ChatColor.YELLOW+"[Zstats] Warning! Found a player with uuid of " + uuid.toString() + " has null display name. Skipped this player.");
-                            System.out.println(ChatColor.YELLOW+"[Zstats] Suggestion: you need to check your online_mode option in your server.properties and check if you have mixed online and offline players in your world save.");
+                            log.warning(ChatColor.YELLOW+"[Zstats] Warning! Found a player with uuid of " + uuid.toString() + " has null display name. Skipped this player.");
+                            log.warning(ChatColor.YELLOW+"[Zstats] Suggestion: you need to check your online_mode option in your server.properties and check if you have mixed online and offline players in your world save.");
                             continue;
                         }
-                        System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
+                        log.info(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found player with uuid of " + uuid.toString() + " associates with " + name);
                         zplayer.add(new ZstatsPlayer(uuid, name));
                         ps.setString(1, uuid.toString());
                         ps.setString(2, name);
@@ -127,22 +129,20 @@ public class ZstatsSqlUtil {
                 ps.setString(1, "000");
                 ps.setString(2, "Server");
                 ps.executeUpdate();
-                System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ counter +" players.");
+                log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Found statistic data of "+ counter +" players.");
             }else{
                 int c = 0;
                 do{
                     if(rss.getString("uuid").equals("000")) continue;
                     zplayer.add(new ZstatsPlayer(UUID.fromString(rss.getString("uuid")), rss.getString("name")));
-                    if(debug){
-                        System.out.println(zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
-                    }
+                    log.fine("[Zstats: "+ZstatsSqlUtil.class.toString()+"] "+zplayer.get(c).uuid+" --- "+zplayer.get(c).name);
                     c++;
                 }
                 while(rss.next());
-                System.out.println(ChatColor.YELLOW+"[Zstats] Found statistic data of "+ c +" players.");
+                log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" Found statistic data of "+ c +" players.");
             }
         } catch (SQLException throwables) {
-            System.out.println(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:\n");
+            log.severe(ChatColor.YELLOW+"[Zstats]"+ChatColor.RED+" An SQL error occured:\n");
             throwables.printStackTrace();
         } finally {
             try {
@@ -163,7 +163,7 @@ public class ZstatsSqlUtil {
 
                 connection.close();
             } catch (Exception e) {
-                if(debug) System.out.println("[Zstats] "+ e );
+                log.fine("[Zstats: "+ZstatsSqlUtil.class.toString()+"] "+ e );
             }
         }
     }

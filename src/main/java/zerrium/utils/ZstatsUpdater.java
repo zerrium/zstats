@@ -15,8 +15,11 @@ import zerrium.models.ZstatsPlayer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class ZstatsUpdater implements CommandExecutor {
+    private final Logger log = Zstats.getPlugin(Zstats.class).getLogger();
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         final String message = ChatColor.GOLD + "[Zstats]" + ChatColor.RESET + " usage:\n" +
@@ -49,7 +52,7 @@ public class ZstatsUpdater implements CommandExecutor {
                                     assert connection != null;
                                     connection.close();
                                 } catch (Exception e) {
-                                    if(ZstatsConfigs.getDebug()) System.out.println("[Zstats] "+ e );
+                                    log.fine("[Zstats: "+this.getClass().toString()+"] "+ e );
                                 }
                             }
                             if(ZstatsConfigs.getBooleanConfig(ZstatsConfig.NOTIFY_DISCORD) && Zstats.getHasDiscordSrv()){
@@ -92,7 +95,7 @@ public class ZstatsUpdater implements CommandExecutor {
                                                 assert connection != null;
                                                 connection.close();
                                             } catch (Exception e) {
-                                                if (ZstatsConfigs.getDebug()) System.out.println("[Zstats] " + e);
+                                                log.fine("[Zstats: "+this.getClass().toString()+"] "+ e);
                                             }
                                         }
                                         return;
@@ -121,7 +124,7 @@ public class ZstatsUpdater implements CommandExecutor {
                                                 assert connection != null;
                                                 connection.close();
                                             } catch (Exception e) {
-                                                if (ZstatsConfigs.getDebug()) System.out.println("[Zstats] " + e);
+                                                log.fine("[Zstats: "+this.getClass().toString()+"] "+ e);
                                             }
                                         }
                                         return;

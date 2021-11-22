@@ -22,8 +22,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class ZstatsListener implements Listener {
+    private static final Logger log = Zstats.getPlugin(Zstats.class).getLogger();
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){
         Player p = event.getPlayer();
@@ -40,7 +43,7 @@ public class ZstatsListener implements Listener {
                     PreparedStatement ps = null;
                     try {
                         zplayer.add(new ZstatsPlayer(uuid, name));
-                        System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found a new player with uuid of " + uuid.toString() + " associates with " + name);
+                        log.info(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Found a new player with uuid of " + uuid.toString() + " associates with " + name);
                         connection = ZstatsSqlUtil.openConnection();
                         ps = connection.prepareStatement(ZstatsSqlUtil.getTableName("insert into <$zplayer>(uuid,name) values (?,?)"));
                         ps.setString(1, uuid.toString());
@@ -55,10 +58,10 @@ public class ZstatsListener implements Listener {
                             ps.close();
                             connection.close();
                         } catch (Exception e) {
-                            if(ZstatsConfigs.getDebug()) System.out.println("[Zstats] "+ e );
+                            log.fine("[Zstats: "+this.getClass().toString()+"] "+ e );
                         }
                     }
-                    System.out.println(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
+                    log.info(ChatColor.YELLOW + "[Zstats]" + ChatColor.RESET + " Added " + name + " to statistic player data.");
                 }
             };
             r.runTaskAsynchronously(Zstats.getPlugin(Zstats.class));
@@ -67,7 +70,6 @@ public class ZstatsListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
-        final boolean debug = ZstatsConfigs.getDebug();
         final ArrayList<ZstatsPlayer> zplayer = ZstatsGeneralUtils.getZplayer();
         final HashMap<UUID, String> onlinePlayer = ZstatsGeneralUtils.getOnlinePlayer();
 
@@ -76,8 +78,8 @@ public class ZstatsListener implements Listener {
         UUID uuid = p.getUniqueId();
         String name = p.getName();
         onlinePlayer.remove(uuid);
-        if(debug) System.out.println(onlinePlayer);
-        System.out.println(ChatColor.YELLOW + "[Zstats] " + ChatColor.RESET + name + " left the game. Updating stats...");
+        log.fine("[Zstats: "+this.getClass().toString()+"] "+onlinePlayer);
+        log.info(ChatColor.YELLOW + "[Zstats] " + ChatColor.RESET + name + " left the game. Updating stats...");
         ZstatsPlayer zp = zplayer.get(zplayer.indexOf(new ZstatsPlayer(uuid)));
         if(zp.is_updating) return;
         zp.last_played = System.currentTimeMillis()/1000;
@@ -101,7 +103,7 @@ public class ZstatsListener implements Listener {
                         assert connection != null;
                         connection.close();
                     } catch (Exception e) {
-                        if(debug) System.out.println("[Zstats] "+ e );
+                        log.fine("[Zstats: "+this.getClass().toString()+"] "+ e );
                     }
                 }
             }
