@@ -6,29 +6,32 @@ group 'org.zerrium'
 version '1.0-SNAPSHOT'
 
 repositories {
-    maven {
-        name 'papermc'
-        url 'https://papermc.io/repo/repository/maven-public/'
-    }
-    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url 'https://nexus.scarsz.me/content/groups/public/' }
-    maven {
-        url "https://ci.ender.zone/plugin/repository/everything/"
-    }
+    maven { url 'https://ci.ender.zone/plugin/repository/everything/'}
+    maven { url 'https://mvnrepository.com/artifact/org.slf4j/slf4j-api'}
     maven {
         name'Vankka-Nexus'
         url 'https://nexus.vankka.dev/repository/maven-public/'
     }
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+    maven {
+        name 'essentialsx-releases'
+        url 'https://repo.essentialsx.net/releases/'
+    }
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-    compileOnly 'com.discordsrv:discordsrv:1.21.3'
-    implementation 'org.jetbrains:annotations:19.0.0'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '4.0.3'
-    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
-    compileOnly 'net.ess3:EssentialsX:2.18.2'
-    compile group: 'commons-io', name: 'commons-io', version: '2.7'
+    compileOnly 'com.discordsrv:discordsrv:1.24.0'
+    implementation 'org.jetbrains:annotations:23.0.0'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.0'
+    compileOnly 'org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT'
+    compileOnly 'net.essentialsx:EssentialsX:2.19.0'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
 }
