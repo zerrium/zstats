@@ -11,3 +11,12 @@
 ## Details:
 Check out on SpigotMC [website](https://www.spigotmc.org/resources/zstats.87724/)
 or CurseForge [website](https://www.curseforge.com/minecraft/bukkit-plugins/zstats).
+
+## Additional Note:
+(9 Dec 2021) This plugin is **NOT** affected by RCE 0-day exploit in log4j. Be sure to **UPDATE** your server jar (Spigot/PaperMC etc) **IMMEDIATELY**.
+
+###### *) RCE: Remote Code Execution
+###### *) log4j: A logger tool used by Minecraft
+###### *) For Spigot announcement about this severe security issue read [here](https://www.spigotmc.org/threads/spigot-security-releases-%E2%80%94-1-8-8%E2%80%931-18.537204/)
+###### *) For PaperMC read [here](https://ibb.co/SvZhHnq), or [PaperMC Discord](https://discord.com/invite/papermc)
+###### *) In-depth explaination about this severe security issue read [here](https://www.lunasec.io/docs/blog/log4j-zero-day/)
