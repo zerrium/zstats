@@ -17,6 +17,7 @@ or CurseForge [website](https://www.curseforge.com/minecraft/bukkit-plugins/zsta
 
 ###### *) RCE: Remote Code Execution
 ###### *) log4j: A logger tool used by Minecraft
-###### *) For Spigot announcement about this severe security issue read [here](https://www.spigotmc.org/threads/spigot-security-releases-%E2%80%94-1-8-8%E2%80%931-18.537204/)
-###### *) For PaperMC read [here](https://ibb.co/SvZhHnq), or [PaperMC Discord](https://discord.com/invite/papermc)
+###### *) Mojang Developer official statement about this severe security read [here](https://twitter.com/slicedlime/status/1469150993527017483)
+###### *) For Spigot read [here](https://www.spigotmc.org/threads/spigot-security-releases-%E2%80%94-1-8-8%E2%80%931-18.537204/)
+###### *) For PaperMC read [here](https://discord.com/channels/289587909051416579/492517675680006144/918581596825718815)
 ###### *) In-depth explaination about this severe security issue read [here](https://www.lunasec.io/docs/blog/log4j-zero-day/)
