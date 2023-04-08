@@ -31,7 +31,7 @@ public class Zstats extends JavaPlugin{
     public void onEnable() {
         log = getLogger();
         log.setLevel(Level.INFO);
-        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" v3.0 by zerrium");
+        log.info(ChatColor.YELLOW+"[Zstats]"+ChatColor.RESET+" v3.1 by zerrium");
         version = ZstatsMinecaftVersion.getVersion();
 
         this.saveDefaultConfig(); //get or create config file

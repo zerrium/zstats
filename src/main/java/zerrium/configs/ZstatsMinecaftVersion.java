@@ -40,7 +40,8 @@ public class ZstatsMinecaftVersion {
 
                 //SPYGLASS tool filter
                 Map.entry("1.17", 6),
-                Map.entry("1.18", 6)
+                Map.entry("1.18", 6),
+                Map.entry("1.19", 6)
         ));
 
     public static int getVersion(){
