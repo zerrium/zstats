@@ -23,15 +23,19 @@ repositories {
         name 'essentialsx-releases'
         url 'https://repo.essentialsx.net/releases/'
     }
+    maven {
+        name "papermc"
+        url "https://papermc.io/repo/repository/maven-public/"
+    }
     mavenCentral()
 }
 
 dependencies {
-    compileOnly 'com.discordsrv:discordsrv:1.24.0'
+    compileOnly 'com.discordsrv:discordsrv:1.26.2'
     implementation 'org.jetbrains:annotations:23.0.0'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.0'
-    compileOnly 'org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT'
-    compileOnly 'net.essentialsx:EssentialsX:2.19.0'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.1'
+    compileOnly 'org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT'
+    compileOnly 'net.essentialsx:EssentialsX:2.19.7'
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
 }
